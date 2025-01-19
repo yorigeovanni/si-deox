@@ -135,11 +135,12 @@ const createApi = (defaultOptions = {}) => {
         ...defaultOptions,
         ...config,
       }),
-    post: (url, data, config) =>
-      fetchRequest("POST", baseURL, url, data, {
+    post: (url, data, config) =>{
+      return fetchRequest("POST", baseURL, url, data, {
         ...defaultOptions,
         ...config,
-      }),
+      })
+    },
     put: (url, data, config) =>
       fetchRequest("PUT", baseURL, url, data, {
         ...defaultOptions,

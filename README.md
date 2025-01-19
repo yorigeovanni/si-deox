@@ -48,3 +48,23 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+## FIX ERROR
+I've found a solution you need to go to:
+
+node_modules/expo-blur/android/build.gradle
+
+and then, inside this file you will see
+
+dependencies {
+  implementation 'com.github.Dimezis:BlurView:version-2.0.3'
+}
+in my code was in this version, do o just change to:
+
+dependencies {
+  implementation 'com.github.Dimezis:BlurView:version-2.0.6'
+}
+And then I run
+
+npx expo prebuild and after npx expo run:android and it worked for me, let me know if it will work for you

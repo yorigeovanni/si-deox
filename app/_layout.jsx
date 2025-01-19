@@ -28,7 +28,7 @@ export default function RootLayout() {
             includeSubdomains: true,
             publicKeyHashes: [
               'TfZZbHPIjkrEvBhmiaS1P8zgVmi+IQrebzk+PQIfGsM=',
-              'bdrBhpj38ffhxpubzkINl0rG+UyossdhcBYj+Zx2fcc=', // dummy hash
+              'bdrBhpj38ffhxpubzkINl0rG+UyossdhcBYj+Zx2fcc=', // backup cert
             ],
           },
         });

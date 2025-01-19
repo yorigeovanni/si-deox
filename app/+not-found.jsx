@@ -31,7 +31,7 @@ export default function RootIndex() {
         </View>
 
         <View className="flex-col items-center justify-center space-y-0 mx-12 mt-12">
-          <Text className="  text-red-700 mt-8 text-center">Maaf, Modul ini sedang dalam pemeliharaan, silahkan kembali lagi nanti</Text>
+          <Text className="  text-red-700 mt-8 text-center">MODUL DALAM PROSES PEMBAHARUAN, SILAHKAN KEMBALI LAGI NANTI</Text>
           <TouchableOpacity className="bg-red-700 rounded-full p-2 mt-4" onPress={() => router.canGoBack() ? router.back() : router.replace('/')}>
             <Text className="text-white text-sm">KEMBALI</Text>
           </TouchableOpacity>
