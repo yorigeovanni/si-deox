@@ -3,7 +3,6 @@ import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import createRequest from '@/core/api-secure';
-import Adfsdfsdfsd from '@/assets/icon-baru.png';
 const { post } = createRequest();
 const rootKey = 'penerbangan-departures';
 

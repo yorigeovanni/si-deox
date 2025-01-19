@@ -2,7 +2,7 @@
 import "../global.css";
 import { initializeSslPinning, addSslPinningErrorListener } from 'react-native-ssl-public-key-pinning';
 import { useEffect, useState, Fragment } from "react";
-import { View, Text } from "react-native";
+import { View, Text, StatusBar,Platform } from "react-native";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,7 +12,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/state";
 import { Provider, useDispatch , useSelector} from "react-redux";
 import RegistrasiDevice from '@/components/ui/registrasi-device';
-
+import * as Updates from 'expo-updates';
 
 
 const queryClient = new QueryClient();
@@ -86,7 +86,6 @@ const MainContent = () => {
 
 
 
-
   useEffect(() => {
     const unsubscribeNetworkListener = Network.addNetworkStateListener((state) => {
       const isConnected = state.isConnected ?? false;
@@ -105,6 +104,9 @@ const MainContent = () => {
 
 
 
+
+
+
   if(!isRegistered){
     return (<RegistrasiDevice />);
   }
@@ -114,9 +116,15 @@ const MainContent = () => {
 
   return (
     <Fragment>
-      {isOnline ? (<Stack screenOptions={{ headerShown: false }} />) : (
+      {isOnline ? (
+        <View className="flex-1 bg-white">
+           <StatusBar barStyle={Platform.OS === 'android' ? "light-content" : "dark-content"} translucent backgroundColor="#b91c1c" />
+           <Stack screenOptions={{ headerShown: false }} />
+        </View>
+      ) : (
         // Halaman offline
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#EEE" }}>
+          <StatusBar barStyle={Platform.OS === 'android' ? "light-content" : "dark-content"} translucent backgroundColor="#b91c1c" />
           <Text style={{ fontSize: 16, fontWeight: "bold" }}>Anda sedang offline</Text>
           <Text style={{ color: "#888" }}>Periksa koneksi jaringan Anda</Text>
         </View>

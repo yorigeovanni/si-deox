@@ -1,4 +1,6 @@
-import { View, ScrollView, StatusBar, Platform } from 'react-native';
+
+import { Fragment } from "react";
+import { ScrollView } from 'react-native';
 //import SwiperFlatList from 'react-native-swiper-flatlist';
 
 
@@ -13,8 +15,7 @@ import MainFooter from '@/components/ui/main-footer';
 
 export default function RootIndex() {
   return (
-    <View className="flex-1 bg-white">
-      <StatusBar barStyle={Platform.OS === 'android' ? "light-content" : "dark-content"} translucent backgroundColor="#b91c1c" />
+    <Fragment>
       <MainHeader />
       <ScrollView className="flex-1">
         <HomeMenu />
@@ -22,7 +23,7 @@ export default function RootIndex() {
         <InformasiTerkait />
       </ScrollView>
       <MainFooter />
-    </View>
+    </Fragment>
   );
 }
 

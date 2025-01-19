@@ -41,7 +41,7 @@
         {
           "ios": {
             "networkInspector": false
-          } 
+          }
         }
       ]
     ],
@@ -55,6 +55,12 @@
       "eas": {
         "projectId": "cf5df2a6-af4d-4678-9d20-944204a4d3ea"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cf5df2a6-af4d-4678-9d20-944204a4d3ea"
     }
   }
 }
