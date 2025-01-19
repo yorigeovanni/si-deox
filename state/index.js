@@ -11,7 +11,7 @@ import rootSagas from './rootSagasMidlewares';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth'], 
+  whitelist: ['auth','config'], 
   timeout: 100000,
 };
 
