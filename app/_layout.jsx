@@ -12,7 +12,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/state";
 import { Provider, useDispatch , useSelector} from "react-redux";
 import RegistrasiDevice from '@/components/ui/registrasi-device';
-import * as Updates from 'expo-updates';
+
 
 
 const queryClient = new QueryClient();
@@ -84,8 +84,6 @@ const MainContent = () => {
   const dispatch = useDispatch();
 
 
-
-
   useEffect(() => {
     const unsubscribeNetworkListener = Network.addNetworkStateListener((state) => {
       const isConnected = state.isConnected ?? false;
@@ -103,15 +101,9 @@ const MainContent = () => {
   }, []);
 
 
-
-
-
-
   if(!isRegistered){
     return (<RegistrasiDevice />);
   }
-
-
   
 
   return (

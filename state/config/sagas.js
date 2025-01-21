@@ -2,12 +2,6 @@ import { call, put, takeLatest, select } from 'redux-saga/effects';
 import actions from './configSlice';
 import createRequest from '@/core/api-secure';
 
-import { Platform } from 'react-native';
-import { v4 as uuidv4 } from "uuid";
-import { RSA } from "react-native-rsa-native";
-import * as Application from 'expo-application';
-import { act } from 'react';
-
 
 const { post } = createRequest();
 
@@ -23,7 +17,6 @@ function* startRegisterDevice(action) {
         yield put(actions.succesRegisterDevice({
             token: data.token,
             deviceId: action.payload.deviceId,
-            privateKey: action.payload.privateKey,
             phoneNumber: action.payload.phoneNumber,
             publicKey: action.payload.publicKey
         }));

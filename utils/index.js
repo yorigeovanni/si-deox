@@ -142,4 +142,6 @@ import { Platform, UIManager,LayoutAnimation, PixelRatio, Dimensions, I18nManage
   export const classNames = (...classes) =>{
     return classes.filter(Boolean).join(' ')
   }
+
+  export const sum = arr => arr.reduce((acc, n) => acc + n, 0);
   

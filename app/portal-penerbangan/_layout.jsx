@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
 import { classNames } from '@/utils';
@@ -8,7 +9,7 @@ import { classNames } from '@/utils';
 // STATE MANAGEMENT
 import authActions from '@/state/auth/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
-const rootPath = '/layanan';
+const rootPath = '/portal-penerbangan';
 
 
 
@@ -21,26 +22,26 @@ export default function Statistik() {
 
     const menu = [
         {
-          icon: 'gift-outline', 
-          label: 'GRATIS',
-          path: `${rootPath}`,
-          exact: true,
-          headerTitle: "MUDAH & GRATIS",
-        },
-        {
-          icon: 'cash-outline', 
-          label: 'PREMIUM',
-          path: `${rootPath}/premium`,
-          exact: true,
-          headerTitle: "PREMIUM DAN BERKELAS",
-        },
-        {
-          icon: 'star-outline',
-          label: 'KHUSUS',
-          path: `${rootPath}/khusus`,
-          exact: false,
-          headerTitle: "PERMINTAAN KHUSUS",
-        },
+            icon: 'airplane-takeoff',
+            label: 'DEPARTURES',
+            path: `${rootPath}`,
+            exact: true,
+            headerTitle: 'DEPARTURE FLIGHTS',
+          },
+          {
+            icon: 'airplane-landing',
+            label: 'ARRIVALS',
+            path: `${rootPath}/kedatangan`,
+            exact: true,
+            headerTitle: 'ARRIVAL FLIGHTS',
+          },
+          {
+            icon: 'calendar',
+            label: 'SCHEDULE',
+            path: `${rootPath}/schedule`,
+            exact: false,
+            headerTitle: 'SCHEDULE FLIGHTS',
+          },
       ];
 
 
@@ -81,8 +82,8 @@ export default function Statistik() {
                     </TouchableOpacity>
                 </View>
                 <View className={classNames('', tokenInternal ? 'flex items-center justify-center' : 'flex flex-end items-end')}>
-                    <Text className="text-white text-lg font-bold ">LAYANAN - {textHeader()}</Text>
-                    <Text className="text-white text-sm leading-4">BLU UPBU KELAS I DEO - SORONG</Text>
+                    <Text className="text-white text-lg font-bold ">{textHeader()}</Text>
+                    <Text className="text-white text-sm leading-4">DEO AIRPORT - SOQ</Text>
                 </View>
                 {tokenInternal && (<View className="flex-row items-center">
                     <Text className="text-white text-sm">{userInternal?.nama}</Text>
@@ -102,7 +103,7 @@ export default function Statistik() {
                         className="items-center"
                         onPress={() => navigation(item.path)}
                     >
-                        <Ionicons
+                        <MaterialCommunityIcons
                             name={item.icon}
                             size={24}
                             color={

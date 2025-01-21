@@ -8,7 +8,7 @@ import { classNames } from '@/utils';
 // STATE MANAGEMENT
 import authActions from '@/state/auth/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
-const rootPath = '/aplikasi';
+const rootPath = '/portal-layanan';
 
 
 
@@ -20,13 +20,28 @@ export default function Statistik() {
     const { tokenInternal, userInternal } = useSelector((state) => state.auth);
 
     const menu = [
-        { icon: 'home-outline', label: 'HOME', path: `${rootPath}`, exact: true, headerTitle: "PENTING UNTUK DIKETAHUI" },
-        { icon: 'link-outline', label: 'EXTERNAL', path: `${rootPath}/external`, exact: true, headerTitle: "REKONSILIASI MITRA" },
-        { icon: 'business-outline', label: 'INTERNAL', path: `${rootPath}/internal`, exact: false, headerTitle: "INTERNAL OPERASIONAL" },
-        { icon: 'person-add-outline', label: 'REGISTRASI', path: `${rootPath}/registrasi`, exact: false, headerTitle: "REGISTRASI PERSONIL MITRA" },
-        { icon: 'bug-outline', label: 'BUG REPORT', path: `${rootPath}/bug-report`, exact: false, headerTitle: "LAPORKAN MASALAH" },
-
-    ];
+        {
+          icon: 'gift-outline', 
+          label: 'GRATIS',
+          path: `${rootPath}`,
+          exact: true,
+          headerTitle: "MUDAH & GRATIS",
+        },
+        {
+          icon: 'cash-outline', 
+          label: 'PREMIUM',
+          path: `${rootPath}/premium`,
+          exact: true,
+          headerTitle: "PREMIUM DAN BERKELAS",
+        },
+        {
+          icon: 'star-outline',
+          label: 'KHUSUS',
+          path: `${rootPath}/khusus`,
+          exact: false,
+          headerTitle: "PERMINTAAN KHUSUS",
+        },
+      ];
 
 
     const textHeader = useCallback(() => {
@@ -39,7 +54,6 @@ export default function Statistik() {
 
 
     const navigation = useCallback((path) => {
-        // router.push('./add', { relativeToDirectory: true })
         router.replace(path);
     }, [router]);
 
@@ -67,7 +81,7 @@ export default function Statistik() {
                     </TouchableOpacity>
                 </View>
                 <View className={classNames('', tokenInternal ? 'flex items-center justify-center' : 'flex flex-end items-end')}>
-                    <Text className="text-white text-lg font-bold ">APLIKASI - {textHeader()}</Text>
+                    <Text className="text-white text-lg font-bold ">LAYANAN - {textHeader()}</Text>
                     <Text className="text-white text-sm leading-4">BLU UPBU KELAS I DEO - SORONG</Text>
                 </View>
                 {tokenInternal && (<View className="flex-row items-center">

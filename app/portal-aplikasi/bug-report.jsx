@@ -18,7 +18,7 @@ export default function AplikasiInternal() {
   const router = useRouter();
   return (
     <ScrollView className={`flex-1 bg-white`}>
-      <Button title="AMC" onPress={() => router.push('/app-restricted/internal/amc')} />
+      <Button title="AMC" onPress={() => router.push('/app-restricted-internal/amc')} />
  
 
     </ScrollView>

@@ -23,7 +23,7 @@ export default function InformasiTerkait() {
 
 
   return (<Fragment>
-     <View className=" mx-4 max-w-screen-sm mt-8 flex flex-col space-y-2">
+     <View className="  mx-4 max-w-screen-sm mt-8 flex flex-col space-y-2">
           <ContentLoader
             speed={2}
             width={400}

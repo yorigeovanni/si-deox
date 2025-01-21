@@ -1,24 +1,25 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Platform, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
 import { classNames } from '@/utils';
 
 // STATE MANAGEMENT
-import authActions from '@/state/auth/authSlice';
+import internalUserActions from '@/state/internalUser/internalUserSlice';
 import { useDispatch, useSelector } from 'react-redux';
 const rootPath = '/my-account';
 
 
 
 
-export default function Statistik() {
+export default function MyAccount() {
+    const baseURL = process.env.NODE_ENV === "production" ? process.env.EXPO_PUBLIC_API_URL : "http://10.8.0.2:4002";
     const router = useRouter();
     const pathname = usePathname();
     const dispatch = useDispatch();
-    const { tokenInternal, userInternal } = useSelector((state) => state.auth);
 
+    const { user } = useSelector((state) => state.internalUser);
     const menu = [
         { icon: 'home-outline', label: 'KEHADIRAN', path: `${rootPath}`, exact: true, headerTitle: "MONITORING KEHADIRAN" },
         { icon: 'link-outline', label: 'TARGET KPI', path: `${rootPath}/kpi`, exact: true, headerTitle: "TARGET KINERJA (KPI)" },
@@ -46,11 +47,11 @@ export default function Statistik() {
 
     const logout = useCallback(
         (data) => {
-          dispatch(authActions.logoutInternal(data));
+            dispatch(internalUserActions.logout(data));
         },
         [dispatch]
-      );
-    
+    );
+
 
 
 
@@ -66,16 +67,17 @@ export default function Statistik() {
                         <Ionicons name="arrow-back" size={24} color="red" />
                     </TouchableOpacity>
                 </View>
-                <View className={classNames('', tokenInternal ? 'flex items-center justify-center' : 'flex flex-end items-end')}>
-                    <Text className="text-white text-lg font-bold ">{textHeader()} - SIDEO</Text>
-                    <Text className="text-white text-sm leading-4">BLU UPBU KELAS I DEO - SORONG</Text>
-                </View>
-                {tokenInternal && (<View className="flex-row items-center">
-                    <Text className="text-white text-sm">{userInternal?.nama}</Text>
-                    <TouchableOpacity className="bg-white rounded-full p-2 ml-2" onPress={() => logout()}>
-                        <Ionicons name="log-out" size={24} color="red" />
-                    </TouchableOpacity>
-                </View>)}
+                <View className='flex-row items-center space-x-8'>
+                                    <View className={classNames('',  'flex flex-end items-end mr-4')}>
+                                        <Text className="text-white text-lg font-bold ">{user.name}</Text>
+                                        <Text className="text-white text-sm leading-4">{user.job_id?.display_name}</Text>
+                                    </View>
+                                    <View>
+                                                        <TouchableOpacity onPress={()=>router.push(`/my-account`)}>
+                                                            <Image source={{uri : `${baseURL}/web/image?model=hr.employee&id=${user.id}&field=avatar_128`}} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                                                        </TouchableOpacity>
+                                                    </View>
+                                </View>
             </View>
 
             <Stack screenOptions={{ headerShown: false }} />

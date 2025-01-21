@@ -1,10 +1,11 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
+
+// API REQUEST
 import { useQuery } from '@tanstack/react-query';
 import createRequest from '@/core/api-secure';
 const { post } = createRequest();
-const rootKey = 'penerbangan-departures';
 
 
 const class_map_status = {
@@ -16,7 +17,6 @@ const class_map_status = {
   SEC: 'text-lg font-semibold text-red-600',
   DEP: 'text-lg font-semibold text-red-600',
 }
-
 
 
 
@@ -34,7 +34,7 @@ export default function Keberangkatan() {
     error,
     refetch
   } = useQuery({
-    queryKey: [rootKey],
+    queryKey: ['penerbangan-departures'],
     queryFn: async () => {
       const { data } = await post(`/mobile/api/portal/penerbangan/departures`);
       return data;

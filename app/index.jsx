@@ -17,7 +17,7 @@ export default function RootIndex() {
   return (
     <Fragment>
       <MainHeader />
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1 bg-white">
         <HomeMenu />
         <HeadlineNews />
         <InformasiTerkait />

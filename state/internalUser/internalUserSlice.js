@@ -1,13 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  nik_nip : null,
+  tokenLogin : null,
   isLoading : false,
   isError: false,
-  deviceId : null,
-  phoneNumber : null,
-  publicKey : null,
-  tokenRegistrasi : null,
-  isRegistered: false,
+  user : null,
+  roles: [],
   jwtAccessToken : null,
   registerAtempt: 0,
   lastRegisterAtempt: null
@@ -15,44 +14,45 @@ const initialState = {
 
 
 
-const configSlice = createSlice({
-  name: 'config',
+const internalUserSlice = createSlice({
+  name: 'internalUser',
   initialState,
   reducers: {
 
-    startRegisterDevice(state, action) {
+    requestToken(state, action) {
       state.isLoading = true;
       state.isError = false;
     },
 
-    succesRegisterDevice(state, action) {
+    successRequestToken(state, action) {  
       state.isLoading = false;
       state.isError = false;
-      state.tokenRegistrasi = action.payload?.token;
-      state.deviceId = action.payload?.deviceId;
-      state.phoneNumber = action.payload?.phoneNumber;
-      state.publicKey = action.payload?.publicKey;
+      state.nik_nip = action.payload?.nik_nip;
+      state.tokenLogin = action.payload?.token;
       state.lastRegisterAtempt = new Date().toISOString();
       state.registerAtempt = state.registerAtempt + 1;
     },
 
-    errorRegisterDevice(state) {
+    errorRequestToken(state, action) {  
       state.isLoading = false;
       state.isError = true;
     },
 
-    reloadOtp(state) {
+
+
+    reloadOtp(state, action) {  
       state.isLoading = true;
       state.isError = false;
     },
 
     successReloadOtp(state,action) {
-      state.tokenRegistrasi = action.payload?.token || null;
       state.isLoading = false;
       state.isError = false;
+      state.tokenLogin = action.payload?.token;
       state.lastRegisterAtempt = new Date().toISOString();
       state.registerAtempt = state.registerAtempt + 1;
     },
+
 
     errorReloadOtp(state) {
       state.isLoading = false;
@@ -60,7 +60,8 @@ const configSlice = createSlice({
     },
 
 
-    verifikasiOtp(state) {
+
+    verifikasiOtp(state, action) {  
       state.isLoading = true;
       state.isError = false;
     },
@@ -69,7 +70,9 @@ const configSlice = createSlice({
     successVerifikasiOtp(state, action) {
       state.isLoading = false;
       state.isError = false;
-      state.isRegistered = true;
+      state.nik_nip = null;
+      state.tokenLogin = null;
+      state.user = action.payload?.user || null;
       state.jwtAccessToken = action.payload?.jwtAccessToken || null;
       state.lastRegisterAtempt = null;
       state.registerAtempt = 0;
@@ -81,14 +84,22 @@ const configSlice = createSlice({
       state.isError = true;
     },
 
-
-
-    ressetRegisterInfo(state) {
-      state.jwtAccessToken = null
+    logout(state, action) {
+      state.isLoading = false;
+      state.isError = false;
+      state.nik_nip = null;
+      state.tokenLogin = null;
+      state.user = null;
+      state.jwtAccessToken = null;
+      state.lastRegisterAtempt = null;
+      state.registerAtempt = 0;
     },
+
+
+
 
   },
 });
 
-export default configSlice.actions;
-export const configReducer =  configSlice.reducer;
+export default internalUserSlice.actions;
+export const internalUserReducer =  internalUserSlice.reducer;

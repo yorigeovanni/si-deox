@@ -3,10 +3,10 @@ import { Platform, TouchableOpacity } from 'react-native';
 import { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { v4 as uuidv4 } from "uuid";
-import { RSA } from "react-native-rsa-native";
+import { RSAKeychain } from "react-native-rsa-native";
 import * as Application from 'expo-application';
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import configAction from '@/state/config/configSlice';
 import PhoneInput from 'react-native-international-phone-number';
 
@@ -17,7 +17,6 @@ export default function FirstRegisterDeviceUi() {
     const [selectedCountry, setSelectedCountry] = useState({ "callingCode": "+62", "cca2": "ID", "flag": "🇮🇩", "name": { "ar": "إندونيسيا", "bg": "Индонезия", "by": "Інданезія", "cn": "印度尼西亚", "cz": "Indonésie", "da": "Indonesien", "de": "Indonesien", "ee": "Indoneesia", "el": "Ινδονησία", "en": "Indonesia", "es": "Indonesia", "fr": "Indonésie", "he": "אינדונזיה", "it": "Indonesia", "jp": "インドネシア", "nl": "Indonesië", "pl": "Indonezja", "pt": "Indonésia", "ro": "Indonezia", "ru": "Индонезия", "tr": "Endonezya", "ua": "Індонезія", "zh": "印度尼西亞" } });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch();
-    const { tokenRegistrasi } = useSelector((state) => state.config);
 
 
 
@@ -76,15 +75,14 @@ export default function FirstRegisterDeviceUi() {
             }
 
             // 3. Generate key pair
-            const keys = await RSA.generateKeys(4096);
-            const privateKey = keys.private;
+            const keys = await RSAKeychain.generateKeys(finalDeviceId, 4096);
             const pubKey = keys.public;
+            console.log(keys);
 
 
             dispatch(configAction.startRegisterDevice({
                 deviceId: finalDeviceId,
                 phoneNumber: fullPhoneNumber,
-                privateKey: privateKey,
                 publicKey: pubKey
             }));
 

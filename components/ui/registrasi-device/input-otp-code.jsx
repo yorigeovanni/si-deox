@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { OtpInput } from "react-native-otp-entry";
 import configAction from '@/state/config/configSlice';
-import RNRestart from 'react-native-restart';
+
 
 
 export default function InputOtpCode() {

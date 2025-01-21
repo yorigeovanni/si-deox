@@ -9,7 +9,7 @@ import Adfsdfsdfsd from '@/assets/icon-baru.png';
 import createRequest from '@/core/api';
 
 // STATE MANAGEMENT
-import authActions from '@/state/auth/authSlice';
+import internalUserActions from '@/state/internalUser/internalUserSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const { post } = createRequest();
@@ -20,7 +20,7 @@ const { post } = createRequest();
 export default function MainHeader() {
     const router = useRouter();
     const dispatch = useDispatch();
-    const { tokenInternal, userInternal } = useSelector((state) => state.auth);
+    const {  user } = useSelector((state) => state.internalUser);
     const {
         currentlyRunning,
         isUpdateAvailable,
@@ -52,7 +52,7 @@ export default function MainHeader() {
                 </View>
                 <View className="flex-row items-center space-x-8">
                     <Image source={Adfsdfsdfsd} style={{ width: 100, height: 40 }} />
-                    {userInternal && (<View>
+                    {user && (<View>
                         <TouchableOpacity onPress={goToMyAccount}>
                             <Image source={Aaaaa} style={{ width: 40, height: 40, borderRadius: 20 }} />
                         </TouchableOpacity>
