@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef } from "react";
 import { useRouter, useNavigation, usePathname, useFocusEffect } from "expo-router";
-import { Dimensions, View, ScrollView, Text, TouchableOpacity, ImageBackground, StatusBar, Platform, Image, Button } from 'react-native';
+import { Dimensions, View, ScrollView, Text, TouchableOpacity, ImageBackground, Pressable, Platform, Image, Button } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 
 
@@ -14,6 +14,7 @@ const { width, height } = Dimensions.get('window');
 
 
 export default function HeadlineNews() {
+  const router = useRouter();
   const firstTimeRef = useRef(true);
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['home-headlineNews'],
@@ -115,7 +116,7 @@ export default function HeadlineNews() {
         data={data}
         // scrollAnimationDuration={1000}
         renderItem={({ item }) => (
-          <View className="px-1.5">
+          <Pressable className="px-1.5" onPress={() => router.push(`/news/${item.id}`)}>
 
             <ImageBackground
               source={{ uri: item.image }}
@@ -131,7 +132,7 @@ export default function HeadlineNews() {
                 <Text className=" text-white text-sm leading-4">{item.description}</Text>
               </View>
             </ImageBackground>
-          </View>
+          </Pressable>
 
 
         )}

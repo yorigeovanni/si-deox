@@ -31,7 +31,7 @@ export default function GlobalMenu() {
         { name: "STATISTIK", icon: "stats-chart-outline", bgColor: "bg-teal-500", route: "/portal-statistik" },
         { name: "LAYANAN", icon: "settings-outline", bgColor: "bg-cyan-500", route: "/portal-layanan" },
         { name: "STACKHOLDER", icon: "people-outline", bgColor: "bg-lime-500", route: "/portal-mitra" },
-        { name: "APLIKASI", icon: "apps-outline", bgColor: "bg-gray-500", route: "/portal-aplikasi" },
+        { name: "INTERNAL", icon: "apps-outline", bgColor: "bg-gray-500", route: "/app-restricted-internal" },
     ];
 
     const menu_2x = [

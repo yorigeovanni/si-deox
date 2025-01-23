@@ -19,17 +19,17 @@ export default function AmcIndex() {
     const menu = [
         {
             icon: 'time-outline',
-            label: 'BERJADWAL',
+            label: 'SCHEDULED',
             path: `berjadwal`,
         },
         {
             icon: 'airplane-outline',
-            label: 'TIDAK-BERJADWAL',
+            label: 'UN-SCEDULED',
             path: `unsceduled`,
         },
         {
             icon: 'business-outline',
-            label: 'MASKAPAI',
+            label: 'OPERATOR',
             path: `operator`,
         },
         {

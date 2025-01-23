@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-
+  headerTitle: "SIDEO - APLIKASI INTERNAL",
+  headerDescription: "Sistem Informasi Dokumentasi Operasional",
   menuActive: null,
   basePath: '/app-restricted-internal',
   listMenu: [
@@ -48,6 +49,11 @@ const aplikasiInternalSlice = createSlice({
   name: 'aplikasiInternal',
   initialState,
   reducers: {
+
+    setTitle(state, action) {
+      state.headerTitle = action.payload?.title;
+      state.headerDescription = action.payload?.description;
+    },
     setMenuActive(state, action) {
       state.menuActive = action.payload;
     },

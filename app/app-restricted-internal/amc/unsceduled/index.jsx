@@ -1,22 +1,31 @@
-import React, { useState, useRef, useCallback, useEffect, Fragment } from 'react';
-import { View, ScrollView, Text, Pressable, ActivityIndicator } from 'react-native';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { View, ScrollView, Text, Pressable } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { classNames } from '@/utils';
-import { Ionicons } from '@expo/vector-icons';
-import { useFindAll } from '@/services/internal/x_data_amc';
+import { useDispatch, useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
+import createRequest from '@/core/api-secure';
 
-
+const { post } = createRequest();
 
 export default function Berjadwal() {
   const router = useRouter();
   const firstTimeRef = useRef(true);
+
+  const { deviceId } = useSelector((state) => state.config);
+  const { jwtAccessToken } = useSelector((state) => state.aplikasiInternal);
+
+  // ENV
+  const baseURL =
+    process.env.NODE_ENV === "production"
+      ? process.env.EXPO_PUBLIC_API_URL
+      : "http://10.8.0.2:4002";
+
+  // State pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [offset, setOffset] = useState(0);
   const [selectedRowId, setSelectedRowId] = useState(null);
-
-
-  // Tabel header
   const [tableHead] = useState([
     {
       key: "id",
@@ -88,18 +97,98 @@ export default function Berjadwal() {
     }
   ]);
 
-
-  const { data, isLoading, isError, error, refetch } = useFindAll({
-    offset,
-    limit
+  // Query data Odoo
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['amc-un-scheduled', offset, limit],
+    queryFn: async () => {
+      const model = "x_data_amc";
+      const action = "web_search_read";
+      const response = await post(
+        `/mobile/api/internal/${model}/${action}`,
+        {
+          jsonrpc: "2.0",
+          method: "call",
+          params: {
+            model,
+            method: action,
+            args: [],
+            kwargs: {
+              specification: {
+                x_studio_sequence: {},
+                x_studio_reg_number: {},
+                x_studio_operator: {
+                  fields: {
+                    display_name: {}
+                  }
+                },
+                x_studio_type_pesawat: {
+                  fields: {
+                    display_name: {}
+                  }
+                },
+                x_studio_status: {},
+                x_studio_ata: {},
+                x_studio_atd: {},
+                x_studio_type_penerbangan: {},
+                x_studio_block_on: {},
+                x_studio_block_off: {},
+                x_studio_parking_stand: {
+                  fields: {
+                    display_name: {}
+                  }
+                },
+                write_date: {},
+                write_uid: {
+                  fields: {
+                    display_name: {}
+                  }
+                },
+                create_uid: {
+                  fields: {
+                    display_name: {}
+                  }
+                },
+                create_date: {}
+              },
+              offset: offset,
+              order: "write_date DESC",
+              context: {
+                lang: "id_ID",
+                tz: "Asia/Jakarta",
+                uid: 2
+              },
+              limit: limit,
+              count_limit: 10001,
+              domain: [
+                ["x_studio_type_penerbangan", "=", "LAINNYA"]
+              ]
+            }
+          }
+        },
+        {
+          deviceId,
+          jwtAccessToken
+        }
+      );
+      return response.data;
+    },
+    keepPreviousData: true,
   });
 
+
   const totalData = data?.result?.length || 0;
-  const records = data?.result?.records || [];
+  const records = data?.result?.records || []; // data per halaman
+
+  // Hitung total pages
   const totalPages = Math.ceil(totalData / limit);
 
-
- 
+  // Event tombol Next / Prev
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prev) => prev + 1);
@@ -112,13 +201,13 @@ export default function Berjadwal() {
     }
   };
 
-
+  // Update offset setiap kali currentPage berubah
   useEffect(() => {
     setOffset((currentPage - 1) * limit);
   }, [currentPage, limit]);
 
- 
 
+  // Refetch saat screen berfokus kembali (kecuali pertama kali)
   useFocusEffect(
     useCallback(() => {
       if (firstTimeRef.current) {
@@ -130,52 +219,15 @@ export default function Berjadwal() {
   );
 
 
-  const handleSearch = () => {
-    console.log('Pencarian ditekan');
-  };
-
-
-  const handleEdit = () => {
-    console.log('Edit ditekan');
-  };
-
-
-  const handleDownload = () => {
-    console.log('Download ditekan');
-  };
-  
-
-  const navigateToAdd = () => {
-    router.push(`./add`, { relativeToDirectory: true });
-  };
-
-
-
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white pt-8">
       <View className="flex-1 flex-col">
 
-      <View className="flex-row items-center justify-between bg-white px-4 py-3 shadow-sm">
-        <Text className="text-lg text-gray-800">
-          PENERBANGAN BERJADWAL
-        </Text>
-        {/* Ikon Group */}
-        <View className="flex-row space-x-4">
-          <Pressable onPress={() => {}}>
-            <Ionicons name="create" size={22} color="#1f2937" />
-          </Pressable>
-          <Pressable onPress={() => {}}>
-            <Ionicons name="download" size={22} color="#1f2937" />
-          </Pressable>
-          <Pressable onPress={() => navigateToAdd()}>
-            <Ionicons name="add-circle" size={24} color="#2563eb" />
-          </Pressable>
+        {/* HEADER */}
+        <View className="flex-row justify-between p-4">
+          <Text className="text-red-700">Header</Text>
+          <Text className="text-red-700">+ DATA BARU</Text>
         </View>
-      </View>
-
-      <View>
-
-      </View>
 
         {/* TABEL */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -203,10 +255,7 @@ export default function Berjadwal() {
             <ScrollView className="mt-[-1px]">
               <View className="bg-white">
                 {isLoading && (
-                  <Fragment>
-                    <Text className="p-4 text-gray-600">Loading...</Text>
-                    <ActivityIndicator />
-                  </Fragment>
+                  <Text className="p-4 text-gray-600">Loading...</Text>
                 )}
                 {isError && (
                   <Text className="p-4 text-red-600">
@@ -214,15 +263,25 @@ export default function Berjadwal() {
                   </Text>
                 )}
 
+                {/* Jika records berisi array data */}
                 {records.length > 0 ? (
                   records.map((rowData, index) => {
                     const isSelected = rowData.id === selectedRowId;
-                    const rowBgClass = isSelected ? "bg-blue-500" : index % 2 === 0 ? "bg-gray-50" : "bg-white";
+                    const rowBgClass = isSelected
+                      ? "bg-blue-500"
+                      : index % 2 === 0
+                        ? "bg-gray-50"
+                        : "bg-white";
 
                     return (
                       <Pressable
                         key={rowData.id}
-                        onPress={() => setSelectedRowId(rowData.id)}
+                        onPress={() => {
+                       
+                          setSelectedRowId(rowData.id);
+                          router.push(`./view/${rowData.id}`, { relativeToDirectory: true });
+
+                        }}
                         className={classNames(
                           "flex-row h-14 items-center border-b border-gray-200",
                           rowBgClass
@@ -255,7 +314,7 @@ export default function Berjadwal() {
           </View>
         </ScrollView>
 
-        {/* PAGINASI */}
+        {/*  Paginate */}
         <View className="flex-row justify-between bg-red-800 px-8 pt-2 h-20 items-center">
           {/* Tombol Prev */}
           <Pressable

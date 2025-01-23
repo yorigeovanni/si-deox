@@ -210,6 +210,7 @@ const LoginComponent = ({ errorMessage }) => {
     mode: 'onChange',  // Pastikan pakai 'onChange' atau 'onBlur'
     defaultValues: {
       nik_nip: '',
+      alamat:"",
     }
   });
 
