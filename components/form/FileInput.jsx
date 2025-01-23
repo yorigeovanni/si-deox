@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { getDocumentAsync } from 'expo-document-picker';
+import * as DocumentPicker from 'expo-document-picker';
 
 
 
@@ -15,7 +15,7 @@ export default function FileInput({
 }) {
     
 
-  console.log(getDocumentAsync)
+  console.log(DocumentPicker)
     
     if (!control) {
         return <Text style={{ color: 'red' }}>control is required</Text>;
@@ -35,11 +35,13 @@ export default function FileInput({
             onPress={async () => {
               console.log(' INI TEST')
               try {
-                const result = await getDocumentAsync({
+                const result = await DocumentPicker.getDocumentAsync({
                   type: '*/*',
                   multiple,
                   //copyToCacheDirectory: true,
                 });
+
+                console.log('BAMPUKIEEEEE')
                 if (result.type === 'success') {
                   // di expo-document-picker, "success" => user memilih file
                   // "cancel" => user membatalkan
