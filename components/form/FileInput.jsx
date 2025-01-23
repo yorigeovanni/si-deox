@@ -33,16 +33,18 @@ export default function FileInput({
             onPress={async () => {
               try {
                 const result = await DocumentPicker.getDocumentAsync({
-                  type: 'image/*',
+                  type: '*/*',
                   multiple,
                   copyToCacheDirectory: true,
                 });
                 if (result.type === 'success') {
                   // di expo-document-picker, "success" => user memilih file
                   // "cancel" => user membatalkan
+                  console.log(result);
                   onChange(result); // simpan ke form
                 }
               } catch (err) {
+                console.log(err)
                 console.warn('File pick error:', err);
               }
             }}
