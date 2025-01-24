@@ -1,6 +1,8 @@
 import React, { useCallback, useState, useRef } from "react";
 import { useRouter, useNavigation, usePathname, useFocusEffect } from "expo-router";
-import { Dimensions, View, ScrollView, Text, TouchableOpacity, ImageBackground, Pressable, Platform, Image, Button } from 'react-native';
+import { Dimensions, View, ScrollView, Text, TouchableOpacity, ImageBackground, StatusBar, Platform, Image, Button } from 'react-native';
+import { classNames } from '@/utils';
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from '@tanstack/react-query';
 
 
@@ -13,11 +15,10 @@ const { width, height } = Dimensions.get('window');
 
 
 
-export default function HeadlineNews() {
-  const router = useRouter();
+export default function PengumumanInternal () {
   const firstTimeRef = useRef(true);
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['home-headlineNews'],
+    queryKey: ['component-app-internal-pengumuman'],
     queryFn: async () => {
       try {
         const { data } = await post(`/mobile/api/portal/top-10`);
@@ -94,50 +95,50 @@ export default function HeadlineNews() {
 
 
   return (
-    <View className="my-2">
-      <View className="flex-col items-start">
-        <Text className=" text-xl font-bold mx-4 my-2 text-red-800">Informasi Terbaru</Text>
+  <View className="my-2">
+            <View className="flex-col items-start">
+              <Text className=" text-xl font-bold mx-4 my-2 text-red-800">Pemberitahuan</Text>
+            </View>
+            
+            <ReanimatedCarousel
+    {...{
+      autoPlay: true,
+      autoPlayInterval: 3000,
+      autoPlayReverse: false,
+      snapEnabled: true,
+      vertical: false,
+      width: window.width,
+      loop: true,
+    }}
+    style={{ width: "100%" }}
+    width={width * 0.8}
+    height={width * 0.4}
+    //autoPlay={true}
+    data={data}
+    // scrollAnimationDuration={1000}
+    renderItem={({ item }) => (
+      <View className="px-1.5">
+
+        <ImageBackground
+          source={{ uri: item.image }}
+          resizeMode="cover"
+          className="rounded-lg overflow-hidden mx-1.5" // margin horizontal untuk jarak antar gambar
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <View className="flex-1 justify-end p-4 bg-black/45 rounded-lg">
+            <Text className="text-white text-lg font-bold">{item.title}</Text>
+            <Text className=" text-white text-sm leading-4">{item.description}</Text>
+          </View>
+        </ImageBackground>
       </View>
 
-      <ReanimatedCarousel
-        {...{
-          autoPlay: false,
-          autoPlayInterval: 4000,
-          autoPlayReverse: false,
-          snapEnabled: true,
-          vertical: false,
-          width: window.width,
-          loop: true,
-        }}
-        style={{ width: "100%" }}
-        width={width * 0.8}
-        height={width * 0.4}
-        //autoPlay={true}
-        data={data}
-        // scrollAnimationDuration={1000}
-        renderItem={({ item }) => (
-          <Pressable className="px-1.5" onPress={() => router.push(`/news/${item.id}`)}>
 
-            <ImageBackground
-              source={{ uri: item.image }}
-              resizeMode="cover"
-              className="rounded-lg overflow-hidden mx-1.5" // margin horizontal untuk jarak antar gambar
-              style={{
-                width: '100%',
-                height: '100%',
-              }}
-            >
-              <View className="flex-1 justify-end p-4 bg-black/45 rounded-lg">
-                <Text className="text-white text-lg font-bold">{item.title}</Text>
-                <Text className=" text-white text-sm leading-4">{item.description}</Text>
-              </View>
-            </ImageBackground>
-          </Pressable>
-
-
-        )}
-      />
-    </View>
+    )}
+  />
+  </View>
   )
 
 

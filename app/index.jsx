@@ -1,10 +1,11 @@
 
 import { Fragment } from "react";
 import { ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Dimensions } from "react-native";
 //import SwiperFlatList from 'react-native-swiper-flatlist';
 
-
 import MainHeader from '@/components/ui/main-header';
+import PromoAtas from '@/components/ui/home/promo-atas';
 import HeadlineNews from '@/components/ui/home/headline-news';
 import HomeMenu from '@/components/ui/home/global-menu';
 import InformasiTerkait from '@/components/ui/home/informasi-terkait';
@@ -18,6 +19,7 @@ export default function RootIndex() {
     <Fragment>
       <MainHeader />
       <ScrollView className="flex-1 bg-white">
+      <PromoAtas />
         <HomeMenu />
         <HeadlineNews />
         <InformasiTerkait />

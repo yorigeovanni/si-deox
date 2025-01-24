@@ -45,18 +45,18 @@ export default function MainHeader() {
 
     return (
         <Fragment>
-            <View className={classNames('bg-white px-4 pb-4 flex-row justify-between border-b border-red-800/25', Platform.OS === 'android' ? "pt-8" : "pt-16")}>
+            <View className={classNames('bg-white px-4 pb-4 flex-row justify-between', Platform.OS === 'android' ? "pt-8" : "pt-16")}>
                 <View className="flex-col items-start space-y-0">
                     <Text className="text-red-700 text-xl font-extrabold ">DEO AIRPORT</Text>
                     <Text className="text-red-700 text-sm leading-4 ">TERDEPAN - BERKUALITAS - BERSINAR</Text>
                 </View>
                 <View className="flex-row items-center space-x-8">
                     <Image source={Adfsdfsdfsd} style={{ width: 100, height: 40 }} />
-                    {user && (<View>
+                    {/*user && (<View>
                         <TouchableOpacity onPress={goToMyAccount}>
                             <Image source={Aaaaa} style={{ width: 40, height: 40, borderRadius: 20 }} />
                         </TouchableOpacity>
-                    </View>)}
+                    </View>)*/}
                 </View>
             </View>
             {isUpdateAvailable && (<View className="bg-red-800 flex-row justify-between px-4 py-2">

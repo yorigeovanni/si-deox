@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo } from 'react';
 import { View, Text, Button, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
-import { classNames } from '@/utils';
+import InternalHeader from '@/components/ui/app-internal/header';
 
 // STATE MANAGEMENT
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +11,7 @@ const rootPath = '/app-restricted-internal/amc';
 
 
 
-export default function AmcIndex() {
+export default function AmcUnscheduledIndex() {
     const router = useRouter();
     const pathname = usePathname();
     const dispatch = useDispatch();
@@ -101,8 +101,14 @@ export default function AmcIndex() {
 
 
     return (
-        <View className="flex-1 bg-white">
-            <Text className="text-2xl font-bold text-red-800 mt-4 mx-4">UNIT AMC</Text>
+        <Fragment>
+            <InternalHeader 
+                    backPath='/app-restricted-internal/tekops'
+                    title="DASHBOARD - UNIT AMC"
+                    subtitle="SUMMARY REPORT - UNIT AMC"
+                    />
+            <View className="flex-1 bg-white">
+            {/**<Text className="text-2xl font-bold text-red-800 mt-4 mx-4">UNIT AMC</Text>
             <View className=" w-full items-start py-4 border-b border-gray-200">
                 <FlatList
                     horizontal
@@ -112,12 +118,15 @@ export default function AmcIndex() {
                     contentContainerStyle={{ paddingHorizontal: 16 }}
                     showsHorizontalScrollIndicator={false}
                 />
-            </View>
+            </View> */}
 
             <ScrollView className="flex-1">
 
             </ScrollView>
         </View>
+
+        </Fragment>
+        
 
     );
 }

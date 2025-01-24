@@ -10,17 +10,17 @@ import {
 } from 'react-native';
 import { Controller } from 'react-hook-form';
 import * as DocumentPicker from 'expo-document-picker';
-
-// Lebar layar untuk perhitungan grid
+const THREE_GB_IN_BYTES = 3 * 1024 * 1024 * 1024; // 3 GB
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-// Muat ikon
+// ikon
 const iconPDF = require('@/assets/icon-pdf.png');
 const iconWord = require('@/assets/icon-word.jpg');
 const iconExcel = require('@/assets/icon-excel.png');
 const iconZip = require('@/assets/icon-zip.webp');
 const iconTxt = require('@/assets/icon-txt.png');
-const iconFile = require('@/assets/icon-file.jpg'); // fallback icon
+const iconFile = require('@/assets/icon-file.jpg');
+
 
 export default function FileInput({
   control,
@@ -39,18 +39,38 @@ export default function FileInput({
       name={name}
       rules={rules}
       render={({ field: { onChange, value }, fieldState: { error } }) => {
-        // Fungsi: Buka DocumentPicker
+        
+        // Buka DocumentPicker, lalu cek ukuran
         const pickFile = async () => {
           try {
             const result = await DocumentPicker.getDocumentAsync({
               type: '*/*',
               multiple,
             });
+
             if (!result.canceled && result.assets?.length) {
-              if (multiple) {
-                onChange(result.assets);
-              } else {
-                onChange(result.assets[0]);
+              // Filter file yang melebihi 3GB
+              const validFiles = [];
+              for (const file of result.assets) {
+                if (file.size > THREE_GB_IN_BYTES) {
+                  Alert.alert(
+                    'Ukuran File Terlalu Besar',
+                    `File "${file.name}" berukuran ${formatBytes(file.size)}, melebihi 3GB.`
+                  );
+                  // Jangan masukkan file ini
+                } else {
+                  validFiles.push(file);
+                }
+              }
+
+              // Jika multiple, simpan array
+              // Jika single, simpan 1 file
+              if (validFiles.length > 0) {
+                if (multiple) {
+                  onChange(validFiles);
+                } else {
+                  onChange(validFiles[0]);
+                }
               }
             }
           } catch (err) {
@@ -58,7 +78,7 @@ export default function FileInput({
           }
         };
 
-        // Fungsi: Hapus file 
+        // Hapus file
         const removeFile = (index) => {
           if (multiple && Array.isArray(value)) {
             const newArray = [...value];
@@ -69,15 +89,25 @@ export default function FileInput({
           }
         };
 
-        // Fungsi: Menentukan ikon / tampilan
+        // Format bytes jadi mis. "1.2 GB" atau "512 MB"
+        const formatBytes = (bytes, decimals = 2) => {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const dm = decimals < 0 ? 0 : decimals;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return (
+            parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+          );
+        };
+
+        // Tampilkan ikon / preview
         const getFileIconOrPreview = (file) => {
-          // Cek apakah file adalah image
           const isImage =
             file.mimeType?.startsWith('image/') ||
             file.uri?.match(/\.(png|jpe?g|gif|bmp|webp)$/i);
 
           if (isImage) {
-            // return preview image
             return (
               <Image
                 source={{ uri: file.uri }}
@@ -86,11 +116,9 @@ export default function FileInput({
               />
             );
           } else {
-            // tentukan ikon berdasar extension / mime
-            const { mimeType, name } = file;
+            const { name } = file;
             const ext = (name || '').split('.').pop().toLowerCase();
 
-            // mapping sederhana
             if (ext === 'pdf') {
               return <Image source={iconPDF} style={styles.fileIcon} />;
             } else if (['doc', 'docx'].includes(ext)) {
@@ -102,7 +130,6 @@ export default function FileInput({
             } else if (['txt', 'md'].includes(ext)) {
               return <Image source={iconTxt} style={styles.fileIcon} />;
             }
-            // fallback
             return <Image source={iconFile} style={styles.fileIcon} />;
           }
         };
@@ -177,6 +204,7 @@ export default function FileInput({
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     marginVertical: 8,
@@ -197,13 +225,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
-  // Grid
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginTop: 8,
   },
-  // Setiap item lebar = 25% layar agar 4 item per baris
   gridItem: {
     width: '25%',
     padding: 6,

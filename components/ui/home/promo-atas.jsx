@@ -40,8 +40,6 @@ export default function HeadlineNews() {
   );
 
 
-  console.log(data);
-
 
 
 
@@ -56,8 +54,8 @@ export default function HeadlineNews() {
         loop: true,
       }}
       style={{ width: "100%" }}
-      width={width * 0.8}
-      height={width * 0.3}
+      width={width * 1}
+      height={width * 0.25}
       data={[1, 2, 3]}
       renderItem={({ item }) => (
         <View className="px-1.5">
@@ -94,14 +92,12 @@ export default function HeadlineNews() {
 
 
   return (
-    <View className="my-2">
-      <View className="flex-col items-start">
-        <Text className=" text-xl font-bold mx-4 my-2 text-red-800">Informasi Terbaru</Text>
-      </View>
+    <View className="my-4">
+     
 
       <ReanimatedCarousel
         {...{
-          autoPlay: false,
+          autoPlay: true,
           autoPlayInterval: 4000,
           autoPlayReverse: false,
           snapEnabled: true,
@@ -110,8 +106,8 @@ export default function HeadlineNews() {
           loop: true,
         }}
         style={{ width: "100%" }}
-        width={width * 0.8}
-        height={width * 0.4}
+        width={width * 0.98}
+        height={width * 0.3}
         //autoPlay={true}
         data={data}
         // scrollAnimationDuration={1000}

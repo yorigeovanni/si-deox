@@ -7,7 +7,7 @@ import { BarChart } from 'react-native-chart-kit';
 
 import InternalHeader from '@/components/ui/app-internal/header';
 import InternalPengumuman from '@/components/ui/app-internal/pengumuman';
-import InternalMenu from '@/components/ui/app-internal/menu';
+import InternalMenuTekpos from '@/components/ui/app-internal/menu-tekops';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -46,10 +46,13 @@ export default function AmcIndex() {
 
     return (
       <Fragment>
-        <InternalHeader />
+        <InternalHeader 
+        backPath='/app-restricted-internal'
+        subtitle='TEKNIK DAN OPERASI'
+        />
         <ScrollView className="flex-1 bg-white">
         <InternalPengumuman/>
-        <InternalMenu/>
+        <InternalMenuTekpos/>
 
         </ScrollView>
        

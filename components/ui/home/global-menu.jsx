@@ -1,113 +1,553 @@
-import { Fragment } from "react";
-import { useRouter } from "expo-router";
-import { View, Text, TouchableOpacity, ImageBackground } from 'react-native';
-import { classNames } from '@/utils';
+import React, { Fragment, useState } from "react";
+import { View, Text, TouchableOpacity, Modal, Dimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BackGroud from '@/assets/white-pattern-indonesia-yKnkleLe.webp';
-// STATE MANAGEMENT
-import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from "expo-router";
 
-
-
+function chunkArray(array, chunkSize) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+    }
+    return chunks;
+}
 
 export default function GlobalMenu() {
     const router = useRouter();
-    const dispatch = useDispatch();
 
-    const menu_1 = [
-        { name: "PENERBANGAN", icon: "airplane-outline", bgColor: "bg-blue-500", route: "/portal-penerbangan" },
-        { name: "FASILITAS", icon: "bed-outline", bgColor: "bg-green-400", route: "/portal-fasilitas" },
-        { name: "PENUMPANG", icon: "person-outline", bgColor: "bg-yellow-500", route: "/portal-penumpang" },
-        { name: "TRANSPORTASI", icon: "car-outline", bgColor: "bg-red-400", route: "/portal-transportasi" },
+    // STATE for modal
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedChildren, setSelectedChildren] = useState([]);
+    const [modalTitle, setModalTitle] = useState('');
+
+    const menuItems = [
+        {
+            name: "PENERBANGAN",
+            icon: "airplane-outline",
+            bgColor: "bg-blue-500",
+            route: "/portal-penerbangan",
+            childrenMenu: [
+                {
+                    name: "JADWAL HARI INI",
+                    icon: "calendar-outline",
+                    bgColor: "bg-blue-500",
+                    route: "/portal-penerbangan/kedatangan"
+                },
+                {
+                    name: "RUTE PENERBANGAN",
+                    icon: "pricetag-outline",
+                    bgColor: "bg-blue-500",
+                    route: "/portal-penerbangan-promo"
+                },
+                {
+                    name: "JADWAL PENERBANGAN",
+                    icon: "checkmark-circle-outline",
+                    bgColor: "bg-blue-500",
+                    route: "/portal-penerbangan-cek-in"
+                },
+                {
+                    name: "FGDFGDFG DFGDF",
+                    icon: "checkmark-circle-outline",
+                    bgColor: "bg-blue-500",
+                    route: "/portal-penerbangan-cek-in"
+                }
+            ]
+        },
+        {
+            name: "FASILITAS",
+            icon: "bed-outline",
+            bgColor: "bg-green-400",
+            route: "/portal-fasilitas",
+            childrenMenu: [
+                {
+                    name: "PARKIR",
+                    icon: "car-outline",
+                    bgColor: "bg-green-400",
+                    route: "/portal-fasilitas-parkir"
+                },
+                {
+                    name: "LOUNGE",
+                    icon: "cafe-outline",
+                    bgColor: "bg-green-400",
+                    route: "/portal-fasilitas-lounge"
+                },
+                {
+                    name: "RESTORAN",
+                    icon: "restaurant-outline",
+                    bgColor: "bg-green-400",
+                    route: "/portal-fasilitas-restoran"
+                },
+                {
+                    name: "TOKO",
+                    icon: "cart-outline",
+                    bgColor: "bg-green-400",
+                    route: "/portal-fasilitas-toko"
+                },
+                {
+                    name: "ATM",
+                    icon: "card-outline",
+                    bgColor: "bg-green-400",
+                    route: "/portal-fasilitas-atm"
+                },
+                {
+                    name: "PENITIPAN",
+                    icon: "cube-outline",
+                    bgColor: "bg-green-400",
+                    route: "/portal-fasilitas-penitipan"
+                }
+            ]
+        },
+        {
+            name: "PENUMPANG",
+            icon: "person-outline",
+            bgColor: "bg-yellow-500",
+            route: "/portal-penumpang",
+            childrenMenu: [
+                {
+                    name: "INFORMASI",
+                    icon: "information-circle-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-informasi"
+                },
+                {
+                    name: "KARGO",
+                    icon: "cube-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-kargo"
+                },
+                {
+                    name: "BAGASI",
+                    icon: "briefcase-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-bagasi"
+                },
+                {
+                    name: "CEK-IN",
+                    icon: "checkmark-circle-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-cek-in"
+                },
+                {
+                    name: "PROMO",
+                    icon: "pricetag-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-promo"
+                },
+                {
+                    name: "TARIF",
+                    icon: "cash-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-tarif"
+                },
+                {
+                    name: "JADWAL",
+                    icon: "calendar-outline",
+                    bgColor: "bg-yellow-500",
+                    route: "/portal-penumpang-jadwal"
+                }
+            ]
+        },
+        {
+            name: "TRANSPORTASI ",
+            icon: "car-outline",
+            bgColor: "bg-red-400",
+            route: "/portal-transportasi",
+            childrenMenu: [
+                {
+                    name: "TAXI",
+                    icon: "car-outline",
+                    bgColor: "bg-red-400",
+                    route: "/portal-transportasi-taxi"
+                },
+                {
+                    name: "ANGKUTAN",
+                    icon: "bus-outline",
+                    bgColor: "bg-red-400",
+                    route: "/portal-transportasi-angkutan"
+                },
+                {
+                    name: "PARKIR",
+                    icon: "car-outline",
+                    bgColor: "bg-red-400",
+                    route: "/portal-transportasi-parkir"
+                },
+                {
+                    name: "SEWA",
+                    icon: "car-outline",
+                    bgColor: "bg-red-400",
+                    route: "/portal-transportasi-sewa"
+                }
+            ]
+        },
+        {
+            name: "PERATURAN",
+            icon: "document-text-outline",
+            bgColor: "bg-purple-500",
+            route: "/portal-peraturan",
+            childrenMenu: [
+                {
+                    name: "PERATURAN",
+                    icon: "document-text-outline",
+                    bgColor: "bg-purple-500",
+                    route: "/portal-peraturan-peraturan"
+                },
+                {
+                    name: "KEBIJAKAN",
+                    icon: "document-text-outline",
+                    bgColor: "bg-purple-500",
+                    route: "/portal-peraturan-kebijakan"
+                },
+                {
+                    name: "SOP",
+                    icon: "clipboard-outline",
+                    bgColor: "bg-purple-500",
+                    route: "/portal-peraturan-sop"
+                },
+                {
+                    name: "PPID",
+                    icon: "information-circle-outline",
+                    bgColor: "bg-purple-500",
+                    route: "/portal-peraturan-ppid"
+                }
+            ]
+        },
+        {
+            name: "SOP",
+            icon: "clipboard-outline",
+            bgColor: "bg-pink-500",
+            route: "/portal-sop",
+            childrenMenu: [
+                {
+                    name: "PERATURAN",
+                    icon: "document-text-outline",
+                    bgColor: "bg-pink-500",
+                    route: "/portal-sop-peraturan"
+                },
+                {
+                    name: "KEBIJAKAN",
+                    icon: "document-text-outline",
+                    bgColor: "bg-pink-500",
+                    route: "/portal-sop-kebijakan"
+                },
+                {
+                    name: "SOP",
+                    icon: "clipboard-outline",
+                    bgColor: "bg-pink-500",
+                    route: "/portal-sop-sop"
+                },
+                {
+                    name: "PPID",
+                    icon: "information-circle-outline",
+                    bgColor: "bg-pink-500",
+                    route: "/portal-sop-ppid"
+                }
+            ]
+        },
+        {
+            name: "PPID",
+            icon: "information-circle-outline",
+            bgColor: "bg-indigo-500",
+            route: "/portal-ppid",
+            childrenMenu: [
+                {
+                    name: "PERATURAN",
+                    icon: "document-text-outline",
+                    bgColor: "bg-indigo-500",
+                    route: "/portal-ppid-peraturan"
+                },
+                {
+                    name: "KEBIJAKAN",
+                    icon: "document-text-outline",
+                    bgColor: "bg-indigo-500",
+                    route: "/portal-ppid-kebijakan"
+                },
+                {
+                    name: "SOP",
+                    icon: "clipboard-outline",
+                    bgColor: "bg-indigo-500",
+                    route: "/portal-ppid-sop"
+                },
+                {
+                    name: "PPID",
+                    icon: "information-circle-outline",
+                    bgColor: "bg-indigo-500",
+                    route: "/portal-ppid-ppid"
+                }
+            ]
+        },
+        {
+            name: "PENGADUAN",
+            icon: "chatbubble-outline",
+            bgColor: "bg-orange-400",
+            route: "/portal-pengaduan",
+            childrenMenu: [
+                {
+                    name: "PENGADUAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-orange-400",
+                    route: "/portal-pengaduan-pengaduan"
+                },
+                {
+                    name: "KOMENTAR",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-orange-400",
+                    route: "/portal-pengaduan-komentar"
+                },
+                {
+                    name: "SARAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-orange-400",
+                    route: "/portal-pengaduan-saran"
+                },
+                {
+                    name: "KRITIK",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-orange-400",
+                    route: "/portal-pengaduan-kritik"
+                }
+            ]
+        },
+        {
+            name: "STATISTIK",
+            icon: "stats-chart-outline",
+            bgColor: "bg-teal-500",
+            route: "/portal-statistik",
+            childrenMenu: [
+                {
+                    name: "PENUMPANG",
+                    icon: "person-outline",
+                    bgColor: "bg-teal-500",
+                    route: "/portal-statistik-penumpang"
+                },
+                {
+                    name: "PENERBANGAN",
+                    icon: "airplane-outline",
+                    bgColor: "bg-teal-500",
+                    route: "/portal-statistik-penerbangan"
+                },
+                {
+                    name: "TRANSPORTASI",
+                    icon: "car-outline",
+                    bgColor: "bg-teal-500",
+                    route: "/portal-statistik-transportasi"
+                },
+                {
+                    name: "PENGADUAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-teal-500",
+                    route: "/portal-statistik-pengaduan"
+                },
+                {
+                    name: "LAYANAN",
+                    icon: "settings-outline",
+                    bgColor: "bg-teal-500",
+                    route: "/portal-statistik-layanan"
+                },
+            ]
+        },
+        {
+            name: "LAYANAN",
+            icon: "settings-outline",
+            bgColor: "bg-cyan-500",
+            route: "/portal-layanan",
+            childrenMenu: []
+        },
+        {
+            name: "STACKHOLDER",
+            icon: "people-outline",
+            bgColor: "bg-lime-500",
+            route: "/portal-mitra",
+            childrenMenu: []
+        },
+        {
+            name: "INTERNAL",
+            icon: "apps-outline",
+            bgColor: "bg-gray-500",
+            route: "/app-restricted-internal",
+            childrenMenu: []
+        },
     ];
 
-    const menu_2 = [
-        { name: "PERATURAN", icon: "document-text-outline", bgColor: "bg-purple-500", route: "/portal-peraturan" },
-        { name: "SOP", icon: "clipboard-outline", bgColor: "bg-pink-500", route: "/portal-sop" },
-        { name: "PPID", icon: "information-circle-outline", bgColor: "bg-indigo-500", route: "/portal-ppid" },
-        { name: "PENGADUAN", icon: "chatbubble-outline", bgColor: "bg-orange-400", route: "/portal-pengaduan" },
-    ];
-    const menu_3 = [
-        { name: "STATISTIK", icon: "stats-chart-outline", bgColor: "bg-teal-500", route: "/portal-statistik" },
-        { name: "LAYANAN", icon: "settings-outline", bgColor: "bg-cyan-500", route: "/portal-layanan" },
-        { name: "STACKHOLDER", icon: "people-outline", bgColor: "bg-lime-500", route: "/portal-mitra" },
-        { name: "INTERNAL", icon: "apps-outline", bgColor: "bg-gray-500", route: "/app-restricted-internal" },
-    ];
-
-    const menu_2x = [
-        { name: "PARKIR", icon: "car-sport-outline", bgColor: "bg-blue-500", route: "/portal-parkir" },
-        { name: "KULINER", icon: "fast-food-outline", bgColor: "bg-green-400", route: "/portal-kuliner" },
-        { name: "BELANJA", icon: "cart-outline", bgColor: "bg-yellow-500", route: "/portal-belanja" },
-        { name: "INFO", icon: "information-circle-outline", bgColor: "bg-red-400", route: "/portal-info" },
-    ];
-
-    const menu_3x = [
-        { name: "KEAMANAN", icon: "shield-checkmark-outline", bgColor: "bg-blue-500", route: "/portal-keamanan" },
-        { name: "KESEHATAN", icon: "medkit-outline", bgColor: "bg-green-400", route: "/portal-kesehatan" },
-        { name: "KEBERSIHAN", icon: "trash-outline", bgColor: "bg-yellow-500", route: "/portal-kebersihan" },
-        { name: "KESELAMATAN", icon: "alert-circle-outline", bgColor: "bg-red-400", route: "/portal-keselamatan" },
-    ]
-
-    const menu_4 = [
-        { name: "PENGUMUMAN", icon: "megaphone-outline", bgColor: "bg-blue-500", route: "/portal-pengumuman" },
-        { name: "BERITA", icon: "newspaper-outline", bgColor: "bg-green-400", route: "/portal-berita" },
-        { name: "AGENDA", icon: "calendar-outline", bgColor: "bg-yellow-500", route: "/portal-agenda" },
-        { name: "GALERI", icon: "images-outline", bgColor: "bg-red-400", route: "/portal-galeri" },
-    ]
-
-    const menu_5 = [
-        { name: "PROMO", icon: "pricetags-outline", bgColor: "bg-blue-500", route: "/portal-promo" },
-        { name: "EVENT", icon: "calendar-outline", bgColor: "bg-green-400", route: "/portal-event" },
-        { name: "LOKASI", icon: "location-outline", bgColor: "bg-yellow-500", route: "/portal-lokasi" },
-        { name: "KONTAK", icon: "call-outline", bgColor: "bg-red-400", route: "/portal-kontak" },
-    ];
-
-    const menu_6 = [
-        { name: "PROMO", icon: "pricetags-outline", bgColor: "bg-blue-500", route: "/portal-promo" },
-        { name: "EVENT", icon: "calendar-outline", bgColor: "bg-green-400", route: "/portal-event" },
-        { name: "LOKASI", icon: "location-outline", bgColor: "bg-yellow-500", route: "/portal-lokasi" },
-        { name: "KONTAK", icon: "call-outline", bgColor: "bg-red-400", route: "/portal-kontak" },
-    ]
+    const chunkedMenus = chunkArray(menuItems, 4);
 
 
 
-    return (<Fragment>
-        <ImageBackground source={BackGroud} resizeMode="cover">
+    // Handler ketika user klik item parent
+    const handleParentPress = (item) => {
+        if (item.childrenMenu && item.childrenMenu.length > 0) {
+            setModalTitle(item.name);
+            setSelectedChildren(item.childrenMenu);
+            setModalVisible(true);
+        } else {
+            router.push(item.route);
+        }
+    };
 
-            <View className="flex-row justify-around mt-6">
-                {menu_1.map((item, index) => (
-                    <TouchableOpacity key={index} className="items-center" onPress={() => router.push(item.route)}>
-                        <View className={`  bg-red-700 justify-center items-center rounded-full p-4 border border-red-800`}>
-                            <Ionicons name={item.icon} size={35} color="#ffffff" />
-                        </View>
-                        <Text className="mt-1 text-red-700 text-sm ">{item.name}</Text>
-                    </TouchableOpacity>
+
+
+    const handleChildPress = (child) => {
+        setModalVisible(false);        // close modal
+        setSelectedChildren([]);       // reset
+        router.push(child.route);      // navigate
+    };
+
+
+
+
+    const renderChildrenMenu = () => {
+        const chunkedChild = chunkArray(selectedChildren, 4);
+        return (
+            <Fragment>
+                {chunkedChild.map((row, rowIndex) => (
+                    <View key={rowIndex} style={{ flexDirection: "row", justifyContent: "flex-start", marginTop: 12 }}>
+                        {row.map((child, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={{ alignItems: "center", width: "23%", marginHorizontal: 4 }}
+                                onPress={() => handleChildPress(child)}
+                            >
+                                <View
+                                    style={{
+                                        justifyContent: "left",
+                                        alignItems: "left",
+                                        borderRadius: 9999,
+                                        padding: 12,
+                                        borderWidth: 1,
+                                        borderColor: "#fff",
+                                        // tailwind => {child.bgColor} 
+                                        // Sbg ganti cepat:
+                                        backgroundColor: "#0ea5e9", // default color
+                                    }}
+                                >
+                                    <Ionicons name={child.icon} size={28} color="#ffffff" />
+                                </View>
+                                <Text
+                                    numberOfLines={2}
+                                    style={{
+                                        marginTop: 4,
+                                        color: "#333",
+                                        fontSize: 10,
+                                        textAlign: "center",
+                                        maxWidth: 200,
+                                    }}
+                                >
+                                    {child.name}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                 ))}
-            </View>
+            </Fragment>
+        );
+    };
 
-            <View className="flex-row justify-around mt-4">
-                {menu_2.map((item, index) => (
-                    <TouchableOpacity key={index} className="items-center" onPress={() => router.push(item.route)}>
-                        <View className={`  bg-red-700 justify-center items-center rounded-full p-4 border border-red-800`}>
-                            <Ionicons name={item.icon} size={35} color="#ffffff" />
+    return (
+        <Fragment>
+            {/* Render parent menus */}
+            {chunkedMenus.map((row, rowIndex) => (
+                <View key={rowIndex} style={{ flexDirection: "row", justifyContent: "flex-start", marginTop: 12 }}>
+                    {row.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={{ alignItems: "center", width: "23%", marginHorizontal: 4 }}
+                            onPress={() => handleParentPress(item)}
+                        >
+                            <View
+                                className={`justify-center items-center rounded-full p-4 border border-white ${item.bgColor}`}
+                            >
+                                <Ionicons name={item.icon} size={28} color="#ffffff" />
+                            </View>
+                            <Text
+                                numberOfLines={2}  // up to 2 lines
+                                className="mt-1 text-gray-800 text-xs text-center"
+                                style={{ maxWidth: 150 }}  // atur lebar agar wrap
+                            >
+                                {item.name}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            ))}
+
+            {Platform.OS === 'ios' ? (<Modal
+                visible={modalVisible}
+                transparent={true}
+                //animationType="slide"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={{ flex: 1, justifyContent: "flex-end"  , backgroundColor: 'rgba(0,0,0,0.3)'}}>
+                    {/* overlay area di atas */}
+                    <TouchableOpacity
+                        style={{ flex: 1 }}
+                        activeOpacity={1}
+                        onPress={() => {
+                            setModalVisible(false);
+                            setSelectedChildren([]);
+                        }}
+                    />
+                    <View
+                        className="rounded-t-2xl border border-gray-300"
+                        style={{
+                            height: Dimensions.get("window").height * 0.4, // 30% tinggi
+                            backgroundColor: "#fff",
+                            borderTopLeftRadius: 16,
+                            borderTopRightRadius: 16,
+                            padding: 16,
+                        }}
+                    >
+                        <View className="flex-row items-center justify-between mb-6">
+                            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>{modalTitle}</Text>
+                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                <Ionicons name="close" size={24} color="#333" />
+                            </TouchableOpacity>
                         </View>
-                        <Text className="mt-1 text-red-700 text-sm ">{item.name}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
 
-            <View className="flex-row justify-around mt-4 mb-6">
-                {menu_3.map((item, index) => (
-                    <TouchableOpacity key={index} className="items-center" onPress={() => router.push(item.route)}>
-                        <View className={`  bg-red-700 justify-center items-center rounded-full p-4 border border-red-800`}>
-                            <Ionicons name={item.icon} size={35} color="#ffffff" />
+                        {renderChildrenMenu()}
+                    </View>
+                </View>
+            </Modal>) : (<View style={{ width: "100%", height: "100%", position: "absolute" }}>
+                <Modal
+                visible={modalVisible}
+                transparent={true}
+                //animationType="slide"
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={{ flex: 1, justifyContent: "flex-end"  , backgroundColor: 'rgba(0,0,0,0.3)'}}>
+                    {/* overlay area di atas */}
+                    <TouchableOpacity
+                        style={{ flex: 1 }}
+                        activeOpacity={1}
+                        onPress={() => {
+                            setModalVisible(false);
+                            setSelectedChildren([]);
+                        }}
+                    />
+                    <View
+                        className="rounded-t-2xl border border-gray-300"
+                        style={{
+                            height: Dimensions.get("window").height * 0.3, // 30% tinggi
+                            backgroundColor: "#fff",
+                            borderTopLeftRadius: 16,
+                            borderTopRightRadius: 16,
+                            padding: 16,
+                        }}
+                    >
+                        <View className="flex-row items-center justify-between mb-6">
+                            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>{modalTitle}</Text>
+                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                <Ionicons name="close" size={24} color="#333" />
+                            </TouchableOpacity>
                         </View>
-                        <Text className="mt-1 text-red-700 text-sm ">{item.name}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
 
-        </ImageBackground>
-    </Fragment>);
+                        {renderChildrenMenu()}
+                    </View>
+                </View>
+            </Modal>
+            </View>)}
+
+            
+            
+            
+            
+        </Fragment>
+    );
 }
-

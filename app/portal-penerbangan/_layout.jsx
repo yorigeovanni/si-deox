@@ -35,13 +35,7 @@ export default function Statistik() {
             exact: true,
             headerTitle: 'ARRIVAL FLIGHTS',
           },
-          {
-            icon: 'calendar',
-            label: 'SCHEDULE',
-            path: `${rootPath}/schedule`,
-            exact: false,
-            headerTitle: 'SCHEDULE FLIGHTS',
-          },
+         
       ];
 
 
