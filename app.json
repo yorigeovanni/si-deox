@@ -47,7 +47,10 @@
         {
           "ios": {
             "networkInspector": false
-          }
+          },
+          "android": {
+            "networkInspector": false
+          } 
         }
       ],
       "expo-asset",

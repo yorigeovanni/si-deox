@@ -75,13 +75,16 @@ async function applyRequestInterceptor(requestConfig) {
       'Authorization': `Bearer ${jwtAccessToken}`
     };
   }
-  return requestConfig;
+
+
+  return {method, body, headers: requestConfig.headers};
 }
 
 
 
 async function applyResponseInterceptor(response, requestConfig) {
-
+console.log('GGGHFGH FG FGH FHF GHFGFGFG');
+console.log(response)
   if (!response.ok) {
     const clonedResponse = response.clone();
     let serverData;

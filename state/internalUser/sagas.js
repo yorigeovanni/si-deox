@@ -8,22 +8,17 @@ const { post } = createRequest();
 function* requestToken(action) {
     try {
         const { deviceId, phoneNumber } = yield select((state) => state.config);
-        console.log(deviceId);
-        console.log(phoneNumber);
         const { data } = yield call(post, '/mobile/api/request-token-internal', {
             nik_nip : action.payload.nik_nip,
             phoneNumber : phoneNumber,
         },{
             deviceId: deviceId,
         });
-
-        
-     /*   yield put(actions.successRequestToken({
+        yield put(actions.successRequestToken({
             ...data,
             nik_nip : action.payload.nik_nip
-        }));*/
+        }));
     } catch (error) {
-        console.log('cuuuuuuuuuuuukkiiiiiiiiiiiiiii')
         console.log(error);
         yield put(actions.errorRequestToken(error.response?.data?.message || error.message));
     }
