@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import ContentLoader, { Rect, Circle, Path } from "react-content-loader/native"
 import ReanimatedCarousel from "react-native-reanimated-carousel";
-import createRequest from '@/core/api';
+import createRequest from '@/core/api-secure';
 const { post } = createRequest();
 const { width, height } = Dimensions.get('window');
 

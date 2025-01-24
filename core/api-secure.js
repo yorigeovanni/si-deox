@@ -37,6 +37,7 @@ async function signData(deviceId, stringToSign) {
     console.log(signatureBase64);
     return signatureBase64;
   } catch (e) {
+    console.log('Error signing data');
     console.log(e);
     return null
   }
@@ -127,7 +128,10 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
   requestConfig = await applyRequestInterceptor(requestConfig);
   let response;
   try {
+    console.log(finalUrl)
+    console.log('puki anjing')
     response = await fetch(finalUrl, requestConfig);
+    console.log(requestConfig)
   } catch (error) {
     console.log('pilooo 1')
     console.error('Request Error:', error);

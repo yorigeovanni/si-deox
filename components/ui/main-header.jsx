@@ -3,16 +3,12 @@ import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import { classNames } from '@/utils';
 import * as Updates from 'expo-updates';
-
-import Aaaaa from '@/assets/images/about-us.jpg';
 import Adfsdfsdfsd from '@/assets/icon-baru.png';
-import createRequest from '@/core/api';
 
 // STATE MANAGEMENT
 import internalUserActions from '@/state/internalUser/internalUserSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
-const { post } = createRequest();
 
 
 

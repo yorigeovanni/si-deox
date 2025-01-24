@@ -16,6 +16,7 @@ import internalUserActions from '@/state/internalUser/internalUserSlice';
 export default function LoginInternal() {
     const router = useRouter();
     const { tokenLogin } = useSelector((state) => state.internalUser);
+    const { phoneNumber } = useSelector((state) => state.config);
 
     const onBackCustom = useCallback(() => {
         router.replace('/');
@@ -36,7 +37,7 @@ export default function LoginInternal() {
             <View className={classNames(' px-4 pb-4 flex-row justify-between', Platform.OS === 'android' ? "pt-12" : "pt-20")}>
                 <View className="flex-col items-start space-y-0 ml-2">
                     <Text className="text-white text-sm leading-4 ">Current Phone Number : </Text>
-                    <Text className="text-white text-xl font-extrabold ">08** 7*** **70</Text>
+                    <Text className="text-white text-xl font-extrabold ">{phoneNumber}</Text>
 
                 </View>
 
@@ -58,10 +59,124 @@ export default function LoginInternal() {
                 </View>
             </View>
 
-            {tokenLogin ? (
-                <InputOtpCode />
-            ) : (<LoginComponent />)}
+            {!tokenLogin ? (<LoginComponent />) : (<InputOtpCode />)}
         </ImageBackground>
+    );
+};
+
+
+
+
+const LoginComponent = ({ errorMessage }) => {
+    const router = useRouter();
+    const dispatch = useDispatch();
+
+    // -- [1] Gunakan formState.isValid dan reset dari useForm
+    const {
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors, isValid }
+    } = useForm({
+        mode: 'onChange',  // Pastikan pakai 'onChange' atau 'onBlur'
+        defaultValues: {
+            nik_nip: '',
+            alamat: "",
+        }
+    });
+
+    const { isLoading, isError, tokenLogin } = useSelector((state) => state.internalUser);
+
+    // -- [2] onSubmit jika valid (berhasil lolos validasi client)
+    const onSubmit = useCallback((data) => {
+        dispatch(internalUserActions.requestToken(data));
+    }, [dispatch]);
+
+
+
+    // -- [3] onError jika gagal validasi di sisi client
+    const onError = useCallback((formErrors) => {
+        // formErrors berisi detail error validasi, misalnya { nik_nip: {...} }
+        // Reset form jika diperlukan
+        reset();
+    }, [reset]);
+
+
+
+    useEffect(() => {
+        if (isError) {
+            reset();
+        }
+    }, [isError, reset]);
+
+
+
+    return (
+
+        <Fragment>
+            <View className="flex w-full">
+                {isLoading && (
+                    <Text className="text-center text-white text-lg mb-4">
+                        Loading...
+                    </Text>
+                )}
+                {isError && (
+                    <Text className="text-center text-white text-lg mb-4">
+                        DATA PERSONIL TIDAK DITEMUKAN
+                    </Text>
+                )}
+
+                <Controller
+                    control={control}
+                    name="nik_nip"
+                    rules={{
+                        required: 'NIK / NIP wajib diisi',
+                        pattern: {
+                            value: /^[0-9]*$/,
+                            message: 'NIK / NIP hanya boleh berisi angka',
+                        },
+                        minLength: {
+                            value: 10,
+                            message: 'NIK / NIP minimal 10 digit',
+                        }
+                    }}
+                    render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                        <View className="flex flex-col mx-16">
+                            <TextInput
+                                placeholder="NIP / NIK PERSONIL"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                                keyboardType="phone-pad"
+                                className="bg-white p-4 rounded-md border border-gray-300 w-full"
+                                // Disable input saat loading
+                                editable={!isLoading}
+                            />
+                            {/* Tampilkan pesan error validasi */}
+                            {error && (
+                                <Text className="text-gray-500 text-sm flex justify-start items-start text-start">
+                                    {error.message}
+                                </Text>
+                            )}
+                        </View>
+                    )}
+                />
+            </View>
+
+            <View className="flex flex-row items-end justify-end mt-8 mx-16">
+                <TouchableOpacity
+                    className={classNames('bg-red-700 px-2 py-2 rounded-lg mr-2', isValid ? 'opacity-100' : 'opacity-50')}
+                    onPress={handleSubmit(onSubmit, onError)}
+                    // Disable tombol saat loading atau form belum valid
+                    disabled={isLoading || !isValid}
+                >
+                    <Text className="text-center text-white">
+                        {isLoading ? 'GENERATE OTP...' : 'REQUEST OTP'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </Fragment>
+
     );
 };
 
@@ -186,115 +301,6 @@ function InputOtpCode() {
 }
 
 
-
-
-const LoginComponent = ({ errorMessage }) => {
-    const router = useRouter();
-    const dispatch = useDispatch();
-
-    // -- [1] Gunakan formState.isValid dan reset dari useForm
-    const {
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors, isValid }
-    } = useForm({
-        mode: 'onChange',  // Pastikan pakai 'onChange' atau 'onBlur'
-        defaultValues: {
-            nik_nip: '',
-            alamat: "",
-        }
-    });
-
-    const { isLoading, isError, tokenLogin } = useSelector((state) => state.internalUser);
-
-    // -- [2] onSubmit jika valid (berhasil lolos validasi client)
-    const onSubmit = useCallback((data) => {
-        // Panggil aksi Redux untuk request token
-        dispatch(internalUserActions.requestToken(data));
-    }, [dispatch]);
-
-    // -- [3] onError jika gagal validasi di sisi client
-    const onError = useCallback((formErrors) => {
-        // formErrors berisi detail error validasi, misalnya { nik_nip: {...} }
-        // Reset form jika diperlukan
-        reset();
-    }, [reset]);
-
-    useEffect(() => {
-        if (isError) {
-            reset();
-        }
-    }, [isError, reset]);
-
-    return (
-
-        <Fragment>
-            <View className="flex w-full">
-                {isLoading && (
-                    <Text className="text-center text-gray-500 text-lg mb-4">
-                        Loading...
-                    </Text>
-                )}
-                {isError && (
-                    <Text className="text-center text-gray-500 text-lg mb-4">
-                        DATA PERSONIL TIDAK DITEMUKAN
-                    </Text>
-                )}
-
-                <Controller
-                    control={control}
-                    name="nik_nip"
-                    rules={{
-                        required: 'NIK / NIP wajib diisi',
-                        pattern: {
-                            value: /^[0-9]*$/,
-                            message: 'NIK / NIP hanya boleh berisi angka',
-                        },
-                        minLength: {
-                            value: 10,
-                            message: 'NIK / NIP minimal 10 digit',
-                        }
-                    }}
-                    render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-                        <View className="flex flex-col mx-16">
-                            <TextInput
-                                placeholder="NIP / NIK PERSONIL"
-                                onBlur={onBlur}
-                                onChangeText={onChange}
-                                value={value}
-                                keyboardType="phone-pad"
-                                className="bg-white p-4 rounded-md border border-gray-300 w-full"
-                                // Disable input saat loading
-                                editable={!isLoading}
-                            />
-                            {/* Tampilkan pesan error validasi */}
-                            {error && (
-                                <Text className="text-gray-500 text-sm flex justify-start items-start text-start">
-                                    {error.message}
-                                </Text>
-                            )}
-                        </View>
-                    )}
-                />
-            </View>
-
-            <View className="flex flex-row items-end justify-end mt-8 mx-16">
-                <TouchableOpacity
-                    className={classNames('bg-red-700 px-2 py-2 rounded-lg mr-2', isValid ? 'opacity-100' : 'opacity-50')}
-                    onPress={handleSubmit(onSubmit, onError)}
-                    // Disable tombol saat loading atau form belum valid
-                    disabled={isLoading || !isValid}
-                >
-                    <Text className="text-center text-white">
-                        {isLoading ? 'GENERATE OTP...' : 'REQUEST OTP'}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        </Fragment>
-
-    );
-};
 
 
 
