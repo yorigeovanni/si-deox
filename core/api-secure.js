@@ -96,13 +96,13 @@ async function applyResponseInterceptor(response, logoutUserInternal) {
       // Jika tidak bisa parse JSON, maka treat sebagai plain text
       serverData = { message: rawText };
     }
-
-    
+    //====================================
+    // PENTING - LOGOUT USER JIKA RESPOSE HEADER 401
+    // HARAP DIPERHATIKAN UNTUK SEMUA DEVELOPER
     if(response.status === 401) {
       logoutUserInternal()
     }
-
-   
+    //====================================
     throw new Error(
       serverData?.message
         ? `${serverData.message} - ${response.status}`

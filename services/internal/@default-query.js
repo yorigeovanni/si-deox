@@ -11,11 +11,11 @@ export function useFindMany({ model, offset = 0, limit = 20, domain = [], fields
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     const dispatch = useDispatch();
     
+    // STIAP QUERY SECURE YANG HARUS LOGIN
+    // HARUS ADA INI SEBAGAI CALBACK PENANGANGAN KETIKA RESPONSE ERROR 401
     const logoutUserInternal = () => {
         dispatch(internalUserActions.logout());
     };
-
-
 
     return useQuery({
         queryKey: ['default-findAll', model, offset, limit, ...domain],
