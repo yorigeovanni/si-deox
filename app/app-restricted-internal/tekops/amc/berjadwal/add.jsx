@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { classNames } from '@/utils';
 import { useCreateOrEdit } from '@/services/internal/x_data_amc';
-import InternalHeader from '@/components/ui/app-internal/header';
+import InternalHeader from '@/components/ui/internal/header';
 
 //FORM COMPONENT
 import CharInput from '@/components/form/CharInput';

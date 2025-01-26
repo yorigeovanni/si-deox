@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   isLoading : false,
   isError: false,
+  errorMessage : '',
   deviceId : null,
   phoneNumber : null,
   publicKey : null,
@@ -41,7 +42,20 @@ const configSlice = createSlice({
       state.isError = true;
     },
 
-    reloadOtp(state) {
+
+    registerTimeExpires(state){
+        state.errorMessage = 'Time Expires';
+        state.isLoading = false;
+        state.isError = true;
+        state.deviceId = null;
+        state.phoneNumber = null;
+        state.publicKey = null;
+        state.tokenRegistrasi = null;
+        state.isRegistered = false;
+        state.jwtAccessToken = null;
+    },
+
+    /*reloadOtp(state) {
       state.isLoading = true;
       state.isError = false;
     },
@@ -57,7 +71,7 @@ const configSlice = createSlice({
     errorReloadOtp(state) {
       state.isLoading = false;
       state.isError = true;
-    },
+    },*/
 
 
     verifikasiOtp(state) {

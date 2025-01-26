@@ -22,59 +22,178 @@ export default function AppInternalMenuTataUsaha() {
     const [selectedParent, setSelectedParent] = useState(null);
 
     const menuItems = [
-
         {
             name: "UNIT KEPEGAWAIAN",
-            icon: "settings-outline",
-            bgColor: "bg-cyan-500",
-            route: "/portal-layanan",
-            childrenMenu: []
+            icon: "briefcase-outline",
+            bgColor: "bg-indigo-500",
+            route: "/kepegawaian",
+            childrenMenu: [
+                {
+                    name: "DATA PERSONIL",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "DATA CUTI",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/cuti"
+                },
+                {
+                    name: "DATA ABSENSI",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/absensi"
+                },
+                {
+                    name: "DATA DIKLAT",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/diklat"
+                },
+                {
+                    name: "DATA ABK",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/abk"
+                },
+            ]
         },
         {
             name: "BENDAHARA PENGELUARAN",
-            icon: "people-outline",
-            bgColor: "bg-lime-500",
+            icon: "cash-outline",
+            bgColor: "bg-red-500",
             route: "/portal-mitra",
-            childrenMenu: []
+            childrenMenu: [
+                {
+                    name: "DATA PEMBAYARAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN PENGELUARAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN REKONSILIASI",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+            ]
         },
         {
             name: "BENDAHARA PENERIMAAN",
-            icon: "apps-outline",
-            bgColor: "bg-gray-500",
+            icon: "wallet-outline",
+            bgColor: "bg-green-500",
             route: "/app-restricted-internal",
-            childrenMenu: []
+            childrenMenu: [
+                {
+                    name: "DATA PENERIMAAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN PENDAPATAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN REKONSILIASI",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+            ]
         },
         {
             name: "PENGELOLA KEUANGAN",
-            icon: "apps-outline",
-            bgColor: "bg-gray-500",
+            icon: "bar-chart-outline",
+            bgColor: "bg-blue-500",
             route: "/app-restricted-internal",
-            childrenMenu: []
+            childrenMenu: [
+
+            ]
         },
         {
             name: "HUBUNGAN MASYARAKAT",
-            icon: "apps-outline",
-            bgColor: "bg-gray-500",
-            route: "/app-restricted-internal",
-            childrenMenu: []
+            icon: "megaphone-outline",
+            bgColor: "bg-emerald-500",
+            route: "/humas",
+            childrenMenu: [
+                {
+                    name: "LAPORAN PENGADUAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/pengaduan"
+                },
+                {
+                    name: "LAPORAN TANGGAPAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/tanggapan"
+                },
+                {
+                    name: "LAPORAN KELUHAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "BAHAN PUBLIKASI",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/publikasi"
+                },
+            ]
         },
         {
             name: "PERENCANAAN",
-            icon: "apps-outline",
-            bgColor: "bg-gray-500",
+            icon: "calendar-outline",
+            bgColor: "bg-amber-500",
             route: "/app-restricted-internal",
-            childrenMenu: []
+            childrenMenu: [
+                {
+                    name: "USULAN ANGGARAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN ANGGARAN",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN REALISASI",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+                {
+                    name: "LAPORAN KINERJA",
+                    icon: "chatbubble-outline",
+                    bgColor: "bg-green-500",
+                    route: "/personil"
+                },
+            ]
         },
         {
             name: "PPK & PPSM",
-            icon: "apps-outline",
-            bgColor: "bg-gray-500",
+            icon: "file-tray-stacked-outline",
+            bgColor: "bg-purple-500",
             route: "/app-restricted-internal",
             childrenMenu: []
-        },
-       
-
+        }
     ];
+
 
     const chunkedMenus = chunkArray(menuItems, 4);
 
@@ -89,7 +208,7 @@ export default function AppInternalMenuTataUsaha() {
         } else {
             router.replace(`${basePath}${item.route}`);
         }
-    },[]);
+    }, []);
 
 
 
@@ -97,7 +216,7 @@ export default function AppInternalMenuTataUsaha() {
         setModalVisible(false);
         setSelectedChildren([]);
         router.replace(`${basePath}${selectedParent.route}${child.route}`);
-    },[selectedParent]);
+    }, [selectedParent]);
 
 
 

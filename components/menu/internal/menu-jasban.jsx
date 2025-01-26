@@ -1,6 +1,7 @@
 import React, { Fragment, useCallback, useState } from "react";
 import { View, Text, TouchableOpacity, Modal, Dimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { classNames } from "@/utils";
 import { useRouter } from "expo-router";
 const basePath = "/app-restricted-internal/jasban";
 
@@ -23,191 +24,205 @@ export default function AppInternalMenuJasban() {
 
     const menuItems = [
         {
-            name: "JASBAN - UNIT PNBP",
-            icon: "chatbubble-outline",
-            bgColor: "bg-orange-400",
-            route: "/portal-pengaduan",
-            childrenMenu: [
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-pengaduan"
-                },
-                {
-                    name: "KOMENTAR",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-komentar"
-                },
-                {
-                    name: "SARAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-saran"
-                },
-                {
-                    name: "KRITIK",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-kritik"
-                }
-            ]
+          name: "UNIT PNBP",
+          icon: "cash-outline",
+          bgColor: "bg-green-500",
+          route: "/portal-pengaduan",
+          childrenMenu: [
+            {
+              name: "PENGADUAN",
+              icon: "chatbubble-outline",
+              bgColor: "bg-green-500",
+              route: "/portal-pengaduan-pengaduan"
+            },
+            {
+              name: "KOMENTAR",
+              icon: "chatbubble-outline",
+              bgColor: "bg-green-500",
+              route: "/portal-pengaduan-komentar"
+            },
+            {
+              name: "SARAN",
+              icon: "chatbubble-outline",
+              bgColor: "bg-green-500",
+              route: "/portal-pengaduan-saran"
+            },
+            {
+              name: "KRITIK",
+              icon: "chatbubble-outline",
+              bgColor: "bg-green-500",
+              route: "/portal-pengaduan-kritik"
+            }
+          ]
         },
         {
-            name: "JASBAN - UNIT KERJASAMA",
-            icon: "stats-chart-outline",
-            bgColor: "bg-teal-500",
-            route: "/portal-statistik",
-            childrenMenu: [
-                {
-                    name: "PENUMPANG",
-                    icon: "person-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penumpang"
-                },
-                {
-                    name: "PENERBANGAN",
-                    icon: "airplane-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penerbangan"
-                },
-                {
-                    name: "TRANSPORTASI",
-                    icon: "car-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-transportasi"
-                },
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-pengaduan"
-                },
-                {
-                    name: "LAYANAN",
-                    icon: "settings-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-layanan"
-                },
-            ]
+          name: "UNIT KERJASAMA",
+          icon: "people-outline",
+          bgColor: "bg-indigo-500",
+          route: "/portal-statistik",
+          childrenMenu: [
+            {
+              name: "PENUMPANG",
+              icon: "person-outline",
+              bgColor: "bg-indigo-500",
+              route: "/portal-statistik-penumpang"
+            },
+            {
+              name: "PENERBANGAN",
+              icon: "airplane-outline",
+              bgColor: "bg-indigo-500",
+              route: "/portal-statistik-penerbangan"
+            },
+            {
+              name: "TRANSPORTASI",
+              icon: "car-outline",
+              bgColor: "bg-indigo-500",
+              route: "/portal-statistik-transportasi"
+            },
+            {
+              name: "PENGADUAN",
+              icon: "chatbubble-outline",
+              bgColor: "bg-indigo-500",
+              route: "/portal-statistik-pengaduan"
+            },
+            {
+              name: "LAYANAN",
+              icon: "settings-outline",
+              bgColor: "bg-indigo-500",
+              route: "/portal-statistik-layanan"
+            }
+          ]
         },
         {
-            name: "JASBAN - UNIT INFORMASI",
-            icon: "stats-chart-outline",
-            bgColor: "bg-teal-500",
-            route: "/portal-statistik",
-            childrenMenu: [
-                {
-                    name: "PENUMPANG",
-                    icon: "person-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penumpang"
-                },
-                {
-                    name: "PENERBANGAN",
-                    icon: "airplane-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penerbangan"
-                },
-                {
-                    name: "TRANSPORTASI",
-                    icon: "car-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-transportasi"
-                },
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-pengaduan"
-                },
-                {
-                    name: "LAYANAN",
-                    icon: "settings-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-layanan"
-                },
-            ]
+          name: "UNIT INFORMASI",
+          icon: "information-circle-outline",
+          bgColor: "bg-yellow-500",
+          route: "/portal-statistik",
+          childrenMenu: [
+            {
+              name: "PENUMPANG",
+              icon: "person-outline",
+              bgColor: "bg-yellow-500",
+              route: "/portal-statistik-penumpang"
+            },
+            {
+              name: "PENERBANGAN",
+              icon: "airplane-outline",
+              bgColor: "bg-yellow-500",
+              route: "/portal-statistik-penerbangan"
+            },
+            {
+              name: "TRANSPORTASI",
+              icon: "car-outline",
+              bgColor: "bg-yellow-500",
+              route: "/portal-statistik-transportasi"
+            },
+            {
+              name: "PENGADUAN",
+              icon: "chatbubble-outline",
+              bgColor: "bg-yellow-500",
+              route: "/portal-statistik-pengaduan"
+            },
+            {
+              name: "LAYANAN",
+              icon: "settings-outline",
+              bgColor: "bg-yellow-500",
+              route: "/portal-statistik-layanan"
+            }
+          ]
         },
         {
-            name: "JASBAN - UNIT SANITASI",
-            icon: "stats-chart-outline",
-            bgColor: "bg-teal-500",
-            route: "/portal-statistik",
-            childrenMenu: [
-                {
-                    name: "PENUMPANG",
-                    icon: "person-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penumpang"
-                },
-                {
-                    name: "PENERBANGAN",
-                    icon: "airplane-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penerbangan"
-                },
-                {
-                    name: "TRANSPORTASI",
-                    icon: "car-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-transportasi"
-                },
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-pengaduan"
-                },
-                {
-                    name: "LAYANAN",
-                    icon: "settings-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-layanan"
-                },
-            ]
+          name: "UNIT SANITASI",
+          icon: "water-outline",
+          bgColor: "bg-blue-500",
+          route: "/portal-statistik",
+          childrenMenu: [
+            {
+              name: "PENUMPANG",
+              icon: "person-outline",
+              bgColor: "bg-blue-500",
+              route: "/portal-statistik-penumpang"
+            },
+            {
+              name: "PENERBANGAN",
+              icon: "airplane-outline",
+              bgColor: "bg-blue-500",
+              route: "/portal-statistik-penerbangan"
+            },
+            {
+              name: "TRANSPORTASI",
+              icon: "car-outline",
+              bgColor: "bg-blue-500",
+              route: "/portal-statistik-transportasi"
+            },
+            {
+              name: "PENGADUAN",
+              icon: "chatbubble-outline",
+              bgColor: "bg-blue-500",
+              route: "/portal-statistik-pengaduan"
+            },
+            {
+              name: "LAYANAN",
+              icon: "settings-outline",
+              bgColor: "bg-blue-500",
+              route: "/portal-statistik-layanan"
+            }
+          ]
         },
         {
-            name: "JASBAN - TATA TERMINAL",
-            icon: "stats-chart-outline",
-            bgColor: "bg-teal-500",
-            route: "/portal-statistik",
-            childrenMenu: [
-                {
-                    name: "PENUMPANG",
-                    icon: "person-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penumpang"
-                },
-                {
-                    name: "PENERBANGAN",
-                    icon: "airplane-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penerbangan"
-                },
-                {
-                    name: "TRANSPORTASI",
-                    icon: "car-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-transportasi"
-                },
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-pengaduan"
-                },
-                {
-                    name: "LAYANAN",
-                    icon: "settings-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-layanan"
-                },
-            ]
+          name: "TATA TERMINAL",
+          icon: "bus-outline",
+          bgColor: "bg-orange-500",
+          route: "/portal-statistik",
+          childrenMenu: [
+            {
+              name: "PENUMPANG",
+              icon: "person-outline",
+              bgColor: "bg-orange-500",
+              route: "/portal-statistik-penumpang"
+            },
+            {
+              name: "PENERBANGAN",
+              icon: "airplane-outline",
+              bgColor: "bg-orange-500",
+              route: "/portal-statistik-penerbangan"
+            },
+            {
+              name: "TRANSPORTASI",
+              icon: "car-outline",
+              bgColor: "bg-orange-500",
+              route: "/portal-statistik-transportasi"
+            },
+            {
+              name: "PENGADUAN",
+              icon: "chatbubble-outline",
+              bgColor: "bg-orange-500",
+              route: "/portal-statistik-pengaduan"
+            },
+            {
+              name: "LAYANAN",
+              icon: "settings-outline",
+              bgColor: "bg-orange-500",
+              route: "/portal-statistik-layanan"
+            }
+          ]
+        },
+        {
+          name: "TIK - DEV",
+          icon: "bus-outline",
+          bgColor: "bg-orange-500",
+          route: "/tik-dev",
+          childrenMenu: [
+            {
+              name: "data-test",
+              icon: "person-outline",
+              bgColor: "bg-orange-500",
+              route: "/data-test"
+            }
+          ]
         }
-
-    ];
+      ];
+      
 
     const chunkedMenus = chunkArray(menuItems, 4);
 
@@ -247,17 +262,15 @@ export default function AppInternalMenuJasban() {
                                 style={{ alignItems: "center", width: "23%", marginHorizontal: 4 }}
                                 onPress={() => handleChildPress(child)}
                             >
-                                <View
+                                <View className={classNames(child.bgColor)}
                                     style={{
                                         justifyContent: "left",
                                         alignItems: "left",
                                         borderRadius: 9999,
                                         padding: 12,
                                         borderWidth: 1,
-                                        borderColor: "#fff",
-                                        // tailwind => {child.bgColor} 
-                                        // Sbg ganti cepat:
-                                        backgroundColor: "#0ea5e9", // default color
+                                        borderColor: "#fff"
+                                       
                                     }}
                                 >
                                     <Ionicons name={child.icon} size={28} color="#ffffff" />

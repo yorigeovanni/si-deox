@@ -33,21 +33,24 @@ function buildFullUrl(baseURL, rawUrl, config = {}) {
 
 async function signData(deviceId, stringToSign) {
   try {
-    const signatureBase64 = await RSAKeychain.sign(stringToSign, deviceId);
-    console.log(signatureBase64);
+    let signatureBase64 = await RSAKeychain.sign(stringToSign, deviceId);
+    signatureBase64 = signatureBase64.replace(/(\r\n|\n|\r)/gm, '');
     return signatureBase64;
   } catch (e) {
+    console.log(e)
     console.log('Error signing data');
-    console.log(e);
     return null
   }
 }
 
 
+
+
+
+
+
 async function applyRequestInterceptor(requestConfig) {
   const { deviceId, jwtAccessToken, method, body } = requestConfig;
-
-
   if (deviceId && ['POST', 'PUT', 'PATCH'].includes(method)) {
     const timestamp = Math.floor(Date.now() / 1000);
     let bodyString = '';
@@ -56,7 +59,6 @@ async function applyRequestInterceptor(requestConfig) {
     } else if (typeof body === 'object') {
       bodyString = JSON.stringify(body);
     }
-
 
     const stringToSign = `${timestamp}.${bodyString}`;
     const signature = await signData(deviceId, stringToSign);
@@ -75,40 +77,47 @@ async function applyRequestInterceptor(requestConfig) {
       'Authorization': `Bearer ${jwtAccessToken}`
     };
   }
-
-
-  return {method, body, headers: requestConfig.headers};
+  return requestConfig;
+  //return {method, body, headers: requestConfig.headers};
 }
 
 
 
-async function applyResponseInterceptor(response, requestConfig) {
-console.log('GGGHFGH FG FGH FHF GHFGFGFG');
-console.log(response)
+
+
+async function applyResponseInterceptor(response, logoutUserInternal) {
   if (!response.ok) {
     const clonedResponse = response.clone();
+    let rawText = await clonedResponse.text(); // Baca body satu kali
     let serverData;
     try {
-      serverData = await clonedResponse.json();
+      serverData = JSON.parse(rawText);
     } catch (e) {
-      serverData = { message: await clonedResponse.text() };
+      // Jika tidak bisa parse JSON, maka treat sebagai plain text
+      serverData = { message: rawText };
     }
-    console.log(serverData);
+
+    
+    if(response.status === 401) {
+      logoutUserInternal()
+    }
+
+   
     throw new Error(
       serverData?.message
         ? `${serverData.message} - ${response.status}`
         : `Request failed with status ${response.status}`
     );
   }
-  return response;
+  return response; // Jika ok, kembalikan response apa adanya
 }
 
 
 
 async function fetchRequest(method, baseURL, url, data, config = {}) {
-  const { headers, ...restConfig } = config;
-  const finalUrl = buildFullUrl(baseURL, url, restConfig);
 
+  const { logoutUserInternal, headers, ...restConfig } = config;
+  const finalUrl = buildFullUrl(baseURL, url, restConfig);
   let requestConfig = {
     method: method.toUpperCase(),
     headers: {
@@ -117,31 +126,25 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
       ...headers,
     },
   };
-
   if (['POST', 'PUT', 'PATCH'].includes(requestConfig.method) && data) {
     requestConfig.body = JSON.stringify(data);
   }
-
   requestConfig = {
     url: finalUrl,
     ...requestConfig,
     ...restConfig,
   };
-
   requestConfig = await applyRequestInterceptor(requestConfig);
   let response;
   try {
-    console.log(finalUrl)
-    console.log('puki anjing')
     response = await fetch(finalUrl, requestConfig);
-    console.log(requestConfig)
   } catch (error) {
-    console.log('pilooo 1')
-    console.error('Request Error:', error);
+    console.error('Starting Request Error:', error);
     throw error;
   }
 
-  const finalResponse = await applyResponseInterceptor(response, requestConfig);
+  
+  const finalResponse = await applyResponseInterceptor(response, logoutUserInternal);
   try {
     const responseData = await finalResponse.json();
     return {
@@ -170,7 +173,6 @@ const createApi = (defaultOptions = {}) => {
         ...config,
       }),
     post: (url, data, config) => {
-      console.log(data)
       return fetchRequest('POST', baseURL, url, data, {
         ...defaultOptions,
         ...config,

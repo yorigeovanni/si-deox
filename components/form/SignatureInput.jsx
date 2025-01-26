@@ -30,10 +30,13 @@ export default function SignatureInput({ control, name, label, rules }) {
                         {label && <Text>{label}</Text>}
                         <Signature
                             ref={ref}
+                            androidHardwareAccelerationDisabled={false}
+                            nestedScrollEnabled={true}
+                            style={{ height: 200 }}
                             onOK={handleOK}
                             onClear={handleClear}
                             descriptionText="Tanda Tangan"
-                            webStyle={`.m-signature-pad--footer {display: none;}`}
+                            //webStyle={`.m-signature-pad--footer {display: none;}`}
                         />
                         <Button title="Clear" onPress={handleClear} />
                         {error && <Text style={{ color: 'red' }}>{error.message}</Text>}

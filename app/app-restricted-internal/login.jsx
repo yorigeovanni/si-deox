@@ -22,9 +22,6 @@ export default function LoginInternal() {
         router.replace('/');
     }, [router]);
 
-
-
-
     return (
         <ImageBackground
             source={BackgroundImage}
@@ -67,21 +64,14 @@ export default function LoginInternal() {
 
 
 
+
 const LoginComponent = ({ errorMessage }) => {
     const router = useRouter();
     const dispatch = useDispatch();
-
-    // -- [1] Gunakan formState.isValid dan reset dari useForm
-    const {
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors, isValid }
-    } = useForm({
-        mode: 'onChange',  // Pastikan pakai 'onChange' atau 'onBlur'
+    const { control, handleSubmit, reset, formState: { errors, isValid } } = useForm({
+        mode: 'onChange',
         defaultValues: {
-            nik_nip: '',
-            alamat: "",
+            nik_nip: ''
         }
     });
 
@@ -94,11 +84,8 @@ const LoginComponent = ({ errorMessage }) => {
 
 
 
-    // -- [3] onError jika gagal validasi di sisi client
     const onError = useCallback((formErrors) => {
-        // formErrors berisi detail error validasi, misalnya { nik_nip: {...} }
-        // Reset form jika diperlukan
-        reset();
+        // reset();
     }, [reset]);
 
 
@@ -186,7 +173,7 @@ const LoginComponent = ({ errorMessage }) => {
 function InputOtpCode() {
     const [otp, setOtp] = useState('');
     const dispatch = useDispatch();
-    const { isLoading, registerAtempt, lastRegisterAtempt } = useSelector((state) => state.internalUser);
+    const { isLoading, registerAtempt, user, lastRegisterAtempt } = useSelector((state) => state.internalUser);
     const [timeLeft, setTimeLeft] = useState(0);
 
 
@@ -273,6 +260,14 @@ function InputOtpCode() {
                         onBlur={() => console.log("Blurred")}
                         onTextChange={handleChange}
                         onFilled={verifikasiOtp}
+                        theme={{
+                            pinCodeTextStyle: { color: '#ffffff' },
+                            focusStickStyle: { color: '#ffffff' },
+                            focusedPinCodeContainerStyle: { color: '#ffffff' },
+                            placeholderTextStyle: { color: '#ffffff' },
+                            filledPinCodeContainerStyle: { color: '#ffffff' },
+
+                        }}
                     />
                     <Text className="text-sm mt-2 text-white">We've sent an OTP code via WhatsApp from virtual number 0822-4356-5467</Text>
                     <View className="flex flex-row justify-end mt-4 ">

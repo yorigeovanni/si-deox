@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, Fragment } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { OtpInput } from "react-native-otp-entry";
 import configAction from '@/state/config/configSlice';
@@ -9,13 +9,8 @@ import configAction from '@/state/config/configSlice';
 export default function InputOtpCode() {
     const [otp, setOtp] = useState('');
     const dispatch = useDispatch();
-    const {
-        isLoading,
-        registerAtempt,
-        lastRegisterAtempt
-    } = useSelector((state) => state.config);
+    const { isLoading, lastRegisterAtempt } = useSelector((state) => state.config);
     const [timeLeft, setTimeLeft] = useState(0);
-
 
     const formatTime = (totalSeconds) => {
         const m = Math.floor(totalSeconds / 60);
@@ -25,16 +20,9 @@ export default function InputOtpCode() {
         return `${mm}:${ss}`;
     };
 
-
     const handleChange = (value) => {
         setOtp(value);
     };
-
-
-    const reloadOtp = useCallback(() => {
-        dispatch(configAction.reloadOtp());
-    }, [dispatch]);
-
 
 
     const verifikasiOtp = useCallback((otp) => {
@@ -52,18 +40,23 @@ export default function InputOtpCode() {
         let diff = Math.floor((endTime - now) / 1000);
         if (diff < 0) diff = 0;
         setTimeLeft(diff);
+        
         const intervalId = setInterval(() => {
             const now = Date.now();
             const newDiff = Math.floor((endTime - now) / 1000);
             if (newDiff <= 0) {
                 setTimeLeft(0);
+                dispatch(configAction.registerTimeExpires());
                 clearInterval(intervalId);
             } else {
                 setTimeLeft(newDiff);
             }
         }, 1000);
         return () => clearInterval(intervalId);
-    }, [lastRegisterAtempt]);
+    }, [lastRegisterAtempt, dispatch]);
+    
+    
+    
 
 
 
@@ -79,7 +72,6 @@ export default function InputOtpCode() {
 
     return (
         <Fragment>
-            {timeLeft !== 0 ? (<Fragment>
 
                 <Text className="text-lg font-semibold leading-5 mb-3 mt-8">Enter Your OTP Code</Text>
 
@@ -109,20 +101,6 @@ export default function InputOtpCode() {
 
                     </View>
                 </View>
-            </Fragment>) : (<Fragment>
-                <View>
-                    <Text className="text-gray-600 mt-8">
-                        Your time has expired. Please request a new token.
-                    </Text>
-                    <TouchableOpacity onPress={reloadOtp} style={{ marginTop: 8 }}>
-                        <Text className="text-red-700 font-semibold">Request OTP token</Text>
-                    </TouchableOpacity>
-                </View>
-            </Fragment>)}
-
-
-
-
-        </Fragment>
+            </Fragment>
     );
 }

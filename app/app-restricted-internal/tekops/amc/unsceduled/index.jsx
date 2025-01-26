@@ -5,7 +5,7 @@ import { classNames } from '@/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import createRequest from '@/core/api-secure';
-import InternalHeader from '@/components/ui/app-internal/header';
+import InternalHeader from '@/components/ui/internal/header';
 
 
 

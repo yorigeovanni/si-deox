@@ -10,7 +10,7 @@ function* requestToken(action) {
         const { deviceId, phoneNumber } = yield select((state) => state.config);
         const { data } = yield call(post, '/mobile/api/request-token-internal', {
             nik_nip : action.payload.nik_nip,
-            phoneNumber : phoneNumber,
+            phoneNumber : phoneNumber
         },{
             deviceId: deviceId,
         });
@@ -55,8 +55,6 @@ function* verifikasiOtp(action) {
         },{
             deviceId: deviceId,
         });
-
-
         yield put(actions.successVerifikasiOtp({
             jwtAccessToken : data.jwtAccessToken,
             user : data.user

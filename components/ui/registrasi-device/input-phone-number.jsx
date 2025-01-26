@@ -6,16 +6,16 @@ import { v4 as uuidv4 } from "uuid";
 import { RSAKeychain } from "react-native-rsa-native";
 import * as Application from 'expo-application';
 
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import configAction from '@/state/config/configSlice';
 import PhoneInput from 'react-native-international-phone-number';
-
+import * as Device from 'expo-device';
 
 
 export default function FirstRegisterDeviceUi() {
     const [inputValue, setInputValue] = useState('');
+    const { isLoading, isError } = useSelector((state) => state.config);
     const [selectedCountry, setSelectedCountry] = useState({ "callingCode": "+62", "cca2": "ID", "flag": "🇮🇩", "name": { "ar": "إندونيسيا", "bg": "Индонезия", "by": "Інданезія", "cn": "印度尼西亚", "cz": "Indonésie", "da": "Indonesien", "de": "Indonesien", "ee": "Indoneesia", "el": "Ινδονησία", "en": "Indonesia", "es": "Indonesia", "fr": "Indonésie", "he": "אינדונזיה", "it": "Indonesia", "jp": "インドネシア", "nl": "Indonesië", "pl": "Indonezja", "pt": "Indonésia", "ro": "Indonezia", "ru": "Индонезия", "tr": "Endonezya", "ua": "Індонезія", "zh": "印度尼西亞" } });
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch();
 
 
@@ -41,7 +41,6 @@ export default function FirstRegisterDeviceUi() {
 
     const handleSubmit = useCallback(async () => {
         try {
-            setIsSubmitting(true);
             if (!inputValue) {
                 console.log('hp kosong')
                 return;
@@ -60,30 +59,33 @@ export default function FirstRegisterDeviceUi() {
             } else if (Platform.OS === 'ios') {
                 osId = await Application.getIosIdForVendorAsync();
             }
+
             if (!osId) {
-                throw new Error('Cannot get OS device ID');
+                osId = uuidv4();
             }
-
-            // 2. Buat deviceId
-            let finalDeviceId = '';
-            if (Platform.OS === 'android') {
-                finalDeviceId = `ANDROID-${osId}`;
-            } else if (Platform.OS === 'ios') {
-                finalDeviceId = `IOS-${osId}`;
-            } else {
-                finalDeviceId = `UNKNOW-${uuidv4()}`;
-            }
-
             // 3. Generate key pair
-            const keys = await RSAKeychain.generateKeys(finalDeviceId, 4096);
+            const fakeDeviceID = uuidv4();
+            const keys = await RSAKeychain.generateKeys(fakeDeviceID, 4096);
             const pubKey = keys.public;
-            console.log(keys);
-
+            
+            const deviceInfo = {
+                "brand": Device.brand,
+                "designName": Device.designName,
+                "deviceYearClass": Device.deviceYearClass,
+                "isDevice": Device.isDevice,
+                "manufacturer": Device.manufacturer,
+                "modelId": Device.modelId,  
+                "modelName": Device.modelName,
+                "osName": Device.osName,
+                "productName": Device.productName
+              }
 
             dispatch(configAction.startRegisterDevice({
-                deviceId: finalDeviceId,
+                fakeDeviceID :fakeDeviceID,
+                deviceId: osId,
                 phoneNumber: fullPhoneNumber,
-                publicKey: pubKey
+                publicKey: pubKey,
+                deviceInfo : deviceInfo
             }));
 
         } catch (err) {
@@ -101,6 +103,7 @@ export default function FirstRegisterDeviceUi() {
             <Text style={{ marginBottom: 8 }} className='text-center text-red-700'>
                 Masukan no telepon anda
             </Text>
+            {isError && (<Text>Terjadi Error</Text>)}
             <PhoneInput
                 defaultCountry="ID"
                 value={inputValue}
@@ -177,10 +180,10 @@ export default function FirstRegisterDeviceUi() {
                 <TouchableOpacity
                     className='bg-red-700 mt-6 py-2 px-4 rounded-md mx-14'
                     onPress={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isLoading}
                 >
                     <Text style={{ color: '#fff', fontWeight: 'bold' }}>
-                        {isSubmitting ? 'Mengirim...' : 'Lanjutkan'}
+                        {isLoading ? 'Mengirim...' : 'Lanjutkan'}
                     </Text>
                 </TouchableOpacity>
             </View>

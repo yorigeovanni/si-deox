@@ -1,9 +1,10 @@
 import React, { useCallback, useState, useRef } from "react";
 import { useRouter, useNavigation, usePathname, useFocusEffect } from "expo-router";
-import { Dimensions, View, ScrollView, Text, TouchableOpacity, ImageBackground, StatusBar, Platform, Image, Button } from 'react-native';
+import { Dimensions, View, Text, ImageBackground, Button } from 'react-native';
 import { classNames } from '@/utils';
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 
 
 import ContentLoader, { Rect, Circle, Path } from "react-content-loader/native"
@@ -17,11 +18,17 @@ const { width, height } = Dimensions.get('window');
 
 export default function PengumumanInternal () {
   const firstTimeRef = useRef(true);
+  const { deviceId } = useSelector((state) => state.config);
+  const { jwtAccessToken } = useSelector((state) => state.internalUser);
+
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['component-app-internal-pengumuman'],
     queryFn: async () => {
       try {
-        const { data } = await post(`/mobile/api/portal/top-10`);
+        const { data } = await post(`/mobile/api/internal/top-10`,{},{
+          deviceId,
+          jwtAccessToken
+        });
         return data;
       }
       catch (error) {

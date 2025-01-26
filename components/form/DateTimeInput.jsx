@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
  * @param {any} props.control - dari react-hook-form
  * @param {string} props.name - nama field
  * @param {string} [props.label] - label di atas input
- * @param {'date'|'time'|'datetime'} [props.mode='date'] - tipe picker
+ * @param {'date'|'time'|'datetime'} [props.type='date'] - tipe picker
  * @param {object} [props.rules] - validation rules react-hook-form
  * @param {boolean} [props.editable=true] - apakah input bisa diubah
  * @param {string} [props.placeholder] - placeholder jika belum ada nilai
@@ -18,7 +18,7 @@ export default function DateTimeInput({
   control,
   name,
   label,
-  mode = 'datetime',
+  type = 'datetime',
   rules,
   editable = true,
   placeholder = 'Select...',
@@ -41,13 +41,12 @@ export default function DateTimeInput({
         name={name}
         rules={rules}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
-          // Nilai default (jika belum ada)
           const dateValue = value ? new Date(value) : null;
 
           // Format tampilan text di input
           let displayText = placeholder;
           if (dateValue) {
-            switch (mode) {
+            switch (type) {
               case 'time':
                 // misal: jam:menit
                 displayText = dayjs(dateValue).format('HH:mm');
@@ -101,7 +100,7 @@ export default function DateTimeInput({
               {showPicker && (
                 <DateTimePicker
                   value={dateValue || new Date()}
-                  mode={mode === 'datetime' ? 'datetime' : mode} 
+                  mode={type === 'datetime' ? 'datetime' : type} 
                   // "datetime" sebenarnya tidak semua platform mendukung.
                   // kadang di Android terpisah (date lalu time). 
                   // Anda bisa pisahkan manual jika mau

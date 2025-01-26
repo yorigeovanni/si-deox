@@ -5,7 +5,6 @@ import { Stack } from 'expo-router';
 import { useSelector } from 'react-redux';
 
 
-
 export default function AplikasiInternalLayout() {
   const router = useRouter();
   const pathname = usePathname();
@@ -17,15 +16,20 @@ export default function AplikasiInternalLayout() {
     if (!user && !isLoginPage) {
       router.replace('/app-restricted-internal/login');
     }
+
     if (user && isLoginPage) {
       router.replace('/app-restricted-internal');
     }
   }, [user, isLoginPage, router]);
 
 
+
   if (!user && !isLoginPage) {
-    return <View><Text>Loading...</Text></View>;
+    return (<View>
+      <Text>Loading...</Text>
+    </View>);
   }
+
 
   return (
     <View className="flex-1 bg-white">
@@ -33,3 +37,5 @@ export default function AplikasiInternalLayout() {
     </View>
   );
 }
+
+

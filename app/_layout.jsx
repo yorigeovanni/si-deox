@@ -1,5 +1,6 @@
 // File: app/_layout.tsx
 import "../global.css";
+import 'react-native-get-random-values';
 import { initializeSslPinning, addSslPinningErrorListener } from 'react-native-ssl-public-key-pinning';
 import { useEffect, useState, Fragment } from "react";
 import { View, Text, StatusBar,Platform } from "react-native";

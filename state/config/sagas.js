@@ -9,32 +9,33 @@ const { post } = createRequest();
 
 function* startRegisterDevice(action) {
     try {
-        const { data } = yield call(post, '/mobile/api/register-device', {
-            deviceId: action.payload.deviceId,
+        const { data } = yield call(post, '/mobile/api/public-register-device', {
+            realDeviceId: action.payload.deviceId,
+            deviceId: action.payload.fakeDeviceID,
             phoneNumber : action.payload.phoneNumber,
-            publicKey: action.payload.publicKey
+            publicKey: action.payload.publicKey,
+            deviceInfo : action.payload.deviceInfo
         });
         yield put(actions.succesRegisterDevice({
             token: data.token,
-            deviceId: action.payload.deviceId,
-            phoneNumber: action.payload.phoneNumber,
-            publicKey: action.payload.publicKey
+            deviceId: action.payload.fakeDeviceID,
+            phoneNumber: action.payload.phoneNumber
         }));
     } catch (error) {
+        console.log(error);
         console.log(error.response?.data?.message);
         yield put(actions.errorRegisterDevice(error.response?.data?.message || error.message));
     }
 }
 
 
-
-function* reloadOtp(action) {
+/*
+function* reloadOtp() {
     try {
-        const { deviceId, phoneNumber, publicKey } = yield select((state) => state.config);
-        const { data } = yield call(post, '/mobile/api/register-device', {
+        const { deviceId, phoneNumber } = yield select((state) => state.config);
+        const { data } = yield call(post, '/mobile/api/public-reload-register-device', {
             deviceId: deviceId,
-            phoneNumber : phoneNumber,
-            publicKey: publicKey
+            phoneNumber : phoneNumber
         });
         yield put(actions.successReloadOtp(data));
     } catch (error) {
@@ -42,14 +43,12 @@ function* reloadOtp(action) {
         yield put(actions.errorReloadOtp(error.response?.data?.message || error.message));
     }
 }
-
-
-
+*/
 
 function* verifikasiOtp(action) {
     try {
         const { tokenRegistrasi } = yield select((state) => state.config);
-        const { data } = yield call(post, '/mobile/api/verifikasi-otp', {
+        const { data } = yield call(post, '/mobile/api/public-verifikasi-otp', {
             token: tokenRegistrasi,
             otp : action.payload.otp
         });
@@ -65,7 +64,7 @@ function* verifikasiOtp(action) {
 
 function* watchConfig() {
     yield takeLatest(actions.startRegisterDevice.type, startRegisterDevice);
-    yield takeLatest(actions.reloadOtp.type, reloadOtp);
+   // yield takeLatest(actions.reloadOtp.type, reloadOtp);
     yield takeLatest(actions.verifikasiOtp.type, verifikasiOtp);
 }
 
