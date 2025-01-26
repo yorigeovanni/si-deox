@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 
 import ContentLoader, { Rect, Circle, Path } from "react-content-loader/native"
 import ReanimatedCarousel from "react-native-reanimated-carousel";
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 const { post } = createRequest();
 const { width, height } = Dimensions.get('window');
 

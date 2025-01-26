@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import createRequest from '@/core/api-secure'; 
+import createRequest from '@/core/api-secure-internal'; 
 import { useSelector } from 'react-redux';
 import WebView from 'react-native-webview';
 import { useAssets } from 'expo-asset';

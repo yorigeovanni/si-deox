@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 import { useDispatch, useSelector } from 'react-redux';
 import internalUserActions from '@/state/internalUser/internalUserSlice';
 const { post } = createRequest();

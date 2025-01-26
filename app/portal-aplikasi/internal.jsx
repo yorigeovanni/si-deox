@@ -19,7 +19,7 @@ import DeoLogo from '@/assets/icon-baru.png';
 import { classNames } from '@/utils';
 // STATE MANAGEMENT
 import internalUserActions from '@/state/internalUser/internalUserSlice';
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 const { post } = createRequest();
 
 export default function AplikasiInternal() {

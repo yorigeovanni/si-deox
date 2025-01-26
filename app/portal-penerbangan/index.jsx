@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 
 // API REQUEST
 import { useQuery } from '@tanstack/react-query';
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 const { post } = createRequest();
 
 

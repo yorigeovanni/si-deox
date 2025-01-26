@@ -1,6 +1,6 @@
 import { call, put, takeLatest, select } from 'redux-saga/effects';
 import actions from './internalUserSlice';
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 const { post } = createRequest();
 
 

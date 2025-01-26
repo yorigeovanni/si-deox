@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { classNames } from '@/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 import InternalHeader from '@/components/ui/internal/header';
 
 

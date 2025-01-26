@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import createRequest from '@/core/api-secure';
+import createRequest from '@/core/api-secure-internal';
 const { post } = createRequest();
 
 
