@@ -4,7 +4,6 @@ import { useRouter, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
 import { useSelector } from 'react-redux';
 
-
 export default function AplikasiInternalLayout() {
   const router = useRouter();
   const pathname = usePathname();
@@ -32,9 +31,12 @@ export default function AplikasiInternalLayout() {
 
 
   return (
-    <View className="flex-1 bg-white">
+   
+      <View className="flex-1 bg-white">
       <Stack screenOptions={{ headerShown: false }} />
     </View>
+  
+    
   );
 }
 

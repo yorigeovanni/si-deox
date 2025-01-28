@@ -25,7 +25,7 @@ export default function PortalHeader({
 
     return (
         <Fragment>
-            <View className={classNames('bg-white px-4 pb-4 flex-row justify-between  border-b border-gray-200', Platform.OS === 'android' ? "pt-8" : "pt-16")}>
+            <View className={classNames('bg-white px-4 pb-4 flex-row justify-between  border-b border-gray-200')}>
                 <View className='flex-row items-center space-x-6 mr-8'>
                     <TouchableOpacity onPress={() => onBackCustom()}>
                         <Ionicons name="arrow-back" size={28} color="#991b1b" />

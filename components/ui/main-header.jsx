@@ -24,12 +24,6 @@ export default function MainHeader() {
     } = Updates.useUpdates();
 
 
-
-    const goToMyAccount = useCallback(() => {
-        router.replace(`/my-account`);
-    }, [router]);
-
-
     const handleUpdate = useCallback(async () => {
         try {
             await Updates.reloadAsync();
@@ -41,7 +35,7 @@ export default function MainHeader() {
 
     return (
         <Fragment>
-            <View className={classNames('bg-white px-4 pb-4 flex-row justify-between', Platform.OS === 'android' ? "pt-8" : "pt-16")}>
+            <View className={classNames('bg-white px-4 pb-4 flex-row justify-between')}>
                 <View className="flex-col items-start space-y-0">
                     <Text className="text-red-700 text-xl font-extrabold ">DEO AIRPORT</Text>
                     <Text className="text-red-700 text-sm leading-4 ">TERDEPAN - BERKUALITAS - BERSINAR</Text>

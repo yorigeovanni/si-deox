@@ -246,33 +246,8 @@ export default function GlobalMenu() {
             name: "PPID",
             icon: "information-circle-outline",
             bgColor: "bg-indigo-500",
-            route: "/portal-ppid",
-            childrenMenu: [
-                {
-                    name: "PERATURAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-peraturan"
-                },
-                {
-                    name: "KEBIJAKAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-kebijakan"
-                },
-                {
-                    name: "SOP",
-                    icon: "clipboard-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-sop"
-                },
-                {
-                    name: "PPID",
-                    icon: "information-circle-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-ppid"
-                }
-            ]
+            route: "/portal/ppid",
+            childrenMenu: []
         },
         {
             name: "PENGADUAN",

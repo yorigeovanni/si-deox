@@ -60,7 +60,7 @@ export default function MyAccount() {
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
             {/* Header */}
-            <View className={classNames('bg-red-800 pb-5 px-4 flex-row justify-between', Platform.OS === 'android' ? "pt-8" : "pt-16")}>
+            <View className={classNames('bg-red-800 pb-5 px-4 flex-row justify-between')}>
 
                 <View className="flex-row items-center">
                     <TouchableOpacity className="bg-white rounded-full p-2" onPress={() => router.replace('/')}>
