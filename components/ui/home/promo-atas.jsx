@@ -1,34 +1,55 @@
 import React, { useCallback, useState, useRef } from "react";
-import { useRouter, useNavigation, usePathname, useFocusEffect } from "expo-router";
-import { Dimensions, View, ScrollView, Text, TouchableOpacity, ImageBackground, Pressable, Platform, Image, Button } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-
+import { useRouter, useFocusEffect } from "expo-router";
+import { Dimensions, View, Text, ImageBackground, Pressable, Button } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import ContentLoader, { Rect, Circle, Path } from "react-content-loader/native"
 import ReanimatedCarousel from "react-native-reanimated-carousel";
-import createRequest from '@/core/api-secure-internal';
-const { post } = createRequest();
-const { width, height } = Dimensions.get('window');
+import { useFindMany } from '@/services/portal/@default-query';
 
+
+const { width, height } = Dimensions.get('window');
+const baseURL = process.env.NODE_ENV === 'production' ? process.env.EXPO_PUBLIC_API_URL : 'http://10.8.0.2:4002';
+const model = 'x_mobile_top_banner';
+const selectedFields = {
+  x_name: true,
+  x_studio_description: true
+};
+const DEFAULT_LIMIT = 10;
 
 
 
 export default function HeadlineNews() {
   const router = useRouter();
   const firstTimeRef = useRef(true);
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['home-headlineNews'],
-    queryFn: async () => {
-      try {
-        const { data } = await post(`/mobile/api/portal/top-10`);
-        return data;
-      }
-      catch (error) {
-        throw new Error(error.response?.data?.message || error.message);
-      }
-    },
-    //subscribed: isFocused,
-  })
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [offset, setOffset] = useState(0);
+  const [filter, setFilter] = useState([]);
+  const [listData, setListData] = useState([]);
+
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+    isFetching
+  } = useFindMany({
+    model: model,
+    fields: selectedFields,
+    domain: filter,
+    offset,
+    limit
+  });
+
+  const totalData = data?.totalData ?? 0;
+  const records = data?.records ?? [];
+  const totalPages = data?.totalPages ?? 1;
+
 
   useFocusEffect(useCallback(() => {
     if (firstTimeRef.current) {
@@ -38,8 +59,6 @@ export default function HeadlineNews() {
     refetch();
   }, [])
   );
-
-
 
 
 
@@ -55,7 +74,7 @@ export default function HeadlineNews() {
       }}
       style={{ width: "100%" }}
       width={width * 1}
-      height={width * 0.25}
+      height={width * 0.3}
       data={[1, 2, 3]}
       renderItem={({ item }) => (
         <View className="px-1.5">
@@ -93,7 +112,7 @@ export default function HeadlineNews() {
 
   return (
     <View className="my-4">
-     
+
 
       <ReanimatedCarousel
         {...{
@@ -109,23 +128,47 @@ export default function HeadlineNews() {
         width={width * 0.98}
         height={width * 0.3}
         //autoPlay={true}
-        data={data}
+        data={records}
         // scrollAnimationDuration={1000}
         renderItem={({ item }) => (
-          <Pressable className="px-1.5" onPress={() => router.push(`/news/${item.id}`)}>
-
+          <Pressable className="px-1.5" onPress={() => router.push(`/portal/promo-atas/${item.id}`)}>
             <ImageBackground
-              source={{ uri: item.image }}
+              source={{ uri: `${baseURL}/web/image?model=${model}&id=${item.id}&field=x_studio_image` }}
               resizeMode="cover"
-              className="rounded-lg overflow-hidden mx-1.5" // margin horizontal untuk jarak antar gambar
+              className="rounded-lg overflow-hidden mx-1.5"
               style={{
                 width: '100%',
                 height: '100%',
+                position: 'relative'
               }}
             >
-              <View className="flex-1 justify-end p-4 bg-black/45 rounded-lg">
-                <Text className="text-white text-lg font-bold">{item.title}</Text>
-                <Text className=" text-white text-sm leading-4">{item.description}</Text>
+              {/* Pastikan parent punya position: 'relative' atau pakai absolute di child */}
+
+              <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+
+                {/* Konten teks di atas gradient */}
+                <LinearGradient
+                  colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.5)', 'transparent']}
+                  start={{ x: 0, y: 1 }}
+                  end={{ x: 0, y: 0 }}
+                  style={{ height: '50%' }}
+                >
+                  <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+
+                    <View className=" p-2 pt-6">
+                      <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
+                        {item.x_name}
+                      </Text>
+                      <Text style={{ color: '#fff', fontSize: 12 }}>
+                        {item.x_studio_description}
+                      </Text>
+                    </View>
+
+                  </View>
+                </LinearGradient>
+
+
+
               </View>
             </ImageBackground>
           </Pressable>

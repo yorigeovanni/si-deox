@@ -7,7 +7,7 @@ import { View, Text, TouchableOpacity, Modal, Dimensions } from "react-native";
 import MainHeader from '@/components/ui/main-header';
 import PromoAtas from '@/components/ui/home/promo-atas';
 import HeadlineNews from '@/components/ui/home/headline-news';
-import HomeMenu from '@/components/ui/home/global-menu';
+import HomeMenu from '@/components/menu/portal/global-menu';
 import InformasiTerkait from '@/components/ui/home/informasi-terkait';
 import MainFooter from '@/components/ui/main-footer';
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, Fragment } from "react";
 import { View, Text } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { OtpInput } from "react-native-otp-entry";
-import configAction from '@/state/config/configSlice';
+import configAction from '@/state/global-otp/configSlice';
 
 
 

@@ -22,12 +22,13 @@ export default () => {
             }
         ],
         [
-            {
+           /* {
                 name: 'x_studio_integer',
                 type: 'integer',
                 defaultValue: 13,
-                label: 'INTEGER'
-            },
+                label: 'INTEGER',
+                rules:{}
+            },*/
             {
                 name: 'x_studio_text',
                 type: 'char',
@@ -45,13 +46,42 @@ export default () => {
         ],
         [
             {
-                name: 'x_studio_signature',
-                type: 'signature',
-                defaultValue: null,
-                label: 'TANDA TANGAN'
-            }
+                name: 'x_studio_anak',
+                type: 'lines',
+                defaultValue: [],
+                label: 'ANAK RELATION',
+                formFiels: [
+                    {
+                        name: 'x_name',
+                        label: 'Name',
+                        placeholder: 'Nama Pekerja',
+                        type: 'char',
+                        tableColWidth: 180,
+                        defaultValue: '',
+                        rules: {
+                            required: 'field is required'
+                        },
+                        headerClasname: 'text-left text-sm text-gray-700 w-28',
+                        className: 'text-left text-sm text-gray-700 w-28',
+                        render: (row, value) => value
+                    },
+                    {
+                        name: 'x_studio_potar',
+                        label: 'POTAR',
+                        placeholder: 'PORAT EE',
+                        type: 'char',
+                        tableColWidth: 180,
+                        defaultValue: '',
+                        rules: {
+                            required: 'field is required'
+                        },
+                        headerClasname: 'text-left text-sm text-gray-700 w-28',
+                        className: 'text-left text-sm text-gray-700 w-28',
+                        render: (row, value) => value
+                    },
+                ]
+            },
         ]
-       
     ];
 
 

@@ -1,124 +1,223 @@
-import React, { useState, useRef, useCallback, useEffect, Fragment } from 'react';
-import { View, ScrollView, Text, Pressable, ActivityIndicator } from 'react-native';
+import React, { Fragment, useRef, useCallback } from 'react';
+import { View, ActivityIndicator, Text, Pressable, FlatList, RefreshControl, TouchableOpacity, Image } from 'react-native';
+import { SimpleLineIcons, Octicons, AntDesign } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { classNames } from '@/utils';
-import { Ionicons } from '@expo/vector-icons';
-import { useFindAll } from '@/services/internal/x_data_amc';
 import InternalHeader from '@/components/ui/internal/header';
+import { useInfiniteFindMany } from '@/services/internal/@default-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 
-export default function Berjadwal() {
+const model = 'x_data_amc';
+const selectedFields = {
+  x_studio_sequence: {},
+  x_studio_reg_number: {},
+  x_studio_operator: { fields: { display_name: {} } },
+  x_studio_type_pesawat: { fields: { display_name: {} } },
+  x_studio_status: {},
+  x_studio_ata: {},
+  x_studio_atd: {},
+  x_studio_type_penerbangan: {},
+  x_studio_block_on: {},
+  x_studio_block_off: {},
+  x_studio_parking_stand: { fields: { display_name: {} } },
+  write_date: {},
+  write_uid: { fields: { display_name: {} } },
+  create_uid: { fields: { display_name: {} } },
+  create_date: {},
+};
+const DEFAULT_LIMIT = 20;
+
+
+
+
+const RenderItem = ({ item }) => {
+  const router = useRouter();
+
+
+  const onEditInitialClick = useCallback((id) => {
+    router.push(`./edit-initial/${id}`, { relativeToDirectory: true });
+  }, [router]);
+
+
+  const onEditLandingClick = useCallback((id) => {
+    router.push(`./edit-landing/${id}`, { relativeToDirectory: true });
+  }, [router]);
+
+
+  const onEditTakeoffClick = useCallback((id) => {
+    router.push(`./edit-takeoff/${id}`, { relativeToDirectory: true });
+  }, [router]);
+
+  const onEditCancelClick = useCallback((id) => {
+    router.push(`./edit-takeoff/${id}`, { relativeToDirectory: true });
+  }, [router]);
+
+
+
+  return (<View className=' flex-col bg-white mx-2 my-2 rounded-lg'>
+    {/* Header Card */}
+    <View className="flex-row justify-between py-2 px-4 border-b border-gray-200 ">
+      <View className="flex-col space-x-4">
+        <View className='mr-4'>
+          <Text className="text-gray-800 text-lg font-bold">{item.x_studio_operator.display_name}</Text>
+        </View>
+        <View>
+          {/**<Text className="text-gray-800 text-xl font-bold">{item.operator}</Text> */}
+          <Text className="text-gray-700 text-sm font-bold">{item.x_studio_type_pesawat.display_name}</Text>
+        </View>
+      </View>
+      <View className='flex-end items-end justify-end'>
+        <Text className=" text-gray-700 text-xl font-bold mr-2">PK - 234</Text>
+        <Text className="text-green-700 text-xs border border-green-700 py-1 px-2 rounded-full">{item.x_studio_status}</Text>
+      </View>
+    </View>
+
+
+    {/* Detail Card */}
+    <View className='mt-6 mx-2'>
+      <View className="flex-row justify-between mb-6">
+        <View className="flex items-center">
+          <Text className="text-gray-500 text-sm">FROM</Text>
+          <Text className="text-black text-lg font-bold">SOQ</Text>
+        </View>
+        <View className="flex-1 items-center">
+          <Text className="text-gray-500 text-sm">FLIGHT. N</Text>
+          <Text className="text-black text-lg font-bold"> SJ-435</Text>
+        </View>
+        <View className="flex-1 items-center">
+          <Text className="text-gray-500 text-sm">STA</Text>
+          <Text className="text-black text-lg font-bold"> 21:55</Text>
+        </View>
+        <View className="flex-1 items-center">
+          <Text className="text-gray-500 text-sm">ATA</Text>
+          <Text className="text-black text-lg font-bold">21:34</Text>
+        </View>
+        <View className="flex items-center">
+          <Text className="text-gray-500 text-sm">BLOCK ON</Text>
+          <Text className="text-black text-lg font-bold">22:56</Text>
+        </View>
+      </View>
+
+      <View className="flex-row justify-between mb-4 mx-2">
+        <View className="flex items-center">
+          <Text className="text-gray-500 text-sm">DEST</Text>
+          <Text className="text-black text-lg font-bold">CGK</Text>
+        </View>
+        <View className="flex-1 items-center">
+          <Text className="text-gray-500 text-sm">FLIGHT. N</Text>
+          <Text className="text-black text-lg font-bold"> SJ-435</Text>
+        </View>
+        <View className="flex-1 items-center">
+          <Text className="text-gray-500 text-sm">STD</Text>
+          <Text className="text-black text-lg font-bold"> -</Text>
+        </View>
+        <View className="flex-1 items-center">
+          <Text className="text-gray-500 text-sm">ATD</Text>
+          <Text className="text-black text-lg font-bold">-</Text>
+        </View>
+        <View className="flex items-center">
+          <Text className="text-gray-500 text-sm">BLOCK OFF</Text>
+          <Text className="text-black text-lg font-bold">-</Text>
+        </View>
+      </View>
+    </View>
+
+    <View className="flex-row items-center justify-between py-2 px-4 border-t border-gray-200 ">
+      
+    <View className='flex-row items-center space-x-2'>
+    <TouchableOpacity className="border border-red-700 rounded-lg items-center mx-1 p-2">
+          <Text className="text-red-700 font-bold text-xs">CANCEL</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className='flex-row items-center space-x-2'>
+        <TouchableOpacity 
+            onPress={() => onEditInitialClick(item.id)}
+            className="border border-gray-700 rounded-lg items-center mx-1 p-2"
+        >
+          <Text className="text-gray-700 font-bold text-xs">INITIAL</Text>
+        </TouchableOpacity>
+        <TouchableOpacity className="border border-green-700 rounded-lg items-center mx-1 p-2">
+          <Text className="text-green-700 font-bold text-xs">LANDING</Text>
+        </TouchableOpacity>
+        <TouchableOpacity className="border border-yellow-700 rounded-lg items-center mx-1 p-2">
+          <Text className="text-yellow-700 font-bold text-xs">TAKEOFF</Text>
+        </TouchableOpacity>
+        
+      </View>
+    </View>
+  </View>)
+}
+
+
+
+
+
+
+export default () => {
   const router = useRouter();
   const firstTimeRef = useRef(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [offset, setOffset] = useState(0);
-  const [selectedRowId, setSelectedRowId] = useState(null);
+  const queryClient = useQueryClient();
 
-
-  // Tabel header
-  const [tableHead] = useState([
-    {
-      key: "id",
-      label: 'ID',
-      width: 50,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_operator",
-      label: 'OPERATOR',
-      width: 180,
-      headerClasname: 'text-left text-sm text-gray-700 w-28',
-      className: 'text-left text-sm text-gray-700 w-28',
-      render: (row, value) => value?.display_name
-    },
-    {
-      key: "x_studio_type_pesawat",
-      label: 'TYPE PESAWAT',
-      width: 120,
-      render: (row, value) => value?.display_name
-    },
-    {
-      key: "x_studio_status",
-      label: 'STATUS',
-      width: 120,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_ata",
-      label: 'ATA',
-      width: 120,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_atd",
-      label: 'ATD',
-      width: 120,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_type_penerbangan",
-      label: 'TYPE PENERBANGAN',
-      width: 120,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_block_on",
-      label: 'BLOCK ON',
-      width: 120,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_block_off",
-      label: 'BLOCK OFF',
-      width: 120,
-      render: (row, value) => value
-    },
-    {
-      key: "x_studio_parking_stand",
-      label: 'PARKING STAND',
-      width: 120,
-      render: (row, value) => value?.display_name
-    },
-    {
-      key: "write_date",
-      label: 'WRITE DATE',
-      width: 120,
-      render: (row, value) => value
-    }
-  ]);
-
-
-  const { data, isLoading, isError, error, refetch } = useFindAll({
-    offset,
-    limit
+  const {
+    data,
+    isError,
+    error,
+    refetch,
+    isRefetching,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+  } = useInfiniteFindMany({
+    model,
+    fields: selectedFields,
+    domain: [],
+    limit: DEFAULT_LIMIT,
   });
 
-  const totalData = data?.result?.length || 0;
-  const records = data?.result?.records || [];
-  const totalPages = Math.ceil(totalData / limit);
+
+  const listData = data?.pages?.flatMap((page) => page.records) ?? [];
+  const totalData = data?.pages?.[0]?.totalData || 0;
+  const totalPages = data?.pages?.[0]?.totalPages || 1;
+  const loadedPages = data?.pages?.length ?? 0;
 
 
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
+
+  const onAddClick = useCallback(() => {
+    router.push('./add', { relativeToDirectory: true });
+  }, [router]);
+
+
+
+  const handleRefresh = useCallback(() => {
+    queryClient.removeQueries(['default-infinity-findAll', model]);
+    refetch();
+  }, [queryClient, refetch]);
+
+
+
+
+  // Skeleton loading
+  const renderSkeleton = () => {
+    const dummyArray = Array.from({ length: 10 }, (_, i) => i);
+    return (
+      <View className="px-8 pt-4">
+        {dummyArray.map((item) => (
+          <View key={item} className="flex-row justify-between items-center py-4 border-b border-gray-200">
+            <View className="bg-gray-200 h-4 w-1/2 rounded" />
+            <View className="bg-gray-200 h-4 w-1/6 rounded" />
+          </View>
+        ))}
+      </View>
+    );
   };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
-
-
-  useEffect(() => {
-    setOffset((currentPage - 1) * limit);
-  }, [currentPage, limit]);
-
-
-
+  
+  
+  
+  // Ketika screen difokuskan ulang, lakukan refetch (opsional)
   useFocusEffect(
     useCallback(() => {
       if (firstTimeRef.current) {
@@ -129,199 +228,115 @@ export default function Berjadwal() {
     }, [refetch])
   );
 
+  
 
-  const handleSearch = () => {
-    console.log('Pencarian ditekan');
-  };
-
-
-  const handleEdit = () => {
-    console.log('Edit ditekan');
-  };
-
-
-  const handleDownload = () => {
-    console.log('Download ditekan');
-  };
-
-
-  const navigateToAdd = () => {
-    router.push(`./add`, { relativeToDirectory: true });
-  };
+  if (isError) {
+    return (
+      <Fragment>
+        <InternalHeader
+          backPath="/app-restricted-internal/tekops"
+          title="AMC - DEO AIRPORT"
+          subtitle="SCHEDULED MOVEMENT"
+        />
+        <View className="flex-1 justify-center items-center bg-white px-4">
+          <Text className="mb-2">Terjadi error: {error?.message}</Text>
+          <Pressable
+            onPress={handleRefresh}
+            className="px-4 py-2 bg-blue-600 rounded"
+          >
+            <Text className="text-white">Coba Lagi</Text>
+          </Pressable>
+        </View>
+      </Fragment>
+    );
+  }
 
 
 
   return (
     <Fragment>
+      {/* HEADER */}
       <InternalHeader
-        backPath='/app-restricted-internal/tekops'
-        title='UNIT AMC - DATA MOVEMENT'
-        subtitle="PENERBANGAN BERJADWAL"
-      />
+          backPath="/app-restricted-internal/tekops"
+          title="AMC - DEO AIRPORT"
+          subtitle="SCHEDULED MOVEMENT"
+        />
 
 
-      <View className="flex-1 bg-white">
-        <View className="flex-1 flex-col bg-white">
+      {/** HEADER CRUD */}
+      <View className='flex-row justify-between items-center px-8 py-4 bg-white border-b border-gray-200'>
+        <View className='flex-row items-center space-x-4'>
+          <AntDesign name="table" size={18} color="black" className='ml-0' />
+          <SimpleLineIcons name="cloud-download" size={18} color="black" className='ml-6' />
+          <Octicons name="search" size={18} color="black" className='ml-6' />
+          <Octicons name="filter" size={18} color="black" className='ml-6' />
+        </View>
+        <View className='flex-row items-center space-x-4'>
+          <Pressable onPress={onAddClick}>
+            <SimpleLineIcons name="plus" size={18} color="black" className='mr-6' />
+          </Pressable>
 
-          <View className="flex-row items-center justify-between bg-white px-4 py-2 border-b border-gray-200 mt-2">
-            <View className="flex-row justify-between items-center">
-              {/* Tombol Prev */}
-              <Pressable
-                onPress={handlePrevPage}
-                disabled={currentPage <= 1}
-                className="mr-4 bg-red-700 p-2 rounded-full"
-              >
-                <Ionicons name="arrow-back" size={18} color="#ffffff" />
-              </Pressable>
-
-              {/* Info Halaman */}
-              <View className='flex-col items-center'>
-                <Text className="text-red-800">
-                  Halaman {currentPage} dari {totalPages}
-                </Text>
-                <Text className="text-red-800">
-                  Total Data {totalPages}
-                </Text>
-              </View>
-
-              {/* Tombol Next */}
-              <Pressable
-                onPress={handleNextPage}
-                disabled={currentPage >= totalPages}
-                className="ml-4 bg-red-700 p-2 rounded-full"
-              >
-                <Ionicons name="arrow-forward" size={18} color="#ffffff" />
-
-              </Pressable>
-            </View>
-
-
-            <View className="flex-row space-x-4">
-            <Pressable onPress={() => { }} className='ml-4'>
-                <Ionicons name="open" size={28} color="#15803d" />
-              </Pressable>
-
-              <Pressable onPress={() => { }} className='ml-4'>
-                <Ionicons name="funnel" size={28} color="#15803d" />
-              </Pressable>
-
-              <Pressable onPress={() => { }} className='ml-2'>
-                <Ionicons name="cloud-download" size={28} color="#15803d" />
-              </Pressable>
-
-              <Pressable onPress={() => navigateToAdd()} className='ml-4'>
-                <Ionicons name="add" size={32} color="#15803d" />
-              </Pressable>
-            </View>
-          </View>
-
-          <View className=' flex-row items-start justify-start bg-white p-2 mt-2'>
-            <View className=' border border-orange-400 rounded-full p-2 mr-1'>
-              <Text>asda : sdasd</Text>
-            </View>
-
-            <View className=' border border-orange-400 rounded-full p-2 mr-1'>
-              <Text>asda : sdasd</Text>
-            </View>
-            <View className=' border border-orange-400 rounded-full p-2 mr-1'>
-              <Text>asda : sdasd</Text>
-            </View>
-
-            <View className=' border border-orange-400 rounded-full p-2 mr-1'>
-              <Text>asda : sdasd</Text>
-            </View>
-
-            <View className=' border border-orange-400 rounded-full p-2 mr-1'>
-              <Text>asda : sdasd</Text>
-            </View>
-
-          </View>
-
-          {/* TABEL */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View>
-              {/* Tabel Header */}
-              <View className="bg-white">
-                <View className="flex-row overflow-hidden items-center justify-center">
-                  {tableHead.map((item, index) => {
-                    return (
-                      <View
-                        style={[{ width: item.width }]}
-                        key={index}
-                        className="h-14 bg-gray-100 p-2 border-b border-gray-200"
-                      >
-                        <Text className="bg-gray-100 py-2 text-left text-sm text-gray-700 font-bold">
-                          {item.label}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              </View>
-
-
-              {/* Tabel Body */}
-              <ScrollView className="mt-[-1px]">
-                <View className="bg-white">
-                  {isLoading && (
-                    <Fragment >
-                      <View className=" flex items-center justify-center">
-                        <Text className="p-4 text-gray-600">Loading...</Text>
-                      </View>
-                    </Fragment>
-                  )}
-                  {isError && (
-                    <Text className="p-4 text-red-600">
-                      Terjadi kesalahan: {error?.message}
-                    </Text>
-                  )}
-
-                  {records.length > 0 ? (
-                    records.map((rowData, index) => {
-                      const isSelected = rowData.id === selectedRowId;
-                      const rowBgClass = isSelected ? "bg-blue-500" : index % 2 === 0 ? "bg-gray-50" : "bg-white";
-
-                      return (
-                        <Pressable
-                          key={rowData.id}
-                          onPress={() => setSelectedRowId(rowData.id)}
-                          className={classNames(
-                            "flex-row h-14 items-center border-b border-gray-200",
-                            rowBgClass
-                          )}
-                        >
-                          {tableHead.map((item, i) => (
-                            <Text
-                              key={i}
-                              style={[{ width: item.width }]}
-                              className={classNames(
-                                item.className ?? "text-left text-sm",
-                                isSelected ? "text-white" : "text-gray-700"
-                              )}
-                            >
-                              {item.render(rowData, rowData[item.key])}
-                            </Text>
-                          ))}
-                        </Pressable>
-                      );
-                    })
-                  ) : (
-                    !isLoading && (
-                      <Text className="text-center p-4 text-gray-600">
-                        Tidak ada data.
-                      </Text>
-                    )
-                  )}
-                </View>
-              </ScrollView>
-            </View>
-          </ScrollView>
-
-
-
+          <SimpleLineIcons name="eye" size={18} color="black" className='mr-6' />
+          <AntDesign name="edit" size={18} color="black" className='mr-6' />
+          <AntDesign name="delete" size={18} color="black" className='mr-0' />
         </View>
       </View>
-    </Fragment>
 
+
+      {/* DATA TABLE */}
+      <View className="flex-1 bg-gray-200">
+        {isLoading && listData.length === 0 ? (
+          renderSkeleton()
+        ) : (
+          <Fragment>
+            <FlatList
+              data={listData}
+              keyExtractor={(item, index) => {
+                return item.id?.toString() || index.toString();
+              }}
+              renderItem={({ item }) => <RenderItem item={item} />}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefetching}
+                  onRefresh={handleRefresh}
+                />
+              }
+              onEndReached={() => {
+                if (hasNextPage) {
+                  fetchNextPage();
+                }
+              }}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={() => {
+                if (isFetchingNextPage) {
+                  return (
+                    <View className="py-4">
+                      <ActivityIndicator size="small" color="#999999" />
+                    </View>
+                  );
+                }
+                return null;
+              }}
+            />
+            <View className='flex-row justify-between h-16 items-center px-8 py-4 bg-red-700 '>
+              <Text className=' text-white'>{`Page ${loadedPages} of ${totalPages}`}</Text>
+              <Text className=' text-white'>{`Records ${loadedPages == totalPages ? totalData : loadedPages * DEFAULT_LIMIT} of ${totalData}`}</Text>
+            </View>
+          </Fragment>
+        )}
+      </View>
+
+      {/** LOADING OVERLAY untuk menutupi list saat load data tambahan */}
+      {/* 
+          Skenario: jika sedang loading, tapi data sudah ada (listData.length > 0), 
+          artinya user sedang loadMore atau refetch. Anda bisa menampilkan overlay misalnya: 
+      */}
+      {isLoading && listData.length > 0 && (
+        <View className="absolute inset-0 bg-white bg-opacity-30 justify-center items-center">
+          <ActivityIndicator size="large" color="red" />
+          <Text>Loading...</Text>
+        </View>
+      )}
+    </Fragment>
   );
 }

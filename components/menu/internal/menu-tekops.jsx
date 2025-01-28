@@ -24,6 +24,56 @@ export default function AppInternalMenuTekops() {
 
     const menuItems = [
         {
+            name: "UNIT AMC",
+            icon: "car-outline",
+            bgColor: "bg-red-400",
+            route: "/amc",
+            childrenMenu: [
+                {
+                    name: "DASHBOARD",
+                    icon: "bar-chart-outline",
+                    bgColor: "bg-red-400",
+                    route: "",
+                },
+                {
+                    name: "SCHEDULED",
+                    icon: "timer-outline",
+                    bgColor: "bg-orange-400",
+                    route: "/berjadwal",
+                },
+                {
+                    name: "UNSCEDULED",
+                    icon: "alarm-outline",
+                    bgColor: "bg-cyan-400",
+                    route: "/unsceduled",
+                },
+                {
+                    name: "LOG BOOK",
+                    icon: "book-outline",
+                    bgColor: "bg-lime-400",
+                    route: "/logbook",
+                },
+                {
+                    name: "PERSONIL",
+                    icon: "people-outline",
+                    bgColor: "bg-pink-400",
+                    route: "/personil",
+                },
+                {
+                    name: "JADWAL DINAS",
+                    icon: "calendar-outline",
+                    bgColor: "bg-amber-400",
+                    route: "/jadwaldinas",
+                },
+                {
+                    name: "DATA DUKUNG",
+                    icon: "folder-outline",
+                    bgColor: "bg-indigo-400",
+                    route: "/datadukung",
+                },
+            ],
+        },
+        {
             name: "UNIT ELBAN",
             icon: "airplane-outline",
             bgColor: "bg-blue-500", 
@@ -343,56 +393,7 @@ export default function AppInternalMenuTekops() {
                 },
             ],
         },
-        {
-            name: "UNIT AMC",
-            icon: "car-outline",
-            bgColor: "bg-red-400",        // warna parent
-            route: "/amc",
-            childrenMenu: [
-                {
-                    name: "DASHBOARD",
-                    icon: "bar-chart-outline",
-                    bgColor: "bg-red-400",
-                    route: "",
-                },
-                {
-                    name: "SCHEDULED",
-                    icon: "timer-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/berjadwal",
-                },
-                {
-                    name: "UNSCEDULED",
-                    icon: "alarm-outline",
-                    bgColor: "bg-cyan-400",
-                    route: "/unsceduled",
-                },
-                {
-                    name: "LOG BOOK",
-                    icon: "book-outline",
-                    bgColor: "bg-lime-400",
-                    route: "/logbook",
-                },
-                {
-                    name: "PERSONIL",
-                    icon: "people-outline",
-                    bgColor: "bg-pink-400",
-                    route: "/personil",
-                },
-                {
-                    name: "JADWAL DINAS",
-                    icon: "calendar-outline",
-                    bgColor: "bg-amber-400",
-                    route: "/jadwaldinas",
-                },
-                {
-                    name: "DATA DUKUNG",
-                    icon: "folder-outline",
-                    bgColor: "bg-indigo-400",
-                    route: "/datadukung",
-                },
-            ],
-        },
+        
     ];
 
 

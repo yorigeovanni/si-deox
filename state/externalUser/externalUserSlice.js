@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  companyId : null,
   nik_nip : null,
   tokenLogin : null,
   isLoading : false,
@@ -15,8 +16,8 @@ const initialState = {
 
 
 
-const internalUserSlice = createSlice({
-  name: 'internalUser',
+const externalUserSlice = createSlice({
+  name: 'externalUser',
   initialState,
   reducers: {
 
@@ -103,5 +104,5 @@ const internalUserSlice = createSlice({
   },
 });
 
-export default internalUserSlice.actions;
-export const internalUserReducer =  internalUserSlice.reducer;
+export default externalUserSlice.actions;
+export const externalUserReducer =  externalUserSlice.reducer;

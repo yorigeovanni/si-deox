@@ -7,7 +7,7 @@ import { RSAKeychain } from "react-native-rsa-native";
 import * as Application from 'expo-application';
 
 import { useDispatch,useSelector } from "react-redux";
-import configAction from '@/state/config/configSlice';
+import configAction from '@/state/global-otp/configSlice';
 import PhoneInput from 'react-native-international-phone-number';
 import * as Device from 'expo-device';
 

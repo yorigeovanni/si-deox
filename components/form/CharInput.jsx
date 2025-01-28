@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import { Controller } from 'react-hook-form';
+import { classNames } from '@/utils';
 
 const CharInput = ({ control, name, label, placeholder, editable = true, rules }) => {
 
@@ -16,18 +17,18 @@ const CharInput = ({ control, name, label, placeholder, editable = true, rules }
   }
 
   return (
-    <View style={styles.container}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+    <View className='my-2'>
+      {label ? <Text className=' text-gray-700'>{label}</Text> : null}
       <Controller
         control={control}
         name={name}
         rules={rules || defaultRules}
         render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => {
           return (
-            <View style={{ marginVertical: 4 }}>
+            <View className='my-0'>
 
               <TextInput
-                style={[styles.inputContainer, { backgroundColor: editable ? '#fff' : '#eee' }]}
+                className={classNames( editable ? 'bg-white' : 'bg-gray-200', 'border border-gray-300 rounded p-2')}  
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -35,7 +36,7 @@ const CharInput = ({ control, name, label, placeholder, editable = true, rules }
                 editable={editable}
               />
               {error && (
-                <Text style={{ color: 'red', marginTop: 4 }}>
+                <Text className=' text-red-700 mt-1'>
                   {error.message}
                 </Text>
               )}
@@ -49,49 +50,4 @@ const CharInput = ({ control, name, label, placeholder, editable = true, rules }
 };
 
 export default CharInput;
-
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 8
-  },
-  label: {
-    marginBottom: 4,
-    fontWeight: 'bold'
-  },
-  inputContainer: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    borderRadius: 4
-  },
-  selectedText: {
-    color: '#333'
-  },
-  modalHeader: {
-    backgroundColor: 'red',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    flexDirection: 'row'
-  },
-  searchInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    flex: 1,
-    marginRight: 8
-  },
-  closeBtn: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 8,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  optionItem: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee'
-  }
-});
 

@@ -355,7 +355,7 @@ export default function GlobalMenu() {
             name: "STACKHOLDER",
             icon: "people-outline",
             bgColor: "bg-lime-500",
-            route: "/portal-mitra",
+            route: "/app-restricted-external",
             childrenMenu: []
         },
         {

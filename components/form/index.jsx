@@ -1,13 +1,15 @@
 import { Fragment, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { classNames } from '@/utils';
 import { useRouter } from 'expo-router';
 import { useCreateOrEdit } from '@/services/internal/@default-query';
 
+//import * as fsdfsdfsdfs from  'react-hook-form';
 
 import CharInput from './CharInput';
 import ImageInput from './ImageInput';
+import LinesInput from './LinesInput';
 import Many2OneInput from './Many2OneInput';
 import SignatureInput from './SignatureInput';
 import FileInput from './FileInput';
@@ -15,8 +17,9 @@ import MapsInput from './MapsInput';
 import DateTimeInput from './DateTimeInput';
 
 
-
+//console.log(fsdfsdfsdfs)
 export default function MasterForm({
+    id = null,
     fields = [],
     model,
     submitText = "SUBMIT"
@@ -39,9 +42,29 @@ export default function MasterForm({
 
 
     const handleInternalSubmit = useCallback((formData) => {
-        // create => tidak ada id
-        console.log(formData);
-        mutate({ data: formData },
+        console.log('sdfsfdfsdfsd')
+        const final_value ={};
+        fields.flat().map((item)=>{
+            return {name: item.name, type : item.type}
+        }).forEach((item)=>{
+            if(item.type === 'lines'){
+                convert_value = [];
+                formData[item.name].forEach((item_lines)=>{
+                    if(!id){
+                        convert_value.push([0, 0, item_lines]);
+                    }
+                })
+                final_value[item.name] = convert_value;
+            }else{
+                final_value[item.name] = formData[item.name];
+            }
+        })
+        console.log(final_value)
+        if(!id){
+            console.log(final_value);
+        }
+         // create => tidak ada id
+        mutate({ data: final_value },
             {
                 onSuccess: () => {
                     reset();
@@ -51,7 +74,7 @@ export default function MasterForm({
                     console.log(err);
                 }
             });
-    }, [mutate, reset, router]);
+    }, [mutate, reset, router, id]);
 
 
 
@@ -78,6 +101,9 @@ export default function MasterForm({
             case 'signature': {
                 return <SignatureInput control={control} {...fieldConf} />;
             }
+            case 'lines': {
+                return <LinesInput control={control} {...fieldConf} />;
+            }
             case 'many2one': {
                 if (!fieldConf.model) {
                     return <Text>Model is required for Many2One field</Text>;
@@ -90,7 +116,16 @@ export default function MasterForm({
                 );
             }
             default: {
-                return <Text>Unknown Field Type</Text>;
+                return (<View className='my-2'>
+                    {fieldConf.label ? <Text className=' text-gray-700'>{fieldConf.label}</Text> : null}
+                    <View className='my-0'>
+                        <TextInput
+                            className={classNames('bg-gray-200', 'border border-gray-300 rounded p-2')}
+                            placeholder={'Unknown Field Type'}
+                            editable={false}
+                        />
+                    </View>
+                </View>);
             }
         }
     }
@@ -99,46 +134,55 @@ export default function MasterForm({
 
     return (
         <Fragment>
-            <ScrollView className="flex-1 bg-white p-4">
-            {isError && (<View className=' bg-red-100 p-4 flex-row items-center justify-center mx-6 rounded-lg mt-4'>
-                <Text className='text-red-700'>{error?.response?.data?.message || error?.message}</Text>
-            </View>)}
+            <ScrollView  className="flex-1 bg-white p-4">
+                {isError && (<View className=' bg-red-100 p-4 flex-row items-center justify-center mx-6 rounded-lg mt-4'>
+                    <Text className='text-red-700'>{error?.response?.data?.message || error?.message}</Text>
+                </View>)}
 
-            {fields.map((rowItems, rowIndex) => (
-                <View key={`row-${rowIndex}`} className="flex-row mb-4">
-                    {rowItems.map((fieldConf, colIndex) => {
-                        return (
-                            <View
-                                key={fieldConf.name}
-                                className="flex-1"
-                                style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}
-                            >
-                                {renderFields(fieldConf, control)}
-                            </View>
-                        );
-                    })}
-                </View>
-            ))}
-
-            {/* Tombol Submit */}
-            <Pressable
-                onPress={handleSubmit(handleInternalSubmit)}
-                disabled={!isValid}
-                className={classNames("bg-blue-500 py-3 rounded mt-4", !isValid ? "opacity-50" : "opacity-100")}>
-                <Text className="text-white text-center font-semibold">
-                    {submitText}
-                </Text>
-            </Pressable>
-        </ScrollView>
-
-        {isPending && (
-                            <View style={styles.overlay}>
-                                <View style={styles.overlayContent}>
-                                    <ActivityIndicator size="large" color="#fff" />
-                                    <Text style={styles.overlayText}>Processing...</Text>
+                {fields.map((rowItems, rowIndex) => (
+                    <View key={`row-${rowIndex}`} className="flex-row">
+                        {rowItems.map((fieldConf, colIndex) => {
+                            return (
+                                <View key={colIndex} className="flex-1" style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}>
+                                    {renderFields(fieldConf, control)}
                                 </View>
-                            </View>
-                        )}
+                            );
+                        })}
+                    </View>
+                ))}
+
+                {/* Tombol Submit */}
+
+            </ScrollView>
+
+            <View className='flex-row items-center justify-between py-4 px-8 bg-slate-100'>
+                <Pressable
+                    onPress={handleSubmit(handleInternalSubmit)}
+                    ///  disabled={!isValid}
+                    className={classNames("bg-blue-700 p-2 rounded-lg", false ? "opacity-50" : "opacity-100")}>
+                    <Text className="text-white text-center font-semibold">
+                        CANCEL
+                    </Text>
+                </Pressable>
+                <Pressable
+                    onPress={handleSubmit(handleInternalSubmit)}
+                    //   disabled={!isValid}
+                    className={classNames("bg-green-700 p-2 rounded-lg", false ? "opacity-50" : "opacity-100")}>
+                    <Text className="text-white text-center font-semibold">
+                        {submitText}
+                    </Text>
+                </Pressable>
+
+            </View>
+
+            {isPending && (
+                <View style={styles.overlay}>
+                    <View style={styles.overlayContent}>
+                        <ActivityIndicator size="large" color="#fff" />
+                        <Text style={styles.overlayText}>Processing...</Text>
+                    </View>
+                </View>
+            )}
         </Fragment>
     );
 }

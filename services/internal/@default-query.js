@@ -1,8 +1,67 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import createRequest from '@/core/api-secure-internal';
 import { useDispatch, useSelector } from 'react-redux';
 import internalUserActions from '@/state/internalUser/internalUserSlice';
 const { post } = createRequest();
+
+
+
+export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {} }) {
+    const { deviceId } = useSelector((state) => state.config);
+    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const dispatch = useDispatch();
+    // STIAP QUERY SECURE YANG HARUS LOGIN
+    // HARUS ADA INI SEBAGAI CALBACK PENANGANGAN KETIKA RESPONSE ERROR 401
+    const logoutUserInternal = () => {
+        dispatch(internalUserActions.logout());
+    };
+
+    return useInfiniteQuery({
+        queryKey: ['default-infinity-findAll', model, limit, ...domain],
+        queryFn: async ({ pageParam = 0 }) => {
+            const offset = pageParam;
+            const action = 'web_search_read';
+            const { data } = await post(
+                `/mobile/api/internal/${model}/${action}`,
+                {
+                    jsonrpc: '2.0',
+                    method: 'call',
+                    params: {
+                        model,
+                        method: action,
+                        args: [],
+                        kwargs: {
+                            specification: fields,
+                            offset,
+                            order: 'write_date DESC',
+                            context: {},
+                            limit: limit,
+                            count_limit: 10001,
+                            domain: domain
+                        }
+                    }
+                },
+                {
+                    deviceId,
+                    jwtAccessToken,
+                    logoutUserInternal
+                }
+            );
+            const totalData = data?.result?.length || 0;
+            const records = data?.result?.records || [];
+            const totalPages = Math.ceil(totalData / limit);
+            return { totalData, records, offset, totalPages };
+        },
+        getNextPageParam: (lastPage, allPages) => {
+            const nextOffset = lastPage.offset + limit;
+            // cek jika nextOffset masih < totalData
+            if (nextOffset < lastPage.totalData) return nextOffset;
+            return undefined; // all data has been fetched
+          },
+    });
+}
+
+
 
 
 
