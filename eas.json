@@ -15,7 +15,13 @@
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "android": {
+        "resourceClass": "large"
+      },
+      "ios": {
+        "resourceClass": "large"
+      }
     }
   },
   "submit": {
