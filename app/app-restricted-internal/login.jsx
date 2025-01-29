@@ -31,7 +31,7 @@ export default function LoginInternal() {
             {/* Overlay putih setengah transparan */}
             <View className="absolute flex-1 w-full h-full bg-black opacity-30" />
 
-            <View className={classNames(' px-4 pb-4 flex-row justify-between', Platform.OS === 'android' ? "pt-12" : "pt-20")}>
+            <View className={classNames(' px-4 pb-4 flex-row justify-between pt-8')}>
                 <View className="flex-col items-start space-y-0 ml-2">
                     <Text className="text-white text-sm leading-4 ">Current Phone Number : </Text>
                     <Text className="text-white text-xl font-extrabold ">{phoneNumber}</Text>

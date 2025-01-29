@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useMemo } from 'react';
 import { View, Text, Button, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 
 // STATE MANAGEMENT
 import { useDispatch, useSelector } from 'react-redux';

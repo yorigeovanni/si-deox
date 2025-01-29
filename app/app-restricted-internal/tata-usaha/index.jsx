@@ -5,9 +5,9 @@ import { useRouter, usePathname } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { BarChart } from 'react-native-chart-kit';
 
-import InternalHeader from '@/components/ui/internal/header';
-import InternalPengumuman from '@/components/ui/internal/pengumuman';
-import InternalMenuTataUsaha from '@/components/menu/internal/menu-tata-usaha';
+import InternalHeader from '@/components/internal/header';
+import InternalPengumuman from '@/components/internal/pengumuman';
+import InternalMenuTataUsaha from '@/components/internal/menu-tata-usaha';
 
 const screenWidth = Dimensions.get('window').width;
 

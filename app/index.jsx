@@ -4,12 +4,12 @@ import { ScrollView } from 'react-native';
 import { View, Text, TouchableOpacity, Modal, Dimensions } from "react-native";
 //import SwiperFlatList from 'react-native-swiper-flatlist';
 
-import MainHeader from '@/components/ui/main-header';
-import PromoAtas from '@/components/ui/home/promo-atas';
-import HeadlineNews from '@/components/ui/home/headline-news';
-import HomeMenu from '@/components/menu/portal/global-menu';
-import InformasiTerkait from '@/components/ui/home/informasi-terkait';
-import MainFooter from '@/components/ui/main-footer';
+import MainHeader from '@/components/main-header';
+import PromoAtas from '@/components/portal/promo-atas';
+import HeadlineNews from '@/components/portal/headline-news';
+import HomeMenu from '@/components/portal/menu';
+import InformasiTerkait from '@/components/portal/informasi-terkait';
+import MainFooter from '@/components/main-footer';
 
 
 

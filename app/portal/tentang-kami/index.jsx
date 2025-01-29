@@ -13,7 +13,7 @@ export default function RootIndex() {
                     {/* Bagian PROFILE */}
                     <View className=" flex-col items-start justify-start ">
                     <Text className="text-xl font-bold">PPID - BLLU UPBU KELAS I DEO - SORONG </Text>
-                    <Text className="text-lg font-bold text-gray-600 mb-4 mt-6">PROFIL</Text>
+                    <Text className="text-lg font-bold text-gray-600 mb-4 mt-6">PROFILE</Text>
                     </View>
 
                     {/* Paragraf 1 */}

@@ -12,7 +12,7 @@ import * as Network from "expo-network";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/state";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import RegistrasiDevice from "@/components/ui/registrasi-device";
+import RegistrasiDevice from "@/components/registrasi-device";
 
 // Pastikan import SafeAreaProvider & SafeAreaView dari 'react-native-safe-area-context'
 import {

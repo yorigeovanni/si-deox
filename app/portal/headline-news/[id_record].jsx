@@ -2,8 +2,8 @@ import React, { Fragment, useRef, useCallback, useState } from 'react';
 import { useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { View, Text, ActivityIndicator, Modal, Image, TouchableOpacity } from 'react-native';
 import WebView from 'react-native-webview';
-import Header from '@/components/ui/portal/header';
-import Footer from '@/components/ui/portal/footer';
+import Header from '@/components/portal/header';
+import Footer from '@/components/portal/footer';
 import { useFindOne } from '@/services/portal/@default-query';
 import { LinearGradient } from 'expo-linear-gradient';
 

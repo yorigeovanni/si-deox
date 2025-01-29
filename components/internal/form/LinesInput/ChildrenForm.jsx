@@ -5,14 +5,16 @@ import { classNames } from '@/utils';
 import { useRouter } from 'expo-router';
 
 
-import CharInput from '@/components/form/CharInput';
-import ImageInput from '@/components/form/ImageInput';
-import LinesInput from '@/components/form/LinesInput';
-import Many2OneInput from '@/components/form/Many2OneInput';
-import SignatureInput from '@/components/form/SignatureInput';
-import FileInput from '@/components/form/FileInput';
-import MapsInput from '@/components/form/MapsInput';
-import DateTimeInput from '@/components/form/DateTimeInput';
+import CharInput from '@/components/internal/form/CharInput';
+import ImageInput from '@/components/internal/form/ImageInput';
+import LinesInput from '@/components/internal/form/LinesInput';
+import Many2OneInput from '@/components/internal/form/Many2OneInput';
+import SignatureInput from '@/components/internal/form/SignatureInput';
+import FileInput from '@/components/internal/form/FileInput';
+import MapsInput from '@/components/internal/form/MapsInput';
+import DateTimeInput from '@/components/internal/form/DateTimeInput';
+
+
 
 
 //console.log(fsdfsdfsdfs)

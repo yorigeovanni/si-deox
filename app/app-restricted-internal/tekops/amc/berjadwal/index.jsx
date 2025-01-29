@@ -2,7 +2,7 @@ import React, { Fragment, useRef, useCallback } from 'react';
 import { View, ActivityIndicator, Text, Pressable, FlatList, RefreshControl, TouchableOpacity, Image } from 'react-native';
 import { SimpleLineIcons, Octicons, AntDesign } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 import { useInfiniteFindMany } from '@/services/internal/@default-query';
 import { useQueryClient } from '@tanstack/react-query';
 

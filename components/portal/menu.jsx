@@ -1,7 +1,11 @@
 import React, { Fragment, useState } from "react";
-import { View, Text, TouchableOpacity, Modal, Dimensions, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Modal, Dimensions, Platform , Image} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import BluLogo from '@/assets/blu.png';
+import PerhubunganLogo from '@/assets/deo.jpg';
+
+
 
 function chunkArray(array, chunkSize) {
     const chunks = [];
@@ -56,191 +60,36 @@ export default function GlobalMenu() {
             name: "FASILITAS",
             icon: "bed-outline",
             bgColor: "bg-green-400",
-            route: "/portal-fasilitas",
-            childrenMenu: [
-                {
-                    name: "PARKIR",
-                    icon: "car-outline",
-                    bgColor: "bg-green-400",
-                    route: "/portal-fasilitas-parkir"
-                },
-                {
-                    name: "LOUNGE",
-                    icon: "cafe-outline",
-                    bgColor: "bg-green-400",
-                    route: "/portal-fasilitas-lounge"
-                },
-                {
-                    name: "RESTORAN",
-                    icon: "restaurant-outline",
-                    bgColor: "bg-green-400",
-                    route: "/portal-fasilitas-restoran"
-                },
-                {
-                    name: "TOKO",
-                    icon: "cart-outline",
-                    bgColor: "bg-green-400",
-                    route: "/portal-fasilitas-toko"
-                },
-                {
-                    name: "ATM",
-                    icon: "card-outline",
-                    bgColor: "bg-green-400",
-                    route: "/portal-fasilitas-atm"
-                },
-                {
-                    name: "PENITIPAN",
-                    icon: "cube-outline",
-                    bgColor: "bg-green-400",
-                    route: "/portal-fasilitas-penitipan"
-                }
-            ]
+            route: "/portal/fasilitas",
+            childrenMenu: []
         },
         {
             name: "PENUMPANG",
             icon: "person-outline",
             bgColor: "bg-yellow-500",
-            route: "/portal-penumpang",
-            childrenMenu: [
-                {
-                    name: "INFORMASI",
-                    icon: "information-circle-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-informasi"
-                },
-                {
-                    name: "KARGO",
-                    icon: "cube-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-kargo"
-                },
-                {
-                    name: "BAGASI",
-                    icon: "briefcase-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-bagasi"
-                },
-                {
-                    name: "CEK-IN",
-                    icon: "checkmark-circle-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-cek-in"
-                },
-                {
-                    name: "PROMO",
-                    icon: "pricetag-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-promo"
-                },
-                {
-                    name: "TARIF",
-                    icon: "cash-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-tarif"
-                },
-                {
-                    name: "JADWAL",
-                    icon: "calendar-outline",
-                    bgColor: "bg-yellow-500",
-                    route: "/portal-penumpang-jadwal"
-                }
-            ]
+            route: "/portal/penumpang",
+            childrenMenu: []
         },
         {
             name: "TRANSPORTASI ",
             icon: "car-outline",
             bgColor: "bg-red-400",
-            route: "/portal-transportasi",
-            childrenMenu: [
-                {
-                    name: "TAXI",
-                    icon: "car-outline",
-                    bgColor: "bg-red-400",
-                    route: "/portal-transportasi-taxi"
-                },
-                {
-                    name: "ANGKUTAN",
-                    icon: "bus-outline",
-                    bgColor: "bg-red-400",
-                    route: "/portal-transportasi-angkutan"
-                },
-                {
-                    name: "PARKIR",
-                    icon: "car-outline",
-                    bgColor: "bg-red-400",
-                    route: "/portal-transportasi-parkir"
-                },
-                {
-                    name: "SEWA",
-                    icon: "car-outline",
-                    bgColor: "bg-red-400",
-                    route: "/portal-transportasi-sewa"
-                }
-            ]
+            route: "/portal/transportasi",
+            childrenMenu: []
         },
         {
             name: "PERATURAN",
             icon: "document-text-outline",
             bgColor: "bg-purple-500",
-            route: "/portal-peraturan",
-            childrenMenu: [
-                {
-                    name: "PERATURAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-purple-500",
-                    route: "/portal-peraturan-peraturan"
-                },
-                {
-                    name: "KEBIJAKAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-purple-500",
-                    route: "/portal-peraturan-kebijakan"
-                },
-                {
-                    name: "SOP",
-                    icon: "clipboard-outline",
-                    bgColor: "bg-purple-500",
-                    route: "/portal-peraturan-sop"
-                },
-                {
-                    name: "PPID",
-                    icon: "information-circle-outline",
-                    bgColor: "bg-purple-500",
-                    route: "/portal-peraturan-ppid"
-                }
-            ]
+            route: "/portal/peraturan",
+            childrenMenu: []
         },
         {
             name: "SOP",
             icon: "clipboard-outline",
             bgColor: "bg-pink-500",
-            route: "/portal-sop",
-            childrenMenu: [
-                {
-                    name: "PERATURAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-peraturan"
-                },
-                {
-                    name: "KEBIJAKAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-kebijakan"
-                },
-                {
-                    name: "SOP",
-                    icon: "clipboard-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-sop"
-                },
-                {
-                    name: "PPID",
-                    icon: "information-circle-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-ppid"
-                }
-            ]
+            route: "/portal/sop",
+            childrenMenu: []
         },
         {
             name: "PPID",
@@ -253,79 +102,17 @@ export default function GlobalMenu() {
             name: "PENGADUAN",
             icon: "chatbubble-outline",
             bgColor: "bg-orange-400",
-            route: "/portal-pengaduan",
-            childrenMenu: [
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-pengaduan"
-                },
-                {
-                    name: "KOMENTAR",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-komentar"
-                },
-                {
-                    name: "SARAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-saran"
-                },
-                {
-                    name: "KRITIK",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-orange-400",
-                    route: "/portal-pengaduan-kritik"
-                }
-            ]
+            route: "/portal/pengaduan",
+            childrenMenu: []
         },
         {
             name: "STATISTIK",
             icon: "stats-chart-outline",
             bgColor: "bg-teal-500",
-            route: "/portal-statistik",
-            childrenMenu: [
-                {
-                    name: "PENUMPANG",
-                    icon: "person-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penumpang"
-                },
-                {
-                    name: "PENERBANGAN",
-                    icon: "airplane-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-penerbangan"
-                },
-                {
-                    name: "TRANSPORTASI",
-                    icon: "car-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-transportasi"
-                },
-                {
-                    name: "PENGADUAN",
-                    icon: "chatbubble-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-pengaduan"
-                },
-                {
-                    name: "LAYANAN",
-                    icon: "settings-outline",
-                    bgColor: "bg-teal-500",
-                    route: "/portal-statistik-layanan"
-                },
-            ]
-        },
-        {
-            name: "LAYANAN",
-            icon: "settings-outline",
-            bgColor: "bg-cyan-500",
-            route: "/portal-layanan",
+            route: "/portal/statistik",
             childrenMenu: []
         },
+        
         {
             name: "STACKHOLDER",
             icon: "people-outline",
@@ -337,7 +124,16 @@ export default function GlobalMenu() {
             name: "INTERNAL",
             icon: "apps-outline",
             bgColor: "bg-gray-500",
+            image : PerhubunganLogo,
             route: "/app-restricted-internal",
+            childrenMenu: []
+        },
+        {
+            name: "TENTANG KAMI",
+            icon: "",
+            image : BluLogo,
+            bgColor: "bg-cyan-500",
+            route: "/portal/tentang-kami",
             childrenMenu: []
         },
     ];
@@ -416,7 +212,7 @@ export default function GlobalMenu() {
     };
 
     return (
-        <Fragment>
+        <View className=" my-6">
             {/* Render parent menus */}
             {chunkedMenus.map((row, rowIndex) => (
                 <View key={rowIndex} style={{ flexDirection: "row", justifyContent: "flex-start", marginTop: 12 }}>
@@ -426,11 +222,9 @@ export default function GlobalMenu() {
                             style={{ alignItems: "center", width: "23%", marginHorizontal: 4 }}
                             onPress={() => handleParentPress(item)}
                         >
-                            <View
-                                className={`justify-center items-center rounded-full p-4 border border-white ${item.bgColor}`}
-                            >
+                            {item.image ? (<Image source={item.image} style={{ width: 60, height: 60 }} className=" rounded-full" />) : (<View className={`justify-center items-center rounded-full p-4 border border-white ${item.bgColor}`}>
                                 <Ionicons name={item.icon} size={28} color="#ffffff" />
-                            </View>
+                            </View>)}
                             <Text
                                 numberOfLines={2}  // up to 2 lines
                                 className="mt-1 text-gray-800 text-xs text-center"
@@ -523,6 +317,6 @@ export default function GlobalMenu() {
             
             
             
-        </Fragment>
+        </View>
     );
 }

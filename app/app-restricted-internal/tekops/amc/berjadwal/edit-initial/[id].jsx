@@ -4,14 +4,15 @@ import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { classNames } from '@/utils';
 import { useCreateOrEdit } from '@/services/internal/x_data_amc';
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 
 //FORM COMPONENT
-import CharInput from '@/components/form/CharInput';
-import Many2OneInput from '@/components/form/Many2OneInput';
-import FileInput from '@/components/form/FileInput';
-import MapsInput from '@/components/form/MapsInput';
-import DateTimeInput from '@/components/form/DateTimeInput';
+import CharInput from '@/components/internal/form/CharInput';
+import Many2OneInput from '@/components/internal/form/Many2OneInput';
+import FileInput from '@/components/internal/form/FileInput';
+import MapsInput from '@/components/internal/form/MapsInput';
+import DateTimeInput from '@/components/internal/form/DateTimeInput';
+
 
 
 

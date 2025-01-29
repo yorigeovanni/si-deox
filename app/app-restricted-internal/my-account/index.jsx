@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { BarChart } from 'react-native-chart-kit';
 
 
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 import { useDispatch, useSelector } from 'react-redux';
 import internalUserActions from '@/state/internalUser/internalUserSlice';
 import { useFindOne } from '@/services/internal/@default-query';

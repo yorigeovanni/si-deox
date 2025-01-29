@@ -15,7 +15,7 @@ import {
 } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 import { useFindMany } from '@/services/internal/@default-query';
 
 // ----- CONSTANT / CONFIG ----- //

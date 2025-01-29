@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
-import InternalHeader from '@/components/ui/internal/header';
-import MasterForm from '@/components/form';
+import InternalHeader from '@/components/internal/header';
+import MasterForm from '@/components/internal/form';
 
 
 

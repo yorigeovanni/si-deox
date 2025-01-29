@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { classNames } from '@/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { useFindAll } from '@/services/internal/x_data_amc';
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 
 
 export default function Berjadwal() {

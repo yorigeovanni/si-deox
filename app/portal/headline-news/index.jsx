@@ -1,7 +1,7 @@
 import React, { Fragment, useRef, useCallback } from 'react';
 import { View, ActivityIndicator, Text, Pressable, FlatList, RefreshControl, ImageBackground, Image } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import InternalHeader from '@/components/ui/internal/header';
+import InternalHeader from '@/components/internal/header';
 import { useInfiniteFindMany } from '@/services/portal/@default-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';

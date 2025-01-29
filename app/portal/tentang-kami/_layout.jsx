@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, Platform, FlatList, Dimensions } from "re
 import { Ionicons } from "@expo/vector-icons";
 import { classNames } from "@/utils";
 
-const basePath = "/portal/ppid";
+const basePath = "/portal/tentang-kami";
 
 // Fungsi mapping borderColor Tailwind ke heksadesimal
 const colorMap = {
@@ -24,83 +24,56 @@ export default function LayoutPpid() {
   // Daftar menu
   const menuItems = [
     {
-      name: "TENTANG PPID",
-      icon: "information-circle-outline",
-      bgColor: "bg-blue-600",
-      borderColor: "border-blue-600",
-      route: `${basePath}`,
-    },
-    {
-      name: "MAKLUMAT & STANDAR BIAYA",
+      name: "PROFILE BLU",
       icon: "document-attach-outline",
       bgColor: "bg-pink-600",
       borderColor: "border-pink-600",
-      route: `${basePath}/maklumat-standar-biaya`,
-    },
-    {
-      name: "INFORMASI BERKALA",
-      icon: "folder-open-outline",
-      bgColor: "bg-yellow-600",
-      borderColor: "border-yellow-600",
-      route: `${basePath}/data-informasi-berkala`,
-    },
-    {
-      name: "INFORMASI SETIAP SAAT",
-      icon: "folder-open-outline",
-      bgColor: "bg-yellow-600",
-      borderColor: "border-yellow-600",
-      route: `${basePath}/data-informasi-setiap-saat`,
-    },
-    {
-      name: "INFORMASI SERTA MERTA",
-      icon: "folder-open-outline",
-      bgColor: "bg-yellow-600",
-      borderColor: "border-yellow-600",
-      route: `${basePath}/data-informasi-serta-merta`,
-    },
-    {
-      name: "INFORMASI DIKECUALIKAN",
-      icon: "folder-open-outline",
-      bgColor: "bg-yellow-600",
-      borderColor: "border-yellow-600",
-      route: `${basePath}/data-informasi-dikecualikan`,
+      route: `${basePath}`,
     },
     
     {
-      name: "PROSEDUR KEBERATAN",
-      icon: "alert-circle-outline",
-      bgColor: "bg-red-600",
-      borderColor: "border-red-600",
-      route: `${basePath}/prosedur-keberatan`,
+      name: "VISI & MISI",
+      icon: "document-attach-outline",
+      bgColor: "bg-pink-600",
+      borderColor: "border-pink-600",
+      route: `${basePath}/visi-misi`,
     },
     {
-      name: "PROSEDUR SENGKETA",
-      icon: "help-circle-outline",
-      bgColor: "bg-red-600",
-      borderColor: "border-red-600",
-      route: `${basePath}/prosedur-sengketa`,
+      name: "KONTRAK KERJA",
+      icon: "document-attach-outline",
+      bgColor: "bg-pink-600",
+      borderColor: "border-pink-600",
+      route: `${basePath}/kontrak-kerja`,
     },
     {
-      name: "KEPUASAN LAYANAN",
+      name: "STRUKTUR ORGANISASI",
+      icon: "folder-open-outline",
+      bgColor: "bg-yellow-600",
+      borderColor: "border-yellow-600",
+      route: `${basePath}/struktur-organisasi`,
+    },
+    
+    {
+      name: "PENGHARGAAN",
       icon: "happy-outline",
       bgColor: "bg-amber-600",
       borderColor: "border-amber-600",
-      route: `${basePath}/kepuasan-layanan`,
+      route: `${basePath}/penghargaan`,
     },
     {
-      name: "FORMULIR PERMOHONAN",
-      icon: "create-outline",
-      bgColor: "bg-purple-600",
-      borderColor: "border-purple-600",
-      route: `${basePath}/formulir-permohonan`,
+      name: "RIWAYAT PIMPINAN",
+      icon: "alert-circle-outline",
+      bgColor: "bg-red-600",
+      borderColor: "border-red-600",
+      route: `${basePath}/riwayat-pimpinan`,
     },
     {
-      name: "PERMOHONAN ANDA",
-      icon: "document-text-outline",
-      bgColor: "bg-green-600",
-      borderColor: "border-green-600",
-      route: `${basePath}/permohonan-anda`,
-    },
+      name: "SEJARAH",
+      icon: "information-circle-outline",
+      bgColor: "bg-blue-600",
+      borderColor: "border-blue-600",
+      route: `${basePath}/sejarah`,
+    }
   ];
 
   // Dapatkan lebar layar
@@ -165,8 +138,8 @@ export default function LayoutPpid() {
 
         {/* Judul */}
         <View className="flex-col items-end">
-          <Text className="text-red-700 text-xl font-extrabold">PPID - DEO AIRPORT</Text>
-          <Text className="text-red-700 text-sm leading-4">LAYANAN KETERBUKAAN INFORMASI PUBLIK</Text>
+          <Text className="text-red-700 text-xl font-extrabold">TENTANG KAMI - DEO AIRPORT</Text>
+          <Text className="text-red-700 text-sm leading-4">KANTOR BLU UPBU KELAS I DEO - SORONG</Text>
         </View>
       </View>
 

@@ -17,7 +17,7 @@
       "autoIncrement": true,
       "channel": "production",
       "android": {
-        "resourceClass": "large"// "buildType": "apk",
+        "resourceClass": "large"// ,"buildType": "apk"
       },
       "ios": {
         "resourceClass": "large"

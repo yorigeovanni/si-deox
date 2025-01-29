@@ -9,7 +9,7 @@ import BackgroundImage from '@/assets/002.png';
 import { classNames } from '@/utils';
 // STATE MANAGEMENT
 import externalUserActions from '@/state/externalUser/externalUserSlice';
-import SelectCompany from '@/components/ui/external/login/SelectCompany';
+import SelectCompany from '@/components/external/login/SelectCompany';
 
 
 
