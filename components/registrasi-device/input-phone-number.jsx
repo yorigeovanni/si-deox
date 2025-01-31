@@ -71,6 +71,7 @@ export default function FirstRegisterDeviceUi() {
             const keys = await RSAKeychain.generateKeys(newKey, 2048);
             await SecureStore.setItemAsync(process.env.EXPO_PUBLIC_SECRET_KEY_NAME, newKey);
             const pubKey = keys.public;
+            console.log('DALAM PUKI EWWWWWWW')
 
             const deviceInfo = {
                 "brand": Device.brand,

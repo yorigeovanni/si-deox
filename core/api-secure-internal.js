@@ -35,9 +35,6 @@ function buildFullUrl(baseURL, rawUrl, config = {}) {
 async function signData(deviceId, stringToSign) {
   try {
     let padKey = await SecureStore.getItemAsync(process.env.EXPO_PUBLIC_SECRET_KEY_NAME);
-    console.log('============================== PAD KEY ==============================')
-    console.log(padKey);
-    console.log('============================== PAD KEY ==============================');
     let signatureBase64 = await RSAKeychain.signWithAlgorithm(stringToSign, padKey, 'SHA256withRSA');
     signatureBase64 = signatureBase64.replace(/(\r\n|\n|\r)/gm, '');
     return signatureBase64;
