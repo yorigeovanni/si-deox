@@ -46,6 +46,16 @@ export default () => {
         ],
         [
             {
+                name: 'x_studio_imagedfsfsdf',
+                type: 'qrCode',
+                defaultValue: null,
+                label: 'SCAN'
+            },
+        ],
+
+        
+        [
+            {
                 name: 'x_studio_anak',
                 type: 'lines',
                 defaultValue: [],

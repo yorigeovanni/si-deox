@@ -57,7 +57,7 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
             // cek jika nextOffset masih < totalData
             if (nextOffset < lastPage.totalData) return nextOffset;
             return undefined; // all data has been fetched
-          },
+        },
     });
 }
 
@@ -65,23 +65,23 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
 
 
 
-export function useFindMany({pathname = null, params = {}, model, offset = 0, limit = 20, domain = [], fields = {} }) {
+export function useFindMany({ pathname = null, params = {}, model, offset = 0, limit = 20, domain = [], fields = {} }) {
     const { deviceId } = useSelector((state) => state.config);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     const dispatch = useDispatch();
-    
+
     // STIAP QUERY SECURE YANG HARUS LOGIN
     // HARUS ADA INI SEBAGAI CALBACK PENANGANGAN KETIKA RESPONSE ERROR 401
     const logoutUserInternal = () => {
         dispatch(internalUserActions.logout());
     };
 
-    if(pathname){
+    if (pathname) {
         return useQuery({
             queryKey: [pathname],
             queryFn: async () => {
                 const { data } = await post(
-                    `${pathname}`, 
+                    `${pathname}`,
                     params,
                     {
                         deviceId,
@@ -92,9 +92,9 @@ export function useFindMany({pathname = null, params = {}, model, offset = 0, li
                 const totalData = data?.result?.length || 0;
                 const records = data?.result?.records || [];
                 const totalPages = Math.ceil(totalData / limit);
-                return {totalData, records, totalPages};
+                return { totalData, records, totalPages };
             },
-          
+
             keepPreviousData: true
         });
     }
@@ -132,9 +132,9 @@ export function useFindMany({pathname = null, params = {}, model, offset = 0, li
             const totalData = data?.result?.length || 0;
             const records = data?.result?.records || [];
             const totalPages = Math.ceil(totalData / limit);
-            return {totalData, records, totalPages};
+            return { totalData, records, totalPages };
         },
-      
+
         keepPreviousData: true
     });
 }
@@ -153,8 +153,7 @@ export function useCreateOrEdit(model) {
         mutationFn: async ({ id, data, fields = {} }) => {
             let action = 'web_save';
             let args = [[], data];
-            if(id) {
-                action = 'write';
+            if (id) {
                 args = [[id], data];
 
             }

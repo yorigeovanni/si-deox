@@ -20,7 +20,6 @@ dayjs.extend(customParseFormat);
 
 const model = 'x_data_amc';
 const selectedFields = {
-  x_studio_sequence: {},
   x_studio_reg_number: {},
   x_studio_operator: { fields: { display_name: {} } },
   x_studio_type_pesawat: { fields: { display_name: {} } },
@@ -37,6 +36,7 @@ const selectedFields = {
   write_uid: { fields: { display_name: {} } },
   create_uid: { fields: { display_name: {} } },
   create_date: {},
+  
   x_studio_extra_arrivals_flight_number: {
     limit: 40,
     order: "x_studio_sequence ASC, id ASC",
@@ -306,23 +306,13 @@ function RenderItem({ item }) {
   const [containerHeight, setContainerHeight] = useState(200);
 
 
-  const onEditInitialClick = useCallback((id) => {
-    router.push(`./edit-initial/${id}`, { relativeToDirectory: true });
+
+
+  const onEdit = useCallback((id) => {
+    router.push(`./edit/${id}`, { relativeToDirectory: true });
   }, [router]);
 
 
-  const onEditLandingClick = useCallback((id) => {
-    router.push(`./edit-landing/${id}`, { relativeToDirectory: true });
-  }, [router]);
-
-
-  const onEditTakeoffClick = useCallback((id) => {
-    router.push(`./edit-takeoff/${id}`, { relativeToDirectory: true });
-  }, [router]);
-
-  const onEditCancelClick = useCallback((id) => {
-    router.push(`./edit-takeoff/${id}`, { relativeToDirectory: true });
-  }, [router]);
 
 
 
@@ -449,7 +439,7 @@ function RenderItem({ item }) {
                     )}
                   </View>
                   <View className='flex-row items-center space-x-2'>
-                    <TouchableOpacity onPress={() => onEditLandingClick(item.id)} className="border border-green-700 rounded-lg items-center mx-1 p-2">
+                    <TouchableOpacity onPress={() => onEdit(item.id)} className="border border-green-700 rounded-lg items-center mx-1 p-2">
                       <Text className="text-green-700 font-bold text-xs">EDIT DATA</Text>
                     </TouchableOpacity>
                   </View>
@@ -514,7 +504,7 @@ function RenderItem({ item }) {
                     )}
                   </View>
                   <View className='flex-row items-center space-x-2'>
-                    <TouchableOpacity onPress={() => onEditLandingClick(item.id)} className="border border-green-700 rounded-lg items-center mx-1 p-2">
+                    <TouchableOpacity onPress={() => onEdit(item.id)} className="border border-green-700 rounded-lg items-center mx-1 p-2">
                       <Text className="text-green-700 font-bold text-xs">EDIT DATA</Text>
                     </TouchableOpacity>
                   </View>

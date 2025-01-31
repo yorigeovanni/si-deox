@@ -1,12 +1,9 @@
-import { Fragment, useCallback, useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import { Fragment, useCallback } from 'react';
+import { View, Text, TextInput, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { classNames } from '@/utils';
-import { useRouter } from 'expo-router';
-
-
 
 import CharInput from '@/components/internal/form/CharInput';
 import ImageInput from '@/components/internal/form/ImageInput';
@@ -19,9 +16,6 @@ import DateTimeInput from '@/components/internal/form/DateTimeInput';
 
 dayjs.extend(utc);
 
-
-
-
 export default function InternalMasterForm({
     value = null,
     fields = [],
@@ -31,52 +25,56 @@ export default function InternalMasterForm({
     onSubmit,
     onCancel,
 }) {
-   
+    // Siapkan default value
     const defaultValues = fields
-        .flat() // jadikan array 1 dimensi
+        .flat()
         .reduce((acc, fieldConf) => {
-            //console.log('===========================================');
-            //console.log(value?.[fieldConf.name]);
-            //console.log('===========================================');
-            acc[fieldConf.name] = value ? value[fieldConf.name] ? value[fieldConf.name] : fieldConf.defaultValue ? fieldConf.defaultValue : null : fieldConf.defaultValue ? fieldConf.defaultValue : null;
+            // prioritaskan value[fieldConf.name] jika ada
+            if (value && value[fieldConf.name] !== undefined) {
+                acc[fieldConf.name] = value[fieldConf.name];
+            } else {
+                acc[fieldConf.name] = fieldConf.defaultValue ?? null;
+            }
             return acc;
         }, {});
 
+    // Jangan lupa: kalau ada value.odoo_id, kita pertahankan
+    if (value && value.odoo_id) {
+        defaultValues.odoo_id = value.odoo_id;
+    }
 
-    const { control, handleSubmit, reset, formState: { isValid, errors } } = useForm({
+    const {
+        control,
+        handleSubmit,
+        reset,
+        setValue,
+        formState: { isValid, errors },
+    } = useForm({
         mode: 'onChange',
         defaultValues,
     });
 
-
-
+    // SUBMIT
     const handleInternalSubmit = useCallback((formData) => {
+        // Merge injectValues
         onSubmit({ ...formData, ...injectValues });
         reset();
     }, [reset, onSubmit, injectValues]);
 
-
+    // CANCEL
     const handleInternalCancel = useCallback((formData) => {
-        console.log(formData);
         onCancel();
         reset();
-    }, [reset, onCancel]);
+    }, [onCancel, reset]);
 
-
-
-
-
+    // Render field
     const renderFields = (fieldConf, control) => {
         switch (fieldConf.type) {
             case 'char': {
                 return <CharInput control={control} {...fieldConf} />;
             }
-            case 'time': {
-                return <DateTimeInput control={control} {...fieldConf} />;
-            }
-            case 'date': {
-                return <DateTimeInput control={control} {...fieldConf} />;
-            }
+            case 'time':
+            case 'date':
             case 'datetime': {
                 return <DateTimeInput control={control} {...fieldConf} />;
             }
@@ -87,87 +85,76 @@ export default function InternalMasterForm({
                 return <SignatureInput control={control} {...fieldConf} />;
             }
             case 'lines': {
-                return <LinesInput control={control} {...fieldConf} />;
+                return <LinesInput 
+                    control={control} 
+                    setValue={setValue}
+                    {...fieldConf} 
+                    />;
             }
             case 'many2one': {
                 if (!fieldConf.model) {
                     return <Text>Model is required for Many2One field</Text>;
                 }
-                return (
-                    <Many2OneInput
-                        control={control}
-                        {...fieldConf}
-                    />
-                );
+                return <Many2OneInput control={control} {...fieldConf} />;
             }
             default: {
-                return (<View className='my-2'>
-                    {fieldConf.label ? <Text className=' text-gray-700'>{fieldConf.label}</Text> : null}
-                    <View className='my-0'>
-                        <TextInput
-                            className={classNames('bg-gray-200', 'border border-gray-300 rounded p-2')}
-                            placeholder={'Unknown Field Type'}
-                            editable={false}
-                        />
+                return (
+                    <View className='my-2'>
+                        {fieldConf.label ? <Text className=' text-gray-700'>{fieldConf.label}</Text> : null}
+                        <View className='my-0'>
+                            <TextInput
+                                className={classNames('bg-gray-200', 'border border-gray-300 rounded p-2')}
+                                placeholder={'Unknown Field Type'}
+                                editable={false}
+                            />
+                        </View>
                     </View>
-                </View>);
+                );
             }
         }
-    }
-
-
-
-
+    };
 
     return (
         <Fragment>
-
             <ScrollView className="flex-1 bg-white p-4">
-
-
                 {fields.map((rowItems, rowIndex) => {
                     return (
                         <View key={`row-${rowIndex}`} className="flex-row">
-                            {rowItems.map((fieldConf, colIndex) => {
-                                return (
-                                    <View key={colIndex} className="flex-1" style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}>
-                                        {renderFields(fieldConf, control)}
-                                    </View>
-                                );
-                            })}
+                            {rowItems.map((fieldConf, colIndex) => (
+                                <View
+                                    key={colIndex}
+                                    className="flex-1"
+                                    style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}
+                                >
+                                    {renderFields(fieldConf, control)}
+                                </View>
+                            ))}
                         </View>
-                    )
+                    );
                 })}
             </ScrollView>
-
 
             <View className='flex-row items-center justify-between py-4 px-8 bg-slate-100'>
                 <Pressable
                     onPress={handleInternalCancel}
-                    ///  disabled={!isValid}
-                    className={classNames("bg-blue-700 p-2 rounded-lg", false ? "opacity-50" : "opacity-100")}>
+                    className={classNames("bg-blue-700 p-2 rounded-lg")}
+                >
                     <Text className="text-white text-center font-semibold">
                         CANCEL
                     </Text>
                 </Pressable>
                 <Pressable
                     onPress={handleSubmit(handleInternalSubmit)}
-                    //   disabled={!isValid}
-                    className={classNames("bg-green-700 p-2 rounded-lg", false ? "opacity-50" : "opacity-100")}>
+                    className={classNames("bg-green-700 p-2 rounded-lg")}
+                >
                     <Text className="text-white text-center font-semibold">
                         {submitText}
                     </Text>
                 </Pressable>
-
             </View>
-
-
         </Fragment>
     );
 }
-
-
-
 
 const styles = StyleSheet.create({
     overlay: {
