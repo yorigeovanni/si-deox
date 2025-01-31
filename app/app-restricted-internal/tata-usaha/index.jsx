@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BarChart } from 'react-native-chart-kit';
 
 import InternalHeader from '@/components/internal/header';
-import InternalPengumuman from '@/components/internal/pengumuman';
-import InternalMenuTataUsaha from '@/components/internal/menu-tata-usaha';
+import InternalPengumuman from '@/components/internal/card-monitoring-tekops';
+import MenuInternal from '@/components/internal/menu';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -52,7 +52,10 @@ export default function AmcIndex() {
         />
         <ScrollView className="flex-1 bg-white">
         <InternalPengumuman/>
-        <InternalMenuTataUsaha/>
+        <MenuInternal
+                  basePath={'/app-restricted-internal/tata-usaha'}
+                  target="menuTataUsaha"
+                />
 
         </ScrollView>
       </Fragment>

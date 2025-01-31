@@ -8,9 +8,11 @@ const { post } = createRequest();
 function* requestToken(action) {
     try {
         const { deviceId, phoneNumber } = yield select((state) => state.config);
+        const { selectedCompany } = yield select((state) => state.externalUser);
         const { data } = yield call(post, '/mobile/api/request-token-external', {
             nik_nip : action.payload.nik_nip,
-            phoneNumber : phoneNumber
+            phoneNumber : phoneNumber,
+            companyId : selectedCompany.id
         },{
             deviceId: deviceId,
         });

@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BarChart } from 'react-native-chart-kit';
 
 import InternalHeader from '@/components/internal/header';
-import InternalPengumuman from '@/components/internal/pengumuman';
-import InternalMenuTekpos from '@/components/internal/menu-tekops';
+import InternalPengumuman from '@/components/internal/card-monitoring-tekops';
+import MenuInternal from '@/components/internal/menu';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -52,7 +52,10 @@ export default function AmcIndex() {
         />
         <ScrollView className="flex-1 bg-white">
         <InternalPengumuman/>
-        <InternalMenuTekpos/>
+        <MenuInternal
+                          basePath={'/app-restricted-internal/tekops'}
+                          target="menuTekops"
+                        />
 
         </ScrollView>
        

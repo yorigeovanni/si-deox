@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  companyId : null,
+  selectedCompany : null,
   nik_nip : null,
   tokenLogin : null,
   isLoading : false,
@@ -21,6 +21,16 @@ const externalUserSlice = createSlice({
   initialState,
   reducers: {
 
+    setCompany(state, action) {  
+      state.selectedCompany = action.payload;
+      state.isError = false;
+    },
+
+    resetCompany(state, action) {  
+      state.selectedCompany = null;
+      state.isError = false;
+    },
+
     requestToken(state) {
       state.isLoading = true;
       state.isError = false;
@@ -36,11 +46,19 @@ const externalUserSlice = createSlice({
       state.registerAtempt = state.registerAtempt + 1;
     },
 
+    otpTimeExpires(state, action) {  
+      state.tokenLogin = null;
+      state.isError = false;
+      state.registerAtempt = state.registerAtempt + 1;
+    },
+
+
 
     errorRequestToken(state, action) {  
       state.isLoading = false;
       state.isError = true;
     },
+
 
 
     reloadOtp(state, action) {  
@@ -88,6 +106,7 @@ const externalUserSlice = createSlice({
     },
 
     logout(state, action) {
+      state.selectedCompany = null;
       state.isLoading = false;
       state.isError = false;
       state.nik_nip = null;

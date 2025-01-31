@@ -17,10 +17,11 @@ import SelectCompany from '@/components/external/login/SelectCompany';
 
 export default function LoginExternal() {
     const router = useRouter();
-    const { tokenLogin, companyId } = useSelector((state) => state.externalUser);
+    const { tokenLogin, selectedCompany } = useSelector((state) => state.externalUser);
     const onBackCustom = useCallback(() => {
         router.replace('/');
     }, [router]);
+
 
 
     return (
@@ -29,24 +30,24 @@ export default function LoginExternal() {
             resizeMode="cover"
             style={{ flex: 1, width: '100%', height: '100%' }}
         >
-            <View className="absolute flex-1 w-full h-full bg-black opacity-20" />
-                <View className={classNames(' px-4 pb-4 flex-row justify-between', Platform.OS === 'android' ? "pt-12" : "pt-20")}>
-                    <View className="flex-col items-start space-y-0 ml-2">
-                        <Text className="text-white text-xl font-extrabold  ">DEO AIRPORT</Text>
-                        <Text className="text-white text-sm leading-4 ">TERDEPAN - BERKUALITAS - BERSINAR</Text>
-                    </View>
-
-
-                    <View className='flex-row items-center space-x-6 mr-8'>
-                        <TouchableOpacity onPress={() => onBackCustom()}>
-                            <Ionicons name="close" size={28} color="#ffffff" />
-                        </TouchableOpacity>
-                    </View>
+            <View className="absolute flex-1 w-full h-full bg-black opacity-50" />
+            <View className={classNames(' px-4 pb-4 flex-row justify-between mt-6')}>
+                <View className="flex-col items-start space-y-0 ml-2">
+                    <Text className="text-white text-xl font-extrabold  ">DEO AIRPORT</Text>
+                    <Text className="text-white text-sm leading-4 ">TERDEPAN - BERKUALITAS - BERSINAR</Text>
                 </View>
 
-                
 
-                {!companyId  ? (<SelectCompany />) : !tokenLogin ? (<LoginComponent />) : (<InputOtpCode />)}
+                <View className='flex-row items-center space-x-6 mr-8'>
+                    <TouchableOpacity onPress={() => onBackCustom()}>
+                        <Ionicons name="close" size={28} color="#ffffff" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+
+
+            {!selectedCompany ? (<SelectCompany />) : !tokenLogin ? (<LoginComponent />) : (<InputOtpCode />)}
         </ImageBackground>
     );
 };
@@ -71,13 +72,18 @@ const LoginComponent = ({ errorMessage }) => {
             nik_nip: ''
         }
     });
-    const { isLoading, isError, tokenLogin } = useSelector((state) => state.externalUser);
+    const { isLoading, isError, tokenLogin, selectedCompany } = useSelector((state) => state.externalUser);
 
-    
+
     // -- [2] onSubmit jika valid (berhasil lolos validasi client)
     const onSubmit = useCallback((data) => {
         dispatch(externalUserActions.requestToken(data));
     }, [dispatch]);
+
+
+    const resetCompany = useCallback((data) => {
+        dispatch(externalUserActions.resetCompany());
+    }, [dispatch])
 
 
 
@@ -98,14 +104,19 @@ const LoginComponent = ({ errorMessage }) => {
     return (
         <Fragment>
             <View className={classNames(
-                    'flex flex-col justify-center items-center px-4 pb-4',
-                    Platform.OS === 'android' ? 'pt-10' : 'pt-28'
-                )}>
+                'flex flex-col justify-center items-center px-4 pb-4',
+            )}>
 
-                    <View className="flex-col items-center justify-center space-y-0 mb-2 mt-6">
-                        <Text className="text-white text-lg font-extrabold">LOGIN - PERSONIL MITRA</Text>
-                    </View>
+                <View className="flex-col items-center justify-center space-y-0 mb-2 mt-6">
+                <Text className="text-white text-lg font-bold">
+                        LOGIN MITRA/STACKHOLDER
+                    </Text>
+                    <Text className="text-white text-4xl font-extrabold items-center text-center ">
+                        {selectedCompany.name?.toUpperCase()}
+                    </Text>
+                   
                 </View>
+            </View>
             <View className="flex w-full">
                 {isLoading && (
                     <Text className="text-center text-white text-lg mb-4">
@@ -114,7 +125,7 @@ const LoginComponent = ({ errorMessage }) => {
                 )}
                 {isError && (
                     <Text className="text-center text-white text-lg mb-4">
-                        DATA PERSONIL MITRA TIDAK DITEMUKAN
+                        PROSES LOGIN GAGAL
                     </Text>
                 )}
 
@@ -122,26 +133,26 @@ const LoginComponent = ({ errorMessage }) => {
                     control={control}
                     name="nik_nip"
                     rules={{
-                        required: 'NIK / NIP wajib diisi',
-                        pattern: {
+                        required: 'username wajib diisi',
+                        /*pattern: {
                             value: /^[0-9]*$/,
                             message: 'NIK / NIP hanya boleh berisi angka',
-                        },
+                        },*/
                         minLength: {
                             value: 10,
-                            message: 'NIK / NIP minimal 10 digit',
+                            message: 'username minimal 10 karakter',
                         }
                     }}
                     render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
                         <View className="flex flex-col mx-16">
                             <TextInput
-                                placeholder="NIK / NO.PASSPORT"
+                                placeholder="username / email"
                                 placeholderTextColor="#fff"
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
                                 keyboardType="phone-pad"
-                                className="text-white px-4 py-2 rounded-md border border-gray-300 w-full"
+                                className="text-white px-4 py-4 rounded-md border border-gray-300 w-full"
                                 // Disable input saat loading
                                 editable={!isLoading}
                             />
@@ -154,17 +165,40 @@ const LoginComponent = ({ errorMessage }) => {
                         </View>
                     )}
                 />
+
+                <View className=' mx-12 mt-6'>
+                <Text className="text-white text-justify leading-6 mb-2 ml-4">
+                        1. Pastikan anda telah melakukan pendaftaran akun dan akif sebagai mitra personil pada KANTOR BLU UPBU KELAS I DEO - SORONG
+                    </Text>
+                    <Text className="text-white text-justify leading-6 mb-2 ml-4">
+                        2. Kesalahan memasukan username dalam 3 kali percobaan login, akan menonaktifkan aktitas login selama 1 jam
+                    </Text>
+                    <Text className="text-white text-justify leading-6 mb-2 ml-4">
+                        3. proses login menggunakan metode password OTP (One Time Password) yang dikirimkan melalui WhatsApp No. +62851-9031-1013
+                    </Text>
+                    
+                   
+                </View>
             </View>
 
-            <View className="flex flex-row items-end justify-end mt-8 mx-16">
+            <View className="flex flex-row items-center justify-between mt-8 mx-16">
+
                 <TouchableOpacity
-                    className={classNames('bg-red-700 px-2 py-2 rounded-lg mr-2', isValid ? 'opacity-100' : 'opacity-50')}
+                    className={classNames('bg-orange-600 px-2 py-2 rounded-lg mr-2', isLoading ? 'opacity-50' : 'opacity-100')}
+                    onPress={resetCompany}
+                    disabled={isLoading}
+                >
+                    <Text className="text-center text-white">
+                        RESET STACKHOLDER
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    className={classNames('bg-green-700 px-2 py-2 rounded-lg mr-2', isValid ? 'opacity-100' : 'opacity-50')}
                     onPress={handleSubmit(onSubmit, onError)}
-                    // Disable tombol saat loading atau form belum valid
                     disabled={isLoading || !isValid}
                 >
                     <Text className="text-center text-white">
-                        {isLoading ? 'GENERATE OTP...' : 'VERIFIY'}
+                        {isLoading ? 'GENERATE OTP...' : 'LOGIN'}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -223,13 +257,14 @@ function InputOtpCode() {
             const newDiff = Math.floor((endTime - now) / 1000);
             if (newDiff <= 0) {
                 setTimeLeft(0);
+                dispatch(externalUserActions.otpTimeExpires());
                 clearInterval(intervalId);
             } else {
                 setTimeLeft(newDiff);
             }
         }, 1000);
         return () => clearInterval(intervalId);
-    }, [lastRegisterAtempt]);
+    }, [lastRegisterAtempt, dispatch]);
 
 
 

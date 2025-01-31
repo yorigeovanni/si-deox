@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { classNames } from '@/utils';
+
 
 const CharInput = ({ control, name, label, placeholder, editable = true, rules }) => {
 
@@ -9,16 +9,16 @@ const CharInput = ({ control, name, label, placeholder, editable = true, rules }
     required: 'field is required',
   }
 
-
   if (!control) {
     return (<Text className=' text-red-700'>
       control is required
     </Text>)
   }
 
+
   return (
     <View className='my-2'>
-      {label ? <Text className=' text-gray-700'>{label}</Text> : null}
+      {label && <Text style={styles.label}>{label}</Text>}
       <Controller
         control={control}
         name={name}
@@ -28,7 +28,11 @@ const CharInput = ({ control, name, label, placeholder, editable = true, rules }
             <View className='my-0'>
 
               <TextInput
-                className={classNames( editable ? 'bg-white' : 'bg-gray-200', 'border border-gray-300 rounded p-2')}  
+                style={[
+                  styles.inputContainer,
+                  { backgroundColor: editable ? '#fff' : '#eee' },
+                ]}
+               // className={classNames( editable ? 'bg-white' : 'bg-gray-200', 'border border-gray-300 rounded p-2')}  
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -50,4 +54,20 @@ const CharInput = ({ control, name, label, placeholder, editable = true, rules }
 };
 
 export default CharInput;
+
+
+
+const styles = StyleSheet.create({
+  label: {
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  inputContainer: {
+    padding: 8,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+  },
+});
+
 

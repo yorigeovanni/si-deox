@@ -3,6 +3,7 @@ import { Platform, TouchableOpacity } from 'react-native';
 import { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { v4 as uuidv4 } from "uuid";
+import { v7 as uuidv7 } from "uuid";
 import { RSAKeychain } from "react-native-rsa-native";
 import * as Application from 'expo-application';
 
@@ -10,6 +11,8 @@ import { useDispatch,useSelector } from "react-redux";
 import configAction from '@/state/global-otp/configSlice';
 import PhoneInput from 'react-native-international-phone-number';
 import * as Device from 'expo-device';
+import * as SecureStore from 'expo-secure-store';
+
 
 
 export default function FirstRegisterDeviceUi() {
@@ -59,15 +62,16 @@ export default function FirstRegisterDeviceUi() {
             } else if (Platform.OS === 'ios') {
                 osId = await Application.getIosIdForVendorAsync();
             }
-
             if (!osId) {
                 osId = uuidv4();
             }
             // 3. Generate key pair
             const fakeDeviceID = uuidv4();
-            const keys = await RSAKeychain.generateKeys(fakeDeviceID, 4096);
+            const newKey = uuidv7();
+            const keys = await RSAKeychain.generateKeys(newKey, 2048);
+            await SecureStore.setItemAsync(process.env.EXPO_PUBLIC_SECRET_KEY_NAME, newKey);
             const pubKey = keys.public;
-            
+
             const deviceInfo = {
                 "brand": Device.brand,
                 "designName": Device.designName,

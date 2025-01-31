@@ -1,119 +1,66 @@
-import React, { Fragment, useCallback, useState } from "react";
+import React, { Fragment, useCallback, useMemo } from "react";
 import { View, Text, TouchableOpacity, Modal, Dimensions, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-const basePath = "/app-restricted-internal/kampen";
-
-function chunkArray(array, chunkSize) {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-        chunks.push(array.slice(i, i + chunkSize));
-    }
-    return chunks;
-}
+import { useSelector, useDispatch } from "react-redux";
+import aplikasiInternalActions from "@/state/aplikasiInternal/aplikasiInternalSlice";
+import { classNames, chunkArray } from "@/utils";
 
 
-export default function AppInternalMenuKampen() {
+
+
+
+export default function MenuInternal({
+    basePath = "/app-restricted-internal",
+    target = 'menuUtama'
+}) {
     const router = useRouter();
+    const dispatch = useDispatch();
+    const aplikasiInternal = useSelector((state) => state.aplikasiInternal);
 
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedChildren, setSelectedChildren] = useState([]);
-    const [selectedParent, setSelectedParent] = useState(null);
-
-    const menuItems = [
-        {
-            name: "KAMPEN - UNIT AVSEC",
-            icon: "clipboard-outline",
-            bgColor: "bg-pink-500",
-            route: "/portal-sop",
-            childrenMenu: [
-                {
-                    name: "PERATURAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-peraturan"
-                },
-                {
-                    name: "KEBIJAKAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-kebijakan"
-                },
-                {
-                    name: "SOP",
-                    icon: "clipboard-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-sop"
-                },
-                {
-                    name: "PPID",
-                    icon: "information-circle-outline",
-                    bgColor: "bg-pink-500",
-                    route: "/portal-sop-ppid"
-                }
-            ]
-        },
-        {
-            name: "KAMPEN - UNIT PKP-PK",
-            icon: "information-circle-outline",
-            bgColor: "bg-indigo-500",
-            route: "/portal-ppid",
-            childrenMenu: [
-                {
-                    name: "PERATURAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-peraturan"
-                },
-                {
-                    name: "KEBIJAKAN",
-                    icon: "document-text-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-kebijakan"
-                },
-                {
-                    name: "SOP",
-                    icon: "clipboard-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-sop"
-                },
-                {
-                    name: "PPID",
-                    icon: "information-circle-outline",
-                    bgColor: "bg-indigo-500",
-                    route: "/portal-ppid-ppid"
-                }
-            ]
-        }
-    ];
+    const menuItems = useMemo(() => {
+        return aplikasiInternal[target]
+    }, [aplikasiInternal, target]);
 
     const chunkedMenus = chunkArray(menuItems, 4);
 
 
     const handleParentPress = useCallback((item) => {
         if (item.childrenMenu && item.childrenMenu.length > 0) {
-            setSelectedParent(item);
-            setSelectedChildren(item.childrenMenu);
-            setModalVisible(true);
+            dispatch(
+                aplikasiInternalActions.setMenuActive({
+                    parent: item,
+                    children: item.childrenMenu,
+                    visible: true
+                })
+            );
         } else {
             router.replace(`${basePath}${item.route}`);
         }
-    },[]);
+    }, [dispatch, router, basePath]);
 
 
 
     const handleChildPress = useCallback((child) => {
-        setModalVisible(false);
-        setSelectedChildren([]);
-        router.replace(`${basePath}${selectedParent.route}${child.route}`);
-    },[selectedParent]);
+        router.replace(`${basePath}${aplikasiInternal?.menuActive?.parent?.route}${child.route}`);
+    }, [dispatch, router, aplikasiInternal]);
 
 
 
+    const closeModal = useCallback(() => {
+        dispatch(
+            aplikasiInternalActions.setMenuActive({
+                parent: null,
+                children: [],
+                visible: false,
+            })
+        );
+    }, [dispatch]);
 
-    const renderChildrenMenu = () => {
-        const chunkedChild = chunkArray(selectedChildren, 4);
+
+
+    const renderChildrenMenu = (parent) => {
+        const chunkedChild = chunkArray(aplikasiInternal?.menuActive.children, 4);
         return (
             <Fragment>
                 {chunkedChild.map((row, rowIndex) => (
@@ -132,9 +79,7 @@ export default function AppInternalMenuKampen() {
                                         padding: 12,
                                         borderWidth: 1,
                                         borderColor: "#fff",
-                                        // tailwind => {child.bgColor} 
-                                        // Sbg ganti cepat:
-                                        backgroundColor: "#0ea5e9", // default color
+                                        backgroundColor: parent.bgColor || "#0ea5e9",
                                     }}
                                 >
                                     <Ionicons name={child.icon} size={28} color="#ffffff" />
@@ -144,7 +89,7 @@ export default function AppInternalMenuKampen() {
                                     style={{
                                         marginTop: 4,
                                         color: "#333",
-                                        fontSize: 10,
+                                        fontSize: 12,
                                         textAlign: "center",
                                         maxWidth: 200,
                                     }}
@@ -171,14 +116,19 @@ export default function AppInternalMenuKampen() {
                             onPress={() => handleParentPress(item)}
                         >
                             <View
-                                className={`justify-center items-center rounded-full p-4 border border-white ${item.bgColor}`}
+                                className={classNames(`justify-center items-center rounded-full p-4`)}
+                                style={{
+                                    backgroundColor: aplikasiInternal?.menuActive?.parent?.name == item.name ? item.bgColor : "transparent",
+                                    borderWidth: 1,
+                                    borderColor: item.bgColor,
+                                }}
                             >
-                                <Ionicons name={item.icon} size={28} color="#ffffff" />
+                                <Ionicons name={item.icon} size={28} color={aplikasiInternal?.menuActive?.parent?.name == item.name ? '#ffffff' : item.bgColor} />
                             </View>
                             <Text
                                 numberOfLines={2}  // up to 2 lines
                                 className="mt-1 text-gray-800 text-xs text-center"
-                                style={{ maxWidth: 150 }}  // atur lebar agar wrap
+                                style={{ maxWidth: 150, }}  // atur lebar agar wrap
                             >
                                 {item.name}
                             </Text>
@@ -188,20 +138,16 @@ export default function AppInternalMenuKampen() {
             ))}
 
             {Platform.OS === 'ios' ? (<Modal
-                visible={modalVisible}
+                visible={aplikasiInternal?.menuActive.visible}
                 transparent={true}
-                onRequestClose={() => setModalVisible(false)}
+                onRequestClose={closeModal}
             >
                 <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: 'rgba(0,0,0,0.3)' }}>
                     {/* overlay area di atas */}
                     <TouchableOpacity
                         style={{ flex: 1 }}
                         activeOpacity={1}
-                        onPress={() => {
-                            setModalVisible(false);
-                            setSelectedParent(null);
-                            setSelectedChildren([]);
-                        }}
+                        onPress={closeModal}
                     />
                     <View
                         className="rounded-t-2xl border border-gray-300"
@@ -214,32 +160,28 @@ export default function AppInternalMenuKampen() {
                         }}
                     >
                         <View className="flex-row items-center justify-between mb-6">
-                            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>{selectedParent?.name}</Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>{aplikasiInternal?.menuActive?.parent?.name}</Text>
+                            <TouchableOpacity onPress={closeModal}>
                                 <Ionicons name="close" size={24} color="#333" />
                             </TouchableOpacity>
                         </View>
 
-                        {renderChildrenMenu()}
+                        {renderChildrenMenu(aplikasiInternal?.menuActive?.parent)}
                     </View>
                 </View>
             </Modal>) : (<View style={{ width: "100%", height: "100%", position: "absolute" }}>
                 <Modal
-                    visible={modalVisible}
+                    visible={aplikasiInternal?.menuActive.visible}
                     transparent={true}
                     //animationType="slide"
-                    onRequestClose={() => setModalVisible(false)}
+                    onRequestClose={closeModal}
                 >
                     <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: 'rgba(0,0,0,0.3)' }}>
                         {/* overlay area di atas */}
                         <TouchableOpacity
                             style={{ flex: 1 }}
                             activeOpacity={1}
-                            onPress={() => {
-                                setModalVisible(false);
-                                setSelectedParent(null);
-                                setSelectedChildren([]);
-                            }}
+                            onPress={closeModal}
                         />
                         <View
                             className="rounded-t-2xl border border-gray-300"
@@ -252,22 +194,17 @@ export default function AppInternalMenuKampen() {
                             }}
                         >
                             <View className="flex-row items-center justify-between mb-6">
-                                <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>{selectedParent?.name}</Text>
-                                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>{aplikasiInternal?.menuActive?.parent?.name}</Text>
+                                <TouchableOpacity onPress={closeModal}>
                                     <Ionicons name="close" size={24} color="#333" />
                                 </TouchableOpacity>
                             </View>
 
-                            {renderChildrenMenu()}
+                            {renderChildrenMenu(aplikasiInternal?.menuActive?.parent)}
                         </View>
                     </View>
                 </Modal>
             </View>)}
-
-
-
-
-
         </Fragment>
     );
 }

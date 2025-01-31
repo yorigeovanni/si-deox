@@ -15,12 +15,24 @@ export default function AplikasiInternalLayout() {
     if (!user && !isLoginPage) {
       router.replace('/app-restricted-external/login');
     }
-
-    if (user && isLoginPage) {
+    else if (user && isLoginPage) {
       router.replace('/app-restricted-external');
     }
-  }, [user, isLoginPage, router]);
+    else if (pathname === '/app-restricted-external') {
+      switch (user.company?.type?.id) {
+        case 1: {
+          router.replace('/app-restricted-external/operator-airlines')
+          break;
+        }
+        default: {
+          router.replace('/app-restricted-external/unknown-type')
+          break;
+        }
+      }
+    } else {
 
+    }
+  }, [user, isLoginPage, router, pathname]);
 
 
   if (!user && !isLoginPage) {
@@ -29,14 +41,10 @@ export default function AplikasiInternalLayout() {
     </View>);
   }
 
-
   return (
-   
-      <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white">
       <Stack screenOptions={{ headerShown: false }} />
     </View>
-  
-    
   );
 }
 

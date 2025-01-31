@@ -1,19 +1,19 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import createRequest from '@/core/api-secure-internal';
+import createRequest from '@/core/api-secure-external';
 import { useDispatch, useSelector } from 'react-redux';
-import internalUserActions from '@/state/internalUser/internalUserSlice';
+import externalUserActions from '@/state/externalUser/externalUserSlice';
 const { post } = createRequest();
 
 
 
 export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {} }) {
     const { deviceId } = useSelector((state) => state.config);
-    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const { jwtAccessToken } = useSelector((state) => state.externalUser);
     const dispatch = useDispatch();
     // STIAP QUERY SECURE YANG HARUS LOGIN
     // HARUS ADA INI SEBAGAI CALBACK PENANGANGAN KETIKA RESPONSE ERROR 401
-    const logoutUserInternal = () => {
-        dispatch(internalUserActions.logout());
+    const logoutUserExternal = () => {
+        dispatch(externalUserActions.logout());
     };
 
     return useInfiniteQuery({
@@ -22,7 +22,7 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
             const offset = pageParam;
             const action = 'web_search_read';
             const { data } = await post(
-                `/mobile/api/internal/${model}/${action}`,
+                `/mobile/api/external/${model}/${action}`,
                 {
                     jsonrpc: '2.0',
                     method: 'call',
@@ -44,7 +44,7 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
                 {
                     deviceId,
                     jwtAccessToken,
-                    logoutUserInternal
+                    logoutUserExternal
                 }
             );
             const totalData = data?.result?.length || 0;
@@ -67,13 +67,13 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
 
 export function useFindMany({pathname = null, params = {}, model, offset = 0, limit = 20, domain = [], fields = {} }) {
     const { deviceId } = useSelector((state) => state.config);
-    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const { jwtAccessToken } = useSelector((state) => state.externalUser);
     const dispatch = useDispatch();
     
     // STIAP QUERY SECURE YANG HARUS LOGIN
     // HARUS ADA INI SEBAGAI CALBACK PENANGANGAN KETIKA RESPONSE ERROR 401
-    const logoutUserInternal = () => {
-        dispatch(internalUserActions.logout());
+    const logoutUserExternal = () => {
+        dispatch(externalUserActions.logout());
     };
 
     if(pathname){
@@ -86,7 +86,7 @@ export function useFindMany({pathname = null, params = {}, model, offset = 0, li
                     {
                         deviceId,
                         jwtAccessToken,
-                        logoutUserInternal
+                        logoutUserExternal
                     }
                 );
                 const totalData = data?.result?.length || 0;
@@ -104,7 +104,7 @@ export function useFindMany({pathname = null, params = {}, model, offset = 0, li
         queryFn: async () => {
             const action = 'web_search_read';
             const { data } = await post(
-                `/mobile/api/internal/${model}/${action}`,
+                `/mobile/api/external/${model}/${action}`,
                 {
                     jsonrpc: '2.0',
                     method: 'call',
@@ -126,7 +126,7 @@ export function useFindMany({pathname = null, params = {}, model, offset = 0, li
                 {
                     deviceId,
                     jwtAccessToken,
-                    logoutUserInternal
+                    logoutUserExternal
                 }
             );
             const totalData = data?.result?.length || 0;
@@ -147,7 +147,7 @@ export function useFindMany({pathname = null, params = {}, model, offset = 0, li
 export function useCreateOrEdit(model) {
     const queryClient = useQueryClient();
     const { deviceId } = useSelector((state) => state.config);
-    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const { jwtAccessToken } = useSelector((state) => externalUser);
 
     return useMutation({
         mutationFn: async ({ id, data, fields = {} }) => {
@@ -159,7 +159,7 @@ export function useCreateOrEdit(model) {
 
             }
             const response = await post(
-                `/mobile/api/internal/${model}/${action}`,
+                `/mobile/api/external/${model}/${action}`,
                 {
                     jsonrpc: '2.0',
                     method: 'call',
@@ -190,13 +190,13 @@ export function useCreateOrEdit(model) {
 
 export function useFindOne({ model, domain = [], fields = {} }) {
     const { deviceId } = useSelector((state) => state.config);
-    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const { jwtAccessToken } = useSelector((state) => state.externalUser);
     return useQuery({
         queryKey: ['default-findOne', model, ...domain],
         queryFn: async () => {
             const action = 'web_search_read';
             const response = await post(
-                `/mobile/api/internal/${model}/${action}`,
+                `/mobile/api/external/${model}/${action}`,
                 {
                     jsonrpc: '2.0',
                     method: 'call',
@@ -224,7 +224,7 @@ export function useFindOne({ model, domain = [], fields = {} }) {
                     jwtAccessToken
                 }
             );
-            return response.data?.result?.records[0] || null;
+            return response.data?.result?.records[0] || {};
         }
     });
 }
@@ -234,12 +234,12 @@ export function useFindOne({ model, domain = [], fields = {} }) {
 export function useDelete(model) {
     const queryClient = useQueryClient();
     const { deviceId } = useSelector((state) => state.config);
-    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const { jwtAccessToken } = useSelector((state) => state.externalUser);
 
     return useMutation({
         mutationFn: async (id) => {
             const response = await post(
-                `/mobile/api/internal/${model}/unlink`,
+                `/mobile/api/external/${model}/unlink`,
                 {
                     jsonrpc: '2.0',
                     method: 'call',

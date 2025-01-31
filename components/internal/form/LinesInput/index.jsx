@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import {View, Text, Pressable, ScrollView,  Modal, TextInput, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Pressable, ScrollView, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons, Octicons } from '@expo/vector-icons';
 import { useFieldArray } from 'react-hook-form';
 import { classNames } from '@/utils';
-import ChildrenForm  from './ChildrenForm';
-
+import ChildrenForm from './ChildrenForm';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LinesInput({
   control,
@@ -18,12 +18,13 @@ export default function LinesInput({
 
   const { fields, append, remove, update } = useFieldArray({ control, name });
   const [modalVisible, setModalVisible] = useState(false);
-  const [{tempIndex, tempValue}, setTempValue] = useState({ tempIndex: null, tempValue: null });
+  const [{ tempIndex, tempValue }, setTempValue] = useState({ tempIndex: null, tempValue: null });
+
 
 
 
   const handleAddLine = useCallback(() => {
-    setTempValue((oldState)=>{
+    setTempValue((oldState) => {
       return {
         ...oldState,
         tempIndex: null,
@@ -31,13 +32,13 @@ export default function LinesInput({
       }
     });
     setModalVisible(true);
-  },[ setTempValue, setModalVisible]);
+  }, [setTempValue, setModalVisible]);
 
 
 
   const handleEditLine = useCallback((index) => {
     const item = fields[index];
-    setTempValue((oldState)=>{
+    setTempValue((oldState) => {
       return {
         ...oldState,
         tempIndex: index,
@@ -45,7 +46,7 @@ export default function LinesInput({
       }
     });
     setModalVisible(true);
-  },[fields, setTempValue, setModalVisible]);
+  }, [fields, setTempValue, setModalVisible]);
 
 
 
@@ -58,20 +59,20 @@ export default function LinesInput({
       update(tempIndex, value);
     }
     setModalVisible(false);
-    setTempValue((oldState)=>{
+    setTempValue((oldState) => {
       return {
         ...oldState,
         tempIndex: null,
         tempValue: null
       }
     });
-  },[tempIndex, append, update, setTempValue, setModalVisible]);
+  }, [tempIndex, append, update, setTempValue, setModalVisible]);
 
 
 
 
   const handleModalCancel = useCallback(() => {
-    setTempValue((oldState)=>{
+    setTempValue((oldState) => {
       return {
         ...oldState,
         tempIndex: null,
@@ -79,18 +80,19 @@ export default function LinesInput({
       }
     });
     setModalVisible(false);
-  },[setTempValue, setModalVisible]);
+  }, [setTempValue, setModalVisible]);
 
 
 
 
   return (
     <View className=' mt-4'>
-      <View className='flex-row items-center justify-between'>
-        <Text style={{ fontWeight: 'bold', marginBottom: 6 }}>{label}</Text>
+      <View className='flex-row items-center justify-between py-2'>
+        <Text className=' text-lg font-bold text-gray-600'>{label}</Text>
 
         {/* Tombol Add */}
         <Pressable
+          className=' p-2 rounded-md border border-gray-600'
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -98,20 +100,22 @@ export default function LinesInput({
           }}
           onPress={handleAddLine}
         >
-          <Ionicons name="add-circle-outline" size={20} color="blue" />
-          <Text style={{ color: 'blue', marginLeft: 4 }}>Add a line</Text>
+          <Octicons name="plus" size={18} color="#4B5563" className='mr-2' />
+          <Text className='text-gray-600 font-bold '>NEW</Text>
         </Pressable>
       </View>
 
 
       {fields.length === 0 ? (
-        <Text style={{ fontStyle: 'italic' }}>No lines yet</Text>
+        <View className='flex items-center justify-center bg-gray-100 p-4 rounded-lg'>
+          <Text style={{ fontStyle: 'italic' }}>NO VALUE </Text>
+        </View>
       ) : (<ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View>
           <View className="bg-white">
             <View className="flex-row overflow-hidden items-center justify-center">
 
-              {formFiels.map((item, index) => {
+              {formFiels.flat().map((item, index) => {
                 return (
                   <View
                     style={[{ width: item.tableColWidth }]}
@@ -124,7 +128,7 @@ export default function LinesInput({
                   </View>
                 );
               })}
-              <View style={[{ width: 80 }]} className=" bg-gray-100 p-2 items-center">
+              <View style={[{ width: 80 }]} className="h-14 bg-gray-100 p-2 items-center border-b border-gray-200">
                 <Text className="bg-gray-100 py-2 text-left text-sm text-gray-700 font-bold">
                   ACTION
                 </Text>
@@ -142,18 +146,21 @@ export default function LinesInput({
                     rowBgClass
                   )}
                 >
-                  {formFiels.map((item, i) => (
-                    <Text
-                      key={i}
-                      style={[{ width: item.tableColWidth }]}
-                      className={classNames(
-                        item.className ?? "text-left text-sm",
-                        "text-gray-700"
-                      )}
-                    >
-                      {item.render(rowData, rowData[item.name])}
-                    </Text>
-                  ))}
+                  {formFiels.flat().map((item, i) => {
+                    console.log(item)
+                    return (
+                      <Text
+                        key={i}
+                        style={[{ width: item.tableColWidth }]}
+                        className={classNames(
+                          item.className ?? "text-left text-sm",
+                          "text-gray-700 p-2"
+                        )}
+                      >
+                        {item.render(rowData, rowData[item.name])}
+                      </Text>
+                    );
+                  })}
                   <View style={[{ width: 80 }]} className=' flex-row items-center  justify-between px-3'>
                     <Pressable onPress={() => handleEditLine(index)}>
                       <Ionicons name="create-outline" size={16} color="blue" />
@@ -173,7 +180,7 @@ export default function LinesInput({
 
 
 
- 
+
 
       {/* Modal Add/Edit */}
       <Modal
@@ -182,70 +189,21 @@ export default function LinesInput({
         visible={modalVisible}
         onRequestClose={handleModalCancel}
       >
-        <View style={{ flex: 1, backgroundColor: '#fff', padding: 16 }}>
-          <ChildrenForm 
-              onCancel={handleModalCancel}
-              onSubmit={handleModalSave}
-              fields={formFiels} 
-          />
-          {/**
-           
-           <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>
-            {editIndex === null ? 'Add Line' : `Edit Line #${editIndex + 1}`}
-          </Text>
-
-       
-          <Text style={{ marginBottom: 4 }}>Description:</Text>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              marginBottom: 12,
-              paddingHorizontal: 8,
-              height: 40,
-            }}
-            value={lineDesc}
-            onChangeText={setLineDesc}
-          />
-
-        
-          <Text style={{ marginBottom: 4 }}>Quantity:</Text>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              marginBottom: 12,
-              paddingHorizontal: 8,
-              height: 40,
-            }}
-            value={lineQty}
-            onChangeText={setLineQty}
-            keyboardType="numeric"
-          />
-
-       
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: 'red',
-                padding: 12,
-                borderRadius: 6,
-                marginRight: 8,
-              }}
-              onPress={handleModalCancel}
-            >
-              <Text style={{ color: '#fff' }}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{ backgroundColor: 'green', padding: 12, borderRadius: 6 }}
-              onPress={handleModalSave}
-            >
-              <Text style={{ color: '#fff' }}>Save</Text>
-            </TouchableOpacity>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+          <View className={classNames('bg-red-700 px-4 flex-row items-center justify-between rounded-bl-lg rounded-br-lg ')}>
+            <View></View>
+            <View className="flex-col items-end py-2">
+              <Text className="text-white text-xl font-extrabold ">{label}</Text>
+              <Text className="text-white text-sm font-bold ">CHILDREN TREE DATA</Text>
+            </View>
           </View>
-           */}
-        </View>
+          <ChildrenForm
+            onCancel={handleModalCancel}
+            onSubmit={handleModalSave}
+            fields={formFiels}
+            value={tempValue}
+          />
+        </SafeAreaView>
       </Modal>
     </View>
   );

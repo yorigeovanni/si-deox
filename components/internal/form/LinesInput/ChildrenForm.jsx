@@ -1,8 +1,11 @@
-import { Fragment, useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable } from 'react-native';
+import { Fragment, useCallback, useEffect } from 'react';
+import { View, Text, TextInput, ScrollView, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { useForm } from 'react-hook-form';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { classNames } from '@/utils';
 import { useRouter } from 'expo-router';
+
 
 
 import CharInput from '@/components/internal/form/CharInput';
@@ -14,24 +17,31 @@ import FileInput from '@/components/internal/form/FileInput';
 import MapsInput from '@/components/internal/form/MapsInput';
 import DateTimeInput from '@/components/internal/form/DateTimeInput';
 
+dayjs.extend(utc);
 
 
 
-//console.log(fsdfsdfsdfs)
-export default function ChildrenForm({
+
+export default function InternalMasterForm({
+    value = null,
     fields = [],
-    onCancel,
+    injectValues = {},
+    model,
+    submitText = "SUBMIT",
     onSubmit,
-    submitText = "SUBMIT"
+    onCancel,
 }) {
-
-
+   
     const defaultValues = fields
-        .flat()
+        .flat() // jadikan array 1 dimensi
         .reduce((acc, fieldConf) => {
-            acc[fieldConf.name] = fieldConf.defaultValue ?? "";
+            //console.log('===========================================');
+            //console.log(value?.[fieldConf.name]);
+            //console.log('===========================================');
+            acc[fieldConf.name] = value ? value[fieldConf.name] ? value[fieldConf.name] : fieldConf.defaultValue ? fieldConf.defaultValue : null : fieldConf.defaultValue ? fieldConf.defaultValue : null;
             return acc;
         }, {});
+
 
     const { control, handleSubmit, reset, formState: { isValid, errors } } = useForm({
         mode: 'onChange',
@@ -40,19 +50,18 @@ export default function ChildrenForm({
 
 
 
-
     const handleInternalSubmit = useCallback((formData) => {
-        console.log(formData);
-        onSubmit(formData);
-      //  onCancel();
-    }, [reset, onSubmit]);
+        onSubmit({ ...formData, ...injectValues });
+        reset();
+    }, [reset, onSubmit, injectValues]);
 
 
     const handleInternalCancel = useCallback((formData) => {
         console.log(formData);
-        reset();
         onCancel();
+        reset();
     }, [reset, onCancel]);
+
 
 
 
@@ -108,39 +117,31 @@ export default function ChildrenForm({
 
 
 
+
+
     return (
         <Fragment>
+
             <ScrollView className="flex-1 bg-white p-4">
+
+
                 {fields.map((rowItems, rowIndex) => {
-                    if (Array.isArray(rowItems)) {
-                        // Jika rowItems adalah array
-                        return (
-                            <View key={`row-${rowIndex}`} className="flex-row">
-                                {rowItems.map((fieldConf, colIndex) => (
-                                    <View
-                                        key={colIndex}
-                                        className="flex-1"
-                                        style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}
-                                    >
+                    return (
+                        <View key={`row-${rowIndex}`} className="flex-row">
+                            {rowItems.map((fieldConf, colIndex) => {
+                                return (
+                                    <View key={colIndex} className="flex-1" style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}>
                                         {renderFields(fieldConf, control)}
                                     </View>
-                                ))}
-                            </View>
-                        );
-                    } else {
-                        // Jika rowItems adalah object (bukan array)
-                        return (
-                            <View key={`row-${rowIndex}`} className="flex-row">
-                                <View className="flex-1">
-                                    {renderFields(rowItems, control)}
-                                </View>
-                            </View>
-                        );
-                    }
+                                );
+                            })}
+                        </View>
+                    )
                 })}
             </ScrollView>
 
-            <View className='flex-row items-center justify-between py-4 px-8'>
+
+            <View className='flex-row items-center justify-between py-4 px-8 bg-slate-100'>
                 <Pressable
                     onPress={handleInternalCancel}
                     ///  disabled={!isValid}
@@ -160,8 +161,27 @@ export default function ChildrenForm({
 
             </View>
 
+
         </Fragment>
     );
 }
 
 
+
+
+const styles = StyleSheet.create({
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 999
+    },
+    overlayContent: {
+        alignItems: 'center'
+    },
+    overlayText: {
+        marginTop: 10,
+        color: '#fff'
+    }
+});

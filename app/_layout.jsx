@@ -13,14 +13,11 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "@/state";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import RegistrasiDevice from "@/components/registrasi-device";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 
-// Pastikan import SafeAreaProvider & SafeAreaView dari 'react-native-safe-area-context'
-import {
-  SafeAreaView,
-  SafeAreaProvider,
-} from "react-native-safe-area-context";
 
 const queryClient = new QueryClient();
+
 
 export default function RootLayout() {
   const [pinningReady, setPinningReady] = useState(false);
@@ -73,7 +70,7 @@ export default function RootLayout() {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <SafeAreaProvider>
-              <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+              <SafeAreaView style={{ flex: 1 }}>
                 <MainContent />
               </SafeAreaView>
             </SafeAreaProvider>
@@ -83,6 +80,8 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 }
+
+
 
 // Komponen MainContent
 const MainContent = () => {

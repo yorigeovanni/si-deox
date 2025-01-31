@@ -1,55 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
+import menuTekops from './menu-tekops';
+import menuUtama from './menu-utama';
+import menuTataUsaha from './menu-tata-usaha';
+import menuKampen from './menu-kampen';
+import menuJasban from './menu-jasban';
 
 const initialState = {
   headerTitle: "SIDEO - APLIKASI INTERNAL",
   headerDescription: "Sistem Informasi Dokumentasi Operasional",
-  menuActive: null,
-  basePath: '/app-restricted-internal',
-  listMenu: [
-   /* { 
-      icon: 'home-outline', 
-      label: 'HOME', 
-      path: ``, 
-      exact: true, 
-      headerTitle: "SIDEO - APLIKASI INTERNAL" 
-    },*/
-    { 
-      icon: 'link-outline', 
-      label: 'UNIT AMC', 
-      path: `/amc`, 
-      exact: true, 
-      headerTitle: "TEKOPS - AMC" 
-    },
-    { 
-      icon: 'business-outline', 
-      label: 'UNIT ELBAN', 
-      path: `/elban`, 
-      exact: false, 
-      headerTitle: "TEKOPS - ELBAN" 
-    },
-    { 
-      icon: 'person-add-outline', 
-      label: 'UNIT LISTRIK ', 
-      path: `/listrik`, 
-      exact: false, 
-      headerTitle: "TEKOPS - LISTRIK" 
-    },
-    { 
-      icon: 'bug-outline', 
-      label: 'UNIT BANGLAND', 
-      path: `/bangland`, 
-      exact: false, 
-      headerTitle: "TEKOPS - BANGLAND" 
-    },
-  ]
+  menuActive: {
+    parent: null,
+    children: [],
+    visible: false
+  },
+  menuTekops: menuTekops,
+  menuUtama: menuUtama,
+  menuTataUsaha: menuTataUsaha,
+  menuKampen: menuKampen,
+  menuJasban: menuJasban,
+  
 };
+
+
 
 
 const aplikasiInternalSlice = createSlice({
   name: 'aplikasiInternal',
   initialState,
   reducers: {
-
     setTitle(state, action) {
       state.headerTitle = action.payload?.title;
       state.headerDescription = action.payload?.description;
@@ -57,9 +35,8 @@ const aplikasiInternalSlice = createSlice({
     setMenuActive(state, action) {
       state.menuActive = action.payload;
     },
-
   },
 });
 
 export default aplikasiInternalSlice.actions;
-export const aplikasiInternalReducer =  aplikasiInternalSlice.reducer;
+export const aplikasiInternalReducer = aplikasiInternalSlice.reducer;

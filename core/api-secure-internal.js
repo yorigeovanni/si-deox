@@ -1,6 +1,7 @@
 // api-secure.js
 import qs from 'qs';
 import { RSAKeychain } from 'react-native-rsa-native';
+import * as SecureStore from 'expo-secure-store';
 
 
 function hasProtocol(url) {
@@ -33,7 +34,11 @@ function buildFullUrl(baseURL, rawUrl, config = {}) {
 
 async function signData(deviceId, stringToSign) {
   try {
-    let signatureBase64 = await RSAKeychain.sign(stringToSign, deviceId);
+    let padKey = await SecureStore.getItemAsync(process.env.EXPO_PUBLIC_SECRET_KEY_NAME);
+    console.log('============================== PAD KEY ==============================')
+    console.log(padKey);
+    console.log('============================== PAD KEY ==============================');
+    let signatureBase64 = await RSAKeychain.signWithAlgorithm(stringToSign, padKey, 'SHA256withRSA');
     signatureBase64 = signatureBase64.replace(/(\r\n|\n|\r)/gm, '');
     return signatureBase64;
   } catch (e) {

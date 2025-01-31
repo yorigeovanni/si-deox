@@ -71,7 +71,7 @@ const Many2OneInput = ({
   const totalPages = Math.ceil(totalData / limit);
 
 
-  
+
   const handleSelect = (item, onChange) => {
     onChange(item);
     setModalVisible(false);
@@ -88,7 +88,7 @@ const Many2OneInput = ({
   if (!control) {
     return <Text style={{ color: 'red' }}>control is required</Text>;
   }
-  
+
 
   return (
     <View style={styles.container}>
@@ -113,7 +113,7 @@ const Many2OneInput = ({
 
               {/* Pesan error */}
               {error && (
-                <Text style={{ color: 'red', marginTop: 4 }}>
+                <Text className=' text-red-700 mt-1'>
                   {error.message}
                 </Text>
               )}

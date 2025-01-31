@@ -27,7 +27,7 @@ export default function GlobalMenu() {
         {
             name: "PENERBANGAN",
             icon: "airplane-outline",
-            bgColor: "bg-blue-500",
+            bgColor: "bg-blue-700",
             route: "/portal-penerbangan",
             childrenMenu: [
                 {
@@ -59,56 +59,56 @@ export default function GlobalMenu() {
         {
             name: "FASILITAS",
             icon: "bed-outline",
-            bgColor: "bg-green-400",
+            bgColor: "bg-green-700",
             route: "/portal/fasilitas",
             childrenMenu: []
         },
         {
             name: "PENUMPANG",
             icon: "person-outline",
-            bgColor: "bg-yellow-500",
+            bgColor: "bg-yellow-600",
             route: "/portal/penumpang",
             childrenMenu: []
         },
         {
             name: "TRANSPORTASI ",
             icon: "car-outline",
-            bgColor: "bg-red-400",
+            bgColor: "bg-red-600",
             route: "/portal/transportasi",
             childrenMenu: []
         },
         {
             name: "PERATURAN",
             icon: "document-text-outline",
-            bgColor: "bg-purple-500",
+            bgColor: "bg-purple-700",
             route: "/portal/peraturan",
             childrenMenu: []
         },
         {
             name: "SOP",
             icon: "clipboard-outline",
-            bgColor: "bg-pink-500",
+            bgColor: "bg-pink-600",
             route: "/portal/sop",
             childrenMenu: []
         },
         {
             name: "PPID",
             icon: "information-circle-outline",
-            bgColor: "bg-indigo-500",
+            bgColor: "bg-indigo-600",
             route: "/portal/ppid",
             childrenMenu: []
         },
         {
             name: "PENGADUAN",
             icon: "chatbubble-outline",
-            bgColor: "bg-orange-400",
+            bgColor: "bg-orange-600",
             route: "/portal/pengaduan",
             childrenMenu: []
         },
         {
             name: "STATISTIK",
             icon: "stats-chart-outline",
-            bgColor: "bg-teal-500",
+            bgColor: "bg-teal-600",
             route: "/portal/statistik",
             childrenMenu: []
         },
@@ -116,7 +116,7 @@ export default function GlobalMenu() {
         {
             name: "STACKHOLDER",
             icon: "people-outline",
-            bgColor: "bg-lime-500",
+            bgColor: "bg-lime-600",
             route: "/app-restricted-external",
             childrenMenu: []
         },
