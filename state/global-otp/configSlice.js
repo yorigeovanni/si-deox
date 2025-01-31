@@ -101,6 +101,11 @@ const configSlice = createSlice({
       state.jwtAccessToken = null
     },
 
+    ressetAll(state) {
+      state.jwtAccessToken = null;
+      state.isLoading = false;
+    },
+
   },
 });
 

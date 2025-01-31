@@ -35,6 +35,7 @@ function buildFullUrl(baseURL, rawUrl, config = {}) {
 async function signData(deviceId, stringToSign) {
   try {
     let padKey = await SecureStore.getItemAsync(process.env.EXPO_PUBLIC_SECRET_KEY_NAME);
+    console.log(padKey)
     let signatureBase64 = await RSAKeychain.signWithAlgorithm(stringToSign, padKey, 'SHA256withRSA');
     signatureBase64 = signatureBase64.replace(/(\r\n|\n|\r)/gm, '');
     return signatureBase64;
@@ -112,7 +113,6 @@ async function applyResponseInterceptor(response) {
 
 
 async function fetchRequest(method, baseURL, url, data, config = {}) {
-
   const {  headers, ...restConfig } = config;
   const finalUrl = buildFullUrl(baseURL, url, restConfig);
   let requestConfig = {
@@ -134,11 +134,15 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
   requestConfig = await applyRequestInterceptor(requestConfig);
   let response;
   try {
+    console.log(requestConfig)
     response = await fetch(finalUrl, requestConfig);
+    
   } catch (error) {
     console.error('Starting Request Error:', error);
     throw error;
   }
+
+  
 
   
   const finalResponse = await applyResponseInterceptor(response);

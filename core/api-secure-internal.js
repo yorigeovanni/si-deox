@@ -48,9 +48,6 @@ async function signData(deviceId, stringToSign) {
 
 
 
-
-
-
 async function applyRequestInterceptor(requestConfig) {
   const { deviceId, jwtAccessToken, method, body } = requestConfig;
   if (deviceId && ['POST', 'PUT', 'PATCH'].includes(method)) {

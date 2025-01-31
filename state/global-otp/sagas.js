@@ -1,32 +1,57 @@
 import { call, put, takeLatest, select } from 'redux-saga/effects';
 import actions from './configSlice';
-import createRequest from '@/core/api-secure-internal';
-
-
+import createRequest from '@/core/api-secure-portal';
+const baseURL = process.env.NODE_ENV === 'production' ? process.env.EXPO_PUBLIC_API_URL : 'http://10.8.0.2:4002';
 const { post } = createRequest();
 
 
+function timeoutPromise(ms, promise) {
+    return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => reject(new Error("Request timeout")), ms);
+        promise
+            .then((res) => {
+                clearTimeout(timeoutId);
+                resolve(res);
+            })
+            .catch((err) => {
+                clearTimeout(timeoutId);
+                reject(err);
+            });
+    });
+}
 
 function* startRegisterDevice(action) {
     try {
-        const { data } = yield call(post, '/mobile/api/public-register-device', {
-            realDeviceId: action.payload.deviceId,
-            deviceId: action.payload.fakeDeviceID,
-            phoneNumber : action.payload.phoneNumber,
-            publicKey: action.payload.publicKey,
-            deviceInfo : action.payload.deviceInfo
-        });
-        yield put(actions.succesRegisterDevice({
-            token: data.token,
-            deviceId: action.payload.fakeDeviceID,
-            phoneNumber: action.payload.phoneNumber
-        }));
+        const response = yield call(() =>
+            timeoutPromise(5000, fetch(`${baseURL}/mobile/api/public-register-device`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    realDeviceId: action.payload.deviceId,
+                    deviceId: action.payload.fakeDeviceID,
+                    phoneNumber: action.payload.phoneNumber,
+                    publicKey: action.payload.publicKey,
+                    deviceInfo: action.payload.deviceInfo,
+                }),
+            }))
+        );
+        const data = yield call([response, response.json]);
+        yield put(
+            actions.succesRegisterDevice({
+                token: data.token,
+                deviceId: action.payload.fakeDeviceID,
+                phoneNumber: action.payload.phoneNumber,
+            })
+        );
     } catch (error) {
-        console.log(error);
-        console.log(error.response?.data?.message);
-        yield put(actions.errorRegisterDevice(error.response?.data?.message || error.message));
+        console.error(error);
+        yield put(actions.errorRegisterDevice(error.message));
     }
 }
+
+
 
 
 /*
