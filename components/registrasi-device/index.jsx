@@ -13,7 +13,7 @@ import InputOtp from './input-otp-code';
 
 
 export default function FirstRegisterDeviceUi() {
-   const { tokenRegistrasi } = useSelector((state) => state.config);
+   const { tokenRegistrasi } = useSelector((state) => state.globalOtp);
    return (
     <View className={classNames('bg-white px-4 pb-4 flex-1 flex-col justify-center items-center', Platform.OS === 'android' ? "" : "")}>
         <View className="flex-row items-center space-x-8">

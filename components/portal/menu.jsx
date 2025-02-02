@@ -29,32 +29,7 @@ export default function GlobalMenu() {
             icon: "airplane-outline",
             bgColor: "bg-blue-700",
             route: "/portal-penerbangan",
-            childrenMenu: [
-                {
-                    name: "JADWAL HARI INI",
-                    icon: "calendar-outline",
-                    bgColor: "bg-blue-500",
-                    route: "/portal-penerbangan/kedatangan"
-                },
-                {
-                    name: "RUTE PENERBANGAN",
-                    icon: "pricetag-outline",
-                    bgColor: "bg-blue-500",
-                    route: "/portal-penerbangan-promo"
-                },
-                {
-                    name: "JADWAL PENERBANGAN",
-                    icon: "checkmark-circle-outline",
-                    bgColor: "bg-blue-500",
-                    route: "/portal-penerbangan-cek-in"
-                },
-                {
-                    name: "FGDFGDFG DFGDF",
-                    icon: "checkmark-circle-outline",
-                    bgColor: "bg-blue-500",
-                    route: "/portal-penerbangan-cek-in"
-                }
-            ]
+            childrenMenu: []
         },
         {
             name: "FASILITAS",

@@ -9,7 +9,7 @@ import configAction from '@/state/global-otp/configSlice';
 export default function InputOtpCode() {
     const [otp, setOtp] = useState('');
     const dispatch = useDispatch();
-    const { isLoading, lastRegisterAtempt } = useSelector((state) => state.config);
+    const { isLoading, lastRegisterAtempt } = useSelector((state) => state.globalOtp);
     const [timeLeft, setTimeLeft] = useState(0);
 
     const formatTime = (totalSeconds) => {

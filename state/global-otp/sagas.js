@@ -57,7 +57,7 @@ function* startRegisterDevice(action) {
 /*
 function* reloadOtp() {
     try {
-        const { deviceId, phoneNumber } = yield select((state) => state.config);
+        const { deviceId, phoneNumber } = yield select((state) => state.globalOtp);
         const { data } = yield call(post, '/mobile/api/public-reload-register-device', {
             deviceId: deviceId,
             phoneNumber : phoneNumber
@@ -72,7 +72,7 @@ function* reloadOtp() {
 
 function* verifikasiOtp(action) {
     try {
-        const { tokenRegistrasi } = yield select((state) => state.config);
+        const { tokenRegistrasi } = yield select((state) => state.globalOtp);
         const { data } = yield call(post, '/mobile/api/public-verifikasi-otp', {
             token: tokenRegistrasi,
             otp : action.payload.otp

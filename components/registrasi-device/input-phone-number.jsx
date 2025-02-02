@@ -17,7 +17,7 @@ import * as SecureStore from 'expo-secure-store';
 
 export default function FirstRegisterDeviceUi() {
     const [inputValue, setInputValue] = useState('');
-    const { isLoading, isError } = useSelector((state) => state.config);
+    const { isLoading, isError } = useSelector((state) => state.globalOtp);
     const [selectedCountry, setSelectedCountry] = useState({ "callingCode": "+62", "cca2": "ID", "flag": "🇮🇩", "name": { "ar": "إندونيسيا", "bg": "Индонезия", "by": "Інданезія", "cn": "印度尼西亚", "cz": "Indonésie", "da": "Indonesien", "de": "Indonesien", "ee": "Indoneesia", "el": "Ινδονησία", "en": "Indonesia", "es": "Indonesia", "fr": "Indonésie", "he": "אינדונזיה", "it": "Indonesia", "jp": "インドネシア", "nl": "Indonesië", "pl": "Indonezja", "pt": "Indonésia", "ro": "Indonezia", "ru": "Индонезия", "tr": "Endonezya", "ua": "Індонезія", "zh": "印度尼西亞" } });
     const dispatch = useDispatch();
 

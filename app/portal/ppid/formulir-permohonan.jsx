@@ -11,7 +11,7 @@ import { useRouter } from "expo-router";
 
 const PpidFormPermohonan = () => {
     const router = useRouter();
-    const { phoneNumber } = useSelector((state) => state.config);
+    const { phoneNumber } = useSelector((state) => state.globalOtp);
     const model = 'x_mobile_ppid';
     const fields = [
         [

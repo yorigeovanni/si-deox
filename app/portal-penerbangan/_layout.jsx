@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, usePathname } from 'expo-router';
@@ -65,8 +65,7 @@ export default function Statistik() {
 
     return (
         <View className="flex-1 bg-gray-200">
-            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-
+           
             {/* Header */}
             <View className={classNames('bg-red-800 pb-5 px-4 flex-row justify-between')}>
 
@@ -90,11 +89,11 @@ export default function Statistik() {
             <Stack screenOptions={{ headerShown: false }} />
 
             {/* Bottom Navigation */}
-            <View className="flex-row justify-around bg-red-800 pt-3 pb-6">
+            <View className="flex-row justify-around bg-red-800 pt-3 pb-3">
                 {menu.map((item, index) => (
                     <TouchableOpacity
                         key={index}
-                        className="items-center"
+                        className="items-center flex-row justify-center"
                         onPress={() => navigation(item.path)}
                     >
                         <MaterialCommunityIcons
@@ -111,13 +110,13 @@ export default function Statistik() {
                             }
                         />
                         <Text
-                            className={`text-sm ${item.exact
+                            className={`text-sm pl-4 ${item.exact
                                 ? pathname === item.path
                                     ? 'text-white font-extrabold'
-                                    : 'text-white'
+                                    : 'text-red-300'
                                 : pathname.includes(item.path)
                                     ? 'text-white font-extrabold'
-                                    : 'text-white'
+                                    : 'text-red-300'
                                 }`}
                         >
                             {item.label}

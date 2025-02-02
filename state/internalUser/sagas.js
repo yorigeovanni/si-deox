@@ -7,7 +7,7 @@ const { post } = createRequest();
 
 function* requestToken(action) {
     try {
-        const { deviceId, phoneNumber } = yield select((state) => state.config);
+        const { deviceId, phoneNumber } = yield select((state) => state.globalOtp);
         const { data } = yield call(post, '/mobile/api/request-token-internal', {
             nik_nip : action.payload.nik_nip,
             phoneNumber : phoneNumber
@@ -28,7 +28,7 @@ function* requestToken(action) {
 
 function* reloadOtp(action) {
     try {
-        const { deviceId, phoneNumber } = yield select((state) => state.config);
+        const { deviceId, phoneNumber } = yield select((state) => state.globalOtp);
         const { nik_nip } = yield select((state) => state.internalUser);
         const { data } = yield call(post, '/mobile/api/request-token-internal', {
             nik_nip : nik_nip,
@@ -48,7 +48,7 @@ function* reloadOtp(action) {
 function* verifikasiOtp(action) {
     try {
         const { tokenLogin } = yield select((state) => state.internalUser);
-        const { deviceId } = yield select((state) => state.config);
+        const { deviceId } = yield select((state) => state.globalOtp);
         const { data } = yield call(post, '/mobile/api/verifikasi-token-internal', {
             token: tokenLogin,
             otp : action.payload.otp

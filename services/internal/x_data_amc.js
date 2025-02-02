@@ -28,7 +28,7 @@ const selectedFiles = {
 
 
 export function useFindAll({ offset, limit }) {
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     return useQuery({
         queryKey: [...QUERY_KEY, offset, limit],
@@ -72,7 +72,7 @@ export function useFindAll({ offset, limit }) {
 
 
 export function useFindOne({ id, domain = [] }) {
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     return useQuery({
         queryKey: [...QUERY_KEY, id, ...domain],
@@ -119,7 +119,7 @@ export function useFindOne({ id, domain = [] }) {
 
 export function useCreateOrEdit() {
     const queryClient = useQueryClient();
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
 
     return useMutation({

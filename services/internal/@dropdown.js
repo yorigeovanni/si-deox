@@ -5,7 +5,7 @@ const { post } = createRequest();
 
 
 export function useFindAll({ model, offset = 0, limit = 20, domain = [], fields = {} }) {
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     return useQuery({
         queryKey: ['dropdown-findall', model, offset, limit, ...domain],

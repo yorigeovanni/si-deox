@@ -18,7 +18,7 @@ export default function Berjadwal() {
   const router = useRouter();
   const firstTimeRef = useRef(true);
 
-  const { deviceId } = useSelector((state) => state.config);
+  const { deviceId } = useSelector((state) => state.globalOtp);
   const { jwtAccessToken } = useSelector((state) => state.aplikasiInternal);
 
   // ENV

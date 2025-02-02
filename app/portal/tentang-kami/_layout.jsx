@@ -30,7 +30,7 @@ export default function LayoutPpid() {
       borderColor: "border-pink-600",
       route: `${basePath}`,
     },
-    
+
     {
       name: "VISI & MISI",
       icon: "document-attach-outline",
@@ -52,7 +52,7 @@ export default function LayoutPpid() {
       borderColor: "border-yellow-600",
       route: `${basePath}/struktur-organisasi`,
     },
-    
+
     {
       name: "PENGHARGAAN",
       icon: "happy-outline",
@@ -124,7 +124,7 @@ export default function LayoutPpid() {
       <View
         className={classNames(
           "bg-white px-4 pb-4 flex-row justify-between items-center border-b border-red-700/20",
-        
+
         )}
       >
         {/* Tombol Kembali */}

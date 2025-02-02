@@ -3,9 +3,6 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Dimensions, View, Text, TouchableOpacity,Image, Button } from 'react-native';
 import { classNames } from '@/utils';
 import { Ionicons } from "@expo/vector-icons";
-
-
-//import SwiperFlatList from 'react-native-swiper-flatlist';
 import ContentLoader, { Rect, Circle, Path } from "react-content-loader/native"
 
 // STATE MANAGEMENT

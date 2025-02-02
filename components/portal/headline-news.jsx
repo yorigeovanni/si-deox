@@ -1,13 +1,11 @@
 import React, { useCallback, useState, useRef } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
-import { Dimensions, View, Text, ImageBackground, Pressable, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from "@expo/vector-icons"; // Icon library
-import ContentLoader, { Rect, Circle, Path } from "react-content-loader/native"
-import ReanimatedCarousel from "react-native-reanimated-carousel";
+import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Ionicons } from "@expo/vector-icons"; 
 import { useFindMany } from '@/services/portal/@default-query';
-const { width, height } = Dimensions.get('window');
-
+import { Placeholder, Progressive, PlaceholderMedia } from 'rn-placeholder';
+import * as Utils from '@/utils';
+import { Text, Card } from '@/components';
 
 
 const baseURL = process.env.NODE_ENV === 'production' ? process.env.EXPO_PUBLIC_API_URL : 'http://10.8.0.2:4002';
@@ -34,9 +32,7 @@ export default function HeadlineNews() {
     limit
   });
 
-  const totalData = data?.totalData ?? 0;
   const records = data?.records ?? [];
-  const totalPages = data?.totalPages ?? 1;
 
 
   useFocusEffect(useCallback(() => {
@@ -49,43 +45,24 @@ export default function HeadlineNews() {
   );
 
 
-
-
-
   if (isLoading) {
-    return (<ReanimatedCarousel
-      {...{
-        autoPlayInterval: 3000,
-        autoPlayReverse: false,
-        snapEnabled: true,
-        vertical: false,
-        width: window.width,
-        loop: true,
+    return (<FlatList
+      contentContainerStyle={{ paddingLeft: 5, paddingRight: 15 }}
+      horizontal={true}
+      showsHorizontalScrollIndicator={false}
+      data={[1, 2, 3, 4, 5]}
+      keyExtractor={(item, index) => `Popular ${index}`}
+      renderItem={({ item, index }) => {
+        return (
+          <View style={[styles.popularItem, { marginLeft: 15 }]}>
+            <Placeholder Animation={Progressive}>
+              <PlaceholderMedia
+                style={{ width: '100%', height: '100%', borderRadius: 8 }}
+              />
+            </Placeholder>
+          </View>
+        );
       }}
-      style={{ width: "100%" }}
-      width={width * 0.8}
-      height={width * 0.3}
-      data={[1, 2, 3]}
-      renderItem={({ item }) => (
-        <View className="px-1.5">
-          <ContentLoader
-            speed={2}
-            width={400}
-            height={160}
-            viewBox="0 0 400 160"
-            backgroundColor="#f3f3f3"
-            foregroundColor="#ecebeb"
-
-          >
-            <Rect x="48" y="8" rx="3" ry="3" width="88" height="6" />
-            <Rect x="48" y="26" rx="3" ry="3" width="52" height="6" />
-            <Rect x="0" y="56" rx="3" ry="3" width="410" height="6" />
-            <Rect x="0" y="72" rx="3" ry="3" width="380" height="6" />
-            <Rect x="0" y="88" rx="3" ry="3" width="178" height="6" />
-            <Circle cx="20" cy="20" r="20" />
-          </ContentLoader>
-        </View>
-      )}
     />)
   }
 
@@ -95,7 +72,7 @@ export default function HeadlineNews() {
       <View
         style={{
           flex: 1,
-          backgroundColor: "#fef2f2", // Latar merah muda
+          backgroundColor: "#ffffff", // Latar merah muda
           alignItems: "center",
           justifyContent: "center",
           padding: 16,
@@ -129,14 +106,14 @@ export default function HeadlineNews() {
         <TouchableOpacity
           onPress={refetch}
           style={{
-            marginTop: 20,
-            backgroundColor: "#b91c1c",
-            paddingHorizontal: 20,
+            marginTop: 6,
+            //backgroundColor: "#b91c1c",
+            paddingHorizontal: 12,
             paddingVertical: 12,
             borderRadius: 8,
           }}
         >
-          <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
+          <Text style={{ color: "#b91c1c", fontWeight: "600", fontSize: 16 }}>
             Coba Lagi
           </Text>
         </TouchableOpacity>
@@ -147,76 +124,107 @@ export default function HeadlineNews() {
 
 
   return (
-    <View className="my-2">
-      <View className="flex-row items-center justify-between mt-6">
-        <Text className=" text-xl font-bold mx-4 my-2 text-red-800">Informasi Terbaru</Text>
-        <Pressable onPress={() => router.push('/portal/headline-news')}>
-          <Text className=" text-lg mx-4 my-2 text-red-800">Selengkapnya</Text>
-        </Pressable>
-        
-      </View>
-
-      <ReanimatedCarousel
-        {...{
-          autoPlay: false,
-          autoPlayInterval: 4000,
-          autoPlayReverse: false,
-          snapEnabled: true,
-          vertical: false,
-          width: window.width,
-          loop: true,
-        }}
-        style={{ width: "100%" }}
-        width={width * 0.8}
-        height={width * 0.4}
-        //autoPlay={true}
-        data={records}
-        // scrollAnimationDuration={1000}
-        renderItem={({ item }) => (
-          <Pressable className="px-1.5" onPress={() => router.push(`/portal/headline-news/${item.id}`)}>
-            <ImageBackground
-              source={{ uri: `${baseURL}/web/image?model=${model}&id=${item.id}&field=x_studio_gambar` }}
-              resizeMode="cover"
-              className="rounded-lg overflow-hidden mx-1.5"
-              style={{
-                width: '100%',
-                height: '100%',
-                position: 'relative'
-              }}
-            >
-              <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-
-                <LinearGradient
-                  colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.5)', 'transparent']}
-                  start={{ x: 0, y: 1 }}
-                  end={{ x: 0, y: 0 }}
-                  style={{ height: '100%' }}
-                >
-                  <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-
-                    <View className=" p-2 pt-6">
-                      <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-                        {item.x_name}
-                      </Text>
-                      <Text style={{ color: '#fff', fontSize: 12 }}>
-                        {item.x_studio_description}
-                      </Text>
-                    </View>
-
-                  </View>
-                </LinearGradient>
-
-
-
-              </View>
-            </ImageBackground>
-          </Pressable>
-
-
-        )}
-      />
-    </View>
+    <FlatList
+      contentContainerStyle={{ paddingLeft: 5, paddingRight: 15 }}
+      horizontal={true}
+      showsHorizontalScrollIndicator={false}
+      data={records}
+      keyExtractor={(item, index) => `${index}`}
+      renderItem={({ item, index }) => {
+        return (
+          <Card
+            style={[styles.popularItem, { marginLeft: 15 }]}
+            image={{ uri: `${baseURL}/web/image?model=${model}&id=${item.id}&field=x_studio_gambar` }}
+            onPress={() => {
+              router.push(`/portal/headline-news/${item.id}`)
+            }}>
+            <Text headline whiteColor semibold>
+              {item.x_name}
+            </Text>
+          </Card>
+        );
+      }}
+    />
   )
 
 
 }
+
+
+
+const styles = StyleSheet.create({
+  imageBackground: {
+    height: 140,
+    width: '100%',
+    position: 'absolute',
+  },
+  contentPage: {
+    bottom: 50,
+  },
+  searchForm: {
+    marginHorizontal: 15,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 0.5,
+    shadowOffset: { width: 1.5, height: 1.5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 1,
+    elevation: 1,
+  },
+  lineForm: {
+    width: 1,
+    height: '100%',
+    margin: 10,
+  },
+  serviceContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    marginVertical: 10,
+  },
+  serviceItem: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  serviceCircleIcon: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+    marginBottom: 5,
+  },
+  contentPopular: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
+  promotionBanner: {
+    height: Utils.scaleWithPixel(100),
+    width: '100%',
+    marginTop: 10,
+  },
+  popularItem: {
+    width: Utils.scaleWithPixel(255),
+    height: Utils.scaleWithPixel(140),
+    borderRadius: 8,
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

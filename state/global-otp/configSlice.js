@@ -16,8 +16,8 @@ const initialState = {
 
 
 
-const configSlice = createSlice({
-  name: 'config',
+const globalOtpSlice = createSlice({
+  name: 'globalOtp',
   initialState,
   reducers: {
 
@@ -109,5 +109,5 @@ const configSlice = createSlice({
   },
 });
 
-export default configSlice.actions;
-export const configReducer =  configSlice.reducer;
+export default globalOtpSlice.actions;
+export const globalOtpReducer =  globalOtpSlice.reducer;

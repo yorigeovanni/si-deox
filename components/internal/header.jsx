@@ -25,7 +25,7 @@ export default function InternalHeader({
 
     return (
         <Fragment>
-            <View className={classNames('bg-red-700 px-4 flex-row items-center justify-between rounded-bl-lg rounded-br-lg ')}>
+            <View className={classNames('bg-red-800 px-4 flex-row items-center justify-between rounded-bl-lg rounded-br-lg ')}>
                 <TouchableOpacity className='flex-row items-center space-x-2' onPress={() => onBackCustom()}>
                     <Ionicons name="chevron-back-outline" size={24} color="#fff" />
                     <Text className="text-white text-sm font-extrabold">KEMBALI</Text>

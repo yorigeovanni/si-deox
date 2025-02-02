@@ -7,7 +7,7 @@ const { post } = createRequest();
 
 
 export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {} }) {
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     const dispatch = useDispatch();
     // STIAP QUERY SECURE YANG HARUS LOGIN
@@ -66,7 +66,7 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
 
 
 export function useFindMany({ pathname = null, params = {}, model, offset = 0, limit = 20, domain = [], fields = {} }) {
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     const dispatch = useDispatch();
 
@@ -146,7 +146,7 @@ export function useFindMany({ pathname = null, params = {}, model, offset = 0, l
 
 export function useCreateOrEdit(model) {
     const queryClient = useQueryClient();
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
 
     return useMutation({
@@ -188,7 +188,7 @@ export function useCreateOrEdit(model) {
 
 
 export function useFindOne({ model, domain = [], fields = {} }) {
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
     return useQuery({
         queryKey: ['default-findOne', model, ...domain],
@@ -232,7 +232,7 @@ export function useFindOne({ model, domain = [], fields = {} }) {
 
 export function useDelete(model) {
     const queryClient = useQueryClient();
-    const { deviceId } = useSelector((state) => state.config);
+    const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
 
     return useMutation({

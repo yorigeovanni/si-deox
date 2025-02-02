@@ -16,7 +16,7 @@ import internalUserActions from '@/state/internalUser/internalUserSlice';
 export default function LoginInternal() {
     const router = useRouter();
     const { tokenLogin } = useSelector((state) => state.internalUser);
-    const { phoneNumber } = useSelector((state) => state.config);
+    const { phoneNumber } = useSelector((state) => state.globalOtp);
 
     const onBackCustom = useCallback(() => {
         router.replace('/');

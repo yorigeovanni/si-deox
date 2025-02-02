@@ -9,7 +9,7 @@ const { post } = createRequest();
 
 export default function ViewId() {
   const { id_record } = useLocalSearchParams();
-  const { deviceId } = useSelector((state) => state.config);
+  const { deviceId } = useSelector((state) => state.globalOtp);
   const { jwtAccessToken } = useSelector((state) => state.aplikasiInternal);
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['amc-unscheduled-view', id_record],
