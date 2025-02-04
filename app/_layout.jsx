@@ -88,9 +88,9 @@ export default function RootLayout() {
           <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
               <SafeAreaProvider>
-                <SafeAreaView style={{ flex: 1 }}>
+                {/**<SafeAreaView style={{ flex: 1 }}> */}
                   <MainContent />
-                </SafeAreaView>
+                {/**</SafeAreaView> */}
               </SafeAreaProvider>
             </PersistGate>
           </Provider>

@@ -6,6 +6,15 @@ const { post } = createRequest();
 
 
 
+const processResponse = (data, limit) => {
+    const totalData = data?.result?.length || 0;
+    const records = data?.result?.records || [];
+    const totalPages = Math.ceil(totalData / limit);
+    return { totalData, records, totalPages };
+};
+
+
+
 export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {} }) {
     const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
@@ -65,6 +74,75 @@ export function useInfiniteFindMany({ model, limit = 20, domain = [], fields = {
 
 
 
+export function useFindMany({
+    model,
+    pathname = null, // Opsional, jika ingin gunakan path custom
+    params = {},
+    offset = 0,
+    limit = 20,
+    domain = [],
+    fields = {},
+    //order = 'write_date DESC',
+    context = {},
+    sort = []
+}) {
+    const { deviceId } = useSelector((state) => state.globalOtp);
+    const { jwtAccessToken } = useSelector((state) => state.internalUser);
+    const dispatch = useDispatch();
+
+    const logoutUserInternal = () => {
+        dispatch(internalUserActions.logout());
+    };
+
+    // Fungsi API terpisah agar lebih mudah digunakan kembali
+    const fetchData = async () => {
+        if (pathname) {
+            const { data } = await post(pathname, params, { deviceId, jwtAccessToken, logoutUserInternal });
+            return processResponse(data, limit);
+        }
+
+        let sortTextOdoo = '';
+        sort.map((item) => {
+            sortTextOdoo += `${item.field} ${item.order}, `;
+        });
+        console.log('RE TRIGER ')
+        sortTextOdoo = sortTextOdoo.slice(0, -2);
+        const action = 'web_search_read';
+        const { data } = await post(
+            `/mobile/api/internal/${model}/${action}`,
+            {
+                jsonrpc: '2.0',
+                method: 'call',
+                params: {
+                    model,
+                    method: action,
+                    args: [],
+                    kwargs: {
+                        specification: fields,
+                        offset,
+                        order : sortTextOdoo,
+                        context,
+                        limit,
+                        count_limit: 10001,
+                        domain,
+                    },
+                },
+            },
+            { deviceId, jwtAccessToken, logoutUserInternal }
+        );
+
+        return processResponse(data, limit);
+    };
+
+    return useQuery({
+        queryKey: ['default-findMany', model, offset, limit, ...domain, ...sort],
+        queryFn: fetchData,
+        keepPreviousData: true,
+    });
+}
+
+
+/*
 export function useFindMany({ pathname = null, params = {}, model, offset = 0, limit = 20, domain = [], fields = {} }) {
     const { deviceId } = useSelector((state) => state.globalOtp);
     const { jwtAccessToken } = useSelector((state) => state.internalUser);
@@ -138,6 +216,8 @@ export function useFindMany({ pathname = null, params = {}, model, offset = 0, l
         keepPreviousData: true
     });
 }
+*/
+
 
 
 

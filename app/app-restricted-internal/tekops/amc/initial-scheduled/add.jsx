@@ -1,11 +1,15 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Platform, KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { BaseStyle, useTheme, BaseColor } from '@/config';
 import { useRouter } from 'expo-router';
 import InternalHeader from '@/components/internal/header';
 import MasterForm from '@/components/internal/form';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { Header, Icon } from '@/components';
+import { useTranslation } from 'react-i18next';
+
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
@@ -15,6 +19,9 @@ dayjs.extend(customParseFormat);
 
 export default function ScheduledAdd() {
     const router = useRouter();
+    const { colors } = useTheme();
+    const { t } = useTranslation();
+
     const model = 'x_data_amc';
     const formFields = [
         [
@@ -47,6 +54,8 @@ export default function ScheduledAdd() {
                     required: 'field is required'
                 }
             },
+        ],
+        [
             {
                 name: 'x_studio_type_pesawat',
                 label: 'AIRCRAFT TYPE',
@@ -72,17 +81,19 @@ export default function ScheduledAdd() {
                 label: 'SCEDULE TIME ARRIVAL',
                 placeholder: 'STA',
                 type: 'datetime',
-                defaultValue: new Date(),
+                defaultValue: null,
                 rules: {
                     required: 'field is required'
                 }
-            },
+            }
+        ],
+        [
             {
                 name: 'x_studio_std',
                 label: 'SCEDULE TIME DEPARTURE',
                 placeholder: 'STD',
                 type: 'datetime',
-                defaultValue: new Date(),
+                defaultValue: null,
                 rules: {
                     required: 'field is required'
                 }
@@ -94,17 +105,20 @@ export default function ScheduledAdd() {
                 label: 'ACTUAL TIME ARRIVAL',
                 placeholder: 'ATA',
                 type: 'datetime',
-                defaultValue: new Date(),
+                defaultValue: null,
                 rules: {
                     required: 'field is required'
                 }
             },
+            
+        ],
+        [
             {
                 name: 'x_studio_atd',
                 label: 'ACTUAL TIME DEPARTURE',
                 placeholder: 'ATD',
                 type: 'datetime',
-                defaultValue: new Date(),
+                defaultValue: null,
                 rules: {
                     required: 'field is required'
                 }
@@ -124,6 +138,22 @@ export default function ScheduledAdd() {
                 formFiels: [
                     [
                         {
+                            name: 'x_studio_flight_number',
+                            label: 'FLIGHT NUMBER',
+                            placeholder: 'FLIGHT NUMBER',
+                            type: 'char',
+                            defaultValue: '',
+                            rules: {
+                                required: 'field is required'
+                            },
+                            tableColWidth: 130,
+                            render: (row, value) => {
+                                return value
+                            }
+                        },
+                    ],
+                    [
+                        {
                             name: 'x_studio_from',
                             label: 'FROM',
                             placeholder: 'FROM',
@@ -138,7 +168,7 @@ export default function ScheduledAdd() {
                             rules: {
                                 required: 'field is required'
                             },
-                            tableColWidth: 180,
+                            tableColWidth: 130,
                             render: (row, value) => {
                                 return value.x_name
                             }
@@ -155,32 +185,17 @@ export default function ScheduledAdd() {
                                 x_name: {}
                             },
                             editable: false,
-                            defaultValue: {id : 2, x_name: 'SOQ'},
+                            defaultValue: { id: 2, x_name: 'SOQ' },
                             rules: {
                                 required: 'field is required'
                             },
-                            tableColWidth: 180,
+                            tableColWidth: 130,
                             render: (row, value) => {
                                 return value.x_name
                             }
                         },
                     ],
-                    [
-                        {
-                            name: 'x_studio_flight_number',
-                            label: 'FLIGHT NUMBER',
-                            placeholder: 'FLIGHT NUMBER',
-                            type: 'char',
-                            defaultValue: '',
-                            rules: {
-                                required: 'field is required'
-                            },
-                            tableColWidth: 180,
-                            render: (row, value) => {
-                                return value
-                            }
-                        },
-                    ]
+                    
                 ],
 
             },
@@ -209,7 +224,7 @@ export default function ScheduledAdd() {
                             fields: {
                                 x_name: {}
                             },
-                            defaultValue: {id : 2, x_name: 'SOQ'},
+                            defaultValue: { id: 2, x_name: 'SOQ' },
                             rules: {
                                 required: 'field is required'
                             },
@@ -240,7 +255,7 @@ export default function ScheduledAdd() {
                                 return value.x_name
                             }
                         },
-                        
+
                     ],
                     [
                         {
@@ -308,7 +323,7 @@ export default function ScheduledAdd() {
                             },
                             tableColWidth: 140,
                             render: (row, value) => {
-                                if(!value){
+                                if (!value) {
                                     return '-'
                                 }
                                 return dayjs.utc(value, "YYYY-MM-DD HH:mm:ss").local().format("DD-MM-YYYY HH:mm");
@@ -323,7 +338,7 @@ export default function ScheduledAdd() {
                             rules: {},
                             tableColWidth: 140,
                             render: (row, value) => {
-                                if(!value){
+                                if (!value) {
                                     return '-'
                                 }
                                 return dayjs.utc(value, "YYYY-MM-DD HH:mm:ss").local().format("DD-MM-YYYY HH:mm");
@@ -349,20 +364,16 @@ export default function ScheduledAdd() {
 
 
     return (
-        <Fragment>
-            <InternalHeader
-                title='NEW DATA'
-                subtitle="AMC SCHEDULE MOVEMENT"
-                isBack={true}
-            />
+       
             <MasterForm
+                title="NEW DATA AMC"
                 model={model}
                 fields={formFields}
                 injectValues={{
                     x_studio_type_penerbangan: 'BERJADWAL'
                 }}
             />
-        </Fragment>
+       
     );
 }
 

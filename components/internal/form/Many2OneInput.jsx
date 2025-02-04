@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, TextInput, Modal, TouchableOpacity, FlatList, StyleSheet, Platform } from 'react-native';
+import { View, TextInput, Text as RnText, Modal, TouchableOpacity, FlatList, StyleSheet, Platform } from 'react-native';
+import { Icon, Text } from '@/components';
+import { BaseStyle, useTheme, BaseColor } from '@/config';
 import { useFocusEffect } from 'expo-router';
 import { Controller } from 'react-hook-form';
 import { classNames } from '@/utils';
@@ -19,6 +21,7 @@ const Many2OneInput = ({
   editable = true,
 }) => {
   const firstTimeRef = useRef(true);
+  const { colors } = useTheme();
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,82 +94,92 @@ const Many2OneInput = ({
 
 
   return (
-    <View style={styles.container}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
 
-      <Controller
-        control={control}
-        name={name}
-        rules={defaultRules}
-        render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => {
-          return (
-            <View style={{ marginVertical: 4 }}>
-              <TouchableOpacity
-                style={[styles.inputContainer, { backgroundColor: editable ? '#fff' : '#eee' }]}
-                onPress={() => editable && setModalVisible(true)}
-              >
-                <Text style={styles.selectedText}>
-                  {/* Tampilkan label dari record jika sudah terpilih */}
+
+
+    <Controller
+      control={control}
+      name={name}
+      rules={defaultRules}
+      render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => {
+        return (
+          <View style={{ marginVertical: 4, marginBottom: 20,  paddingHorizontal: 20 }}>
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                
+              }}
+              onPress={() => editable && setModalVisible(true)}
+            >
+              <View>
+                <RnText className={classNames(editable ? 'text-lg font-semibold' : 'text-lg font-semibold text-gray-500')}>
+                  {label ? <Text style={styles.label}>{label}</Text> : null}
+                </RnText>
+                <RnText className={classNames(value ? '' : ' text-gray-500')}>
                   {value && value[optionLabel] ? value[optionLabel] : placeholder}
-                </Text>
-              </TouchableOpacity>
+                </RnText>
+              </View>
+              <Icon name="angle-right" size={18} color={colors.primary}  />
+            </TouchableOpacity>
 
-              {/* Pesan error */}
-              {error && (
-                <Text className=' text-red-700 mt-1'>
-                  {error.message}
-                </Text>
-              )}
+            {/* Pesan error */}
+            {error && (
+              <RnText className=' text-red-700 mt-1'>
+                {error.message}
+              </RnText>
+            )}
 
-              {/* MODAL */}
-              <Modal
-                visible={modalVisible}
-                animationType="slide"
-                onRequestClose={() => setModalVisible(false)}
-              >
-                {/* BAGIAN HEADER */}
-                <View className={classNames('bg-red-800 pb-4 flex-row items-center justify-start', Platform.OS === 'android' ? " pt-10" : " pt-20")}>
-                  <TextInput
-                    className='bg-white rounded-lg p-2 mx-4 w-3/4'
-                    placeholder="Ketik untuk mencari..."
-                    value={searchText}
-                    onChangeText={setSearchText}
-                  />
-                  <TouchableOpacity
-                    style={styles.closeBtn}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text>Tutup</Text>
-                  </TouchableOpacity>
-                </View>
+            {/* MODAL */}
+            <Modal
+              visible={modalVisible}
+              animationType="slide"
+              onRequestClose={() => setModalVisible(false)}
+            >
+              {/* BAGIAN HEADER */}
+              <View className={classNames('bg-red-800 pb-4 flex-row items-center justify-start', Platform.OS === 'android' ? " pt-10" : " pt-20")}>
+                <TextInput
+                  className='bg-white rounded-lg p-2 mx-4 w-3/4'
+                  placeholder="Ketik untuk mencari..."
+                  value={searchText}
+                  onChangeText={setSearchText}
+                />
+                <TouchableOpacity
+                  style={styles.closeBtn}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text>Tutup</Text>
+                </TouchableOpacity>
+              </View>
 
-                {/* LIST */}
-                <View style={{ flex: 1, padding: 8 }}>
-                  {isLoading && <Text>Loading...</Text>}
-                  {isError && (
-                    <Text style={{ color: 'red' }}>
-                      Error: {error?.message}
-                    </Text>
+              {/* LIST */}
+              <View style={{ flex: 1, padding: 8 }}>
+                {isLoading && <Text>Loading...</Text>}
+                {isError && (
+                  <Text style={{ color: 'red' }}>
+                    Error: {error?.message}
+                  </Text>
+                )}
+                <FlatList
+                  data={records}
+                  keyExtractor={(item) => String(item[optionValue])}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => handleSelect(item, onChange)}
+                    >
+                      <Text>{item[optionLabel]}</Text>
+                    </TouchableOpacity>
                   )}
-                  <FlatList
-                    data={records}
-                    keyExtractor={(item) => String(item[optionValue])}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={styles.optionItem}
-                        onPress={() => handleSelect(item, onChange)}
-                      >
-                        <Text>{item[optionLabel]}</Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </View>
-              </Modal>
-            </View>
-          );
-        }}
-      />
-    </View>
+                />
+              </View>
+            </Modal>
+          </View>
+        );
+      }}
+    />
+
   );
 };
 

@@ -80,7 +80,7 @@ export default function RootIndex() {
         },
       ),
     );*/
-    router.replace('/portal-2');
+    router.replace('/home');
   },[router, dispatch]);
 
 

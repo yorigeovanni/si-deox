@@ -1,10 +1,14 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal, TouchableOpacity } from 'react-native';
 import { Ionicons, Octicons } from '@expo/vector-icons';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { classNames } from '@/utils';
 import ChildrenForm from './ChildrenForm';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Icon } from '@/components';
+import { BaseStyle, useTheme, BaseColor, useFont } from '@/config';
+
+
 
 export default function LinesInput({
   control,        // dari parent
@@ -16,6 +20,10 @@ export default function LinesInput({
   editable = true,
   rules
 }) {
+  const { colors } = useTheme();
+  const font = useFont();
+  const cardColor = colors.card;
+
   const { fields, append, remove, update } = useFieldArray({ control, name });
   // Simpan ID baris Odoo yang dihapus
   const [removedLines, setRemovedLines] = useState([]);
@@ -75,75 +83,92 @@ export default function LinesInput({
   }, [removedLines, setValue, name]);
 
   return (
-    <View className=' mt-4'>
-      <View className='flex-row items-center justify-between py-2'>
-        <Text className=' text-lg font-bold text-gray-600'>{label}</Text>
+    <View style={{ marginBottom: 20, backgroundColor: cardColor, paddingHorizontal: 20, paddingVertical: 10 }}>
+      {/* Header */}
 
-        {/* Tombol Add */}
-        <Pressable
-          className=' p-2 rounded-md border border-gray-600'
-          style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
-          onPress={handleAddLine}
-        >
-          <Octicons name="plus" size={18} color="#4B5563" />
-          <Text className='text-gray-600 font-bold ml-2'>NEW</Text>
-        </Pressable>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+        activeOpacity={0.8}
+      >
+        <View>
+          {label ? <Text className={classNames(editable ? 'text-lg font-semibold' : 'text-lg font-semibold text-gray-500')}>{label}</Text> : null}
+          <Text className={classNames(' text-gray-500')}>
+            {`${fields.length} items`}
+          </Text>
+        </View>
+
+        <View className=' flex-row'>
+          <TouchableOpacity  >
+            <Icon name="plus" size={18} color={colors.primary} onPress={handleAddLine} />
+          </TouchableOpacity>
+
+        </View>
+
+
       </View>
 
+
+
+
       {/* TABEL LINES */}
-      {fields.length === 0 ? (
-        <View className='flex items-center justify-center bg-gray-100 p-4 rounded-lg'>
-          <Text style={{ fontStyle: 'italic' }}>NO VALUE</Text>
-        </View>
-      ) : (
+      {fields.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View>
+          <View className='mt-4'>
             {/* Header */}
-            <View className="bg-white">
-              <View className="flex-row overflow-hidden items-center justify-center">
-                {formFiels.flat().map((item, index) => (
+
+            <View className="flex-row overflow-hidden items-center justify-center">
+              {formFiels.flat().map((item, index) => {
+                return (
                   <View
                     style={[{ width: item.tableColWidth }]}
                     key={index}
-                    className="h-14 bg-gray-100 p-2 border-b border-gray-200"
+                    className={classNames(index == 0 ? 'rounded-tl-lg' : '', 'h-10 bg-orange-400 border-hairline  border-gray-900 items-center justify-center')}
                   >
-                    <Text className="bg-gray-100 py-2 text-left text-sm text-gray-700 font-bold">
+                    <Text className="  text-sm text-gray-800 font-bold">
                       {item.label}
                     </Text>
                   </View>
-                ))}
-                <View
-                  style={[{ width: 80 }]}
-                  className="h-14 bg-gray-100 p-2 items-center border-b border-gray-200"
-                >
-                  <Text className="bg-gray-100 py-2 text-left text-sm text-gray-700 font-bold">
-                    ACTION
-                  </Text>
-                </View>
+                )
+              })}
+              <View style={[{ width: 80 }]} className="h-10 bg-orange-400 border-hairline  border-gray-900 items-center justify-center rounded-tr-lg">
+                <Text className=" text-left text-sm text-gray-700 font-bold">
+                  ACTION
+                </Text>
               </View>
             </View>
+
 
             {/* Body */}
             <View>
               {fields.map((rowData, index) => {
-                const rowBgClass = index % 2 === 0 ? "bg-gray-50" : "bg-white";
+                const rowBgClass = index % 2 === 0 ? "bg-orange-50" : "bg-orange-100";
+                const roundedBotomLeft = index + 1 == fields.length;
                 return (
                   <View
                     key={rowData.id}
                     className={classNames(
-                      "flex-row h-14 items-center border-b border-gray-200",
+                      roundedBotomLeft ? 'rounded-bl-lg rounded-br-lg' : '',
+                      "flex-row h-12 border-hairline  border-gray-900 ",
                       rowBgClass
                     )}
                   >
-                    {formFiels.flat().map((colItem, i) => (
-                      <Text
-                        key={i}
-                        style={[{ width: colItem.tableColWidth }]}
-                        className="text-left text-sm text-gray-700 p-2"
-                      >
-                        {colItem.render(rowData, rowData[colItem.name])}
-                      </Text>
-                    ))}
+                    {formFiels.flat().map((colItem, i) => {
+                      return (
+                        <View key={i}
+                          className={classNames('items-center justify-center border-r-hairline  border-gray-900 ')}>
+                          <Text
+                            style={[{ width: colItem.tableColWidth }]}
+                            className="text-center text-sm text-gray-700 p-2"
+                          >
+                            {colItem.render(rowData, rowData[colItem.name])}
+                          </Text>
+                        </View>
+                      )
+                    })}
                     <View style={[{ width: 80 }]} className='flex-row items-center justify-between px-3'>
                       <Pressable onPress={() => handleEditLine(index)}>
                         <Ionicons name="create-outline" size={16} color="blue" />

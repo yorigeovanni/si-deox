@@ -1,12 +1,18 @@
 import { Fragment, useCallback, useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, StyleSheet, Pressable, ActivityIndicator, BackHandler } from 'react-native';
+import { View, KeyboardAvoidingView, Text, TextInput, Platform, ScrollView, StyleSheet, Pressable, ActivityIndicator, BackHandler } from 'react-native';
 import { useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { classNames } from '@/utils';
 import { useRouter } from 'expo-router';
-import { useCreateOrEdit } from '@/services/internal/@default-query';
+import { BaseStyle, useTheme, BaseColor } from '@/config';
+import { SafeAreaView, Header, Icon } from '@/components';
+import { useTranslation } from 'react-i18next';
 
+
+
+
+import { useCreateOrEdit } from '@/services/internal/@default-query';
 import CharInput from './CharInput';
 import TextInputYori from './TextInput';
 import ImageInput from './ImageInput';
@@ -18,9 +24,15 @@ import MapsInput from './MapsInput';
 import QrCodeInput from './QrCodeInput';
 import DateTimeInput from './DateTimeInput';
 
+
 dayjs.extend(utc);
 
+
+
+
+
 export default function InternalMasterForm({
+    title = "New Form",
     id = null,
     fields = [],
     injectValues = {},
@@ -29,7 +41,11 @@ export default function InternalMasterForm({
     onSubmit, // untuk treeForm
     onCancel,
 }) {
+
     const router = useRouter();
+    const { colors } = useTheme();
+    const { t } = useTranslation();
+    const offsetKeyboard = Platform.select({ ios: 0, android: 20 });
     const { mutate, isError, error, isPending } = useCreateOrEdit(model);
 
     // buat defaultValues dari fields
@@ -167,32 +183,57 @@ export default function InternalMasterForm({
     }, [isPending]);
 
     return (
-        <Fragment>
-            <ScrollView className="flex-1 bg-white p-4">
-                {isError && (
-                    <View className=' bg-red-100 p-4 flex-row items-center justify-center mx-6 rounded-lg mt-4'>
-                        <Text className='text-red-700'>
-                            {error?.response?.data?.message || error?.message}
-                        </Text>
-                    </View>
-                )}
+        <View style={{ flex: 1, }}>
+            <Header
+                title={title}
+                renderLeft={() => {
+                    return (
+                        <Icon
+                            name="arrow-left"
+                            size={20}
+                            color={colors.primary}
+                            enableRTL={true}
+                        />
+                    );
+                }}
+                renderRight={() => (<Text headline primaryColor numberOfLines={1}>{submitText}</Text>)}
+                onPressLeft={() => router.back()}
+                onPressRight={handleSubmit(handleInternalSubmit)}
+            />
 
-                {fields.map((rowItems, rowIndex) => (
-                    <View key={`row-${rowIndex}`} className="flex-row">
-                        {rowItems.map((fieldConf, colIndex) => (
-                            <View
-                                key={colIndex}
-                                className="flex-1"
-                                style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}
-                            >
-                                {renderFields(fieldConf, control)}
+
+            <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+                    keyboardVerticalOffset={offsetKeyboard}
+                    style={{ flex: 1 }}>
+                    <ScrollView style={{ backgroundColor: 'white' }}>
+                        <View style={{ paddingHorizontal: 0, paddingVertical: 15 }}>
+                        {isError && (
+                            <View className=' bg-red-100 p-4 flex-row items-center justify-center mx-6 rounded-lg mt-4'>
+                                <Text className='text-red-700'>
+                                    {error?.response?.data?.message || error?.message}
+                                </Text>
+                            </View>
+                        )}
+
+                        {fields.map((rowItems, rowIndex) => (
+                            <View key={`row-${rowIndex}`} className="flex-row">
+                                {rowItems.map((fieldConf, colIndex) => (
+                                    <View
+                                        key={colIndex}
+                                        className="flex-1"
+                                        style={{ marginRight: colIndex < rowItems.length - 1 ? 8 : 0 }}
+                                    >
+                                        {renderFields(fieldConf, control)}
+                                    </View>
+                                ))}
                             </View>
                         ))}
-                    </View>
-                ))}
-            </ScrollView>
+                        </View>
+                    </ScrollView>
 
-            <View className='flex-row items-center justify-between py-4 px-8 bg-slate-100'>
+                    {/**<View className='flex-row items-center justify-between py-4 px-8 bg-slate-100'>
                 <Pressable
                     onPress={handleInternalCancel}
                     className={classNames("bg-blue-700 p-2 rounded-lg")}
@@ -209,19 +250,33 @@ export default function InternalMasterForm({
                         {submitText}
                     </Text>
                 </Pressable>
-            </View>
+            </View> */}
 
-            {isPending && (
-                <View style={styles.overlay}>
-                    <View style={styles.overlayContent}>
-                        <ActivityIndicator size="large" color="#fff" />
-                        <Text style={styles.overlayText}>Processing...</Text>
-                    </View>
-                </View>
-            )}
-        </Fragment>
+                    {isPending && (
+                        <View style={styles.overlay}>
+                            <View style={styles.overlayContent}>
+                                <ActivityIndicator size="large" color="#fff" />
+                                <Text style={styles.overlayText}>Processing...</Text>
+                            </View>
+                        </View>
+                    )}
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        </View>
+
     );
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // -----------------------------------------------------------------------------
 // convertValue: di sini kita bentuk list of commands Odoo (0,1,2)
@@ -323,5 +378,30 @@ const styles = StyleSheet.create({
     overlayText: {
         marginTop: 10,
         color: '#fff'
-    }
+    },
+    contentTitle: {
+        alignItems: 'flex-start',
+        width: '100%',
+        height: 32,
+        justifyContent: 'center',
+    },
+    contain: {
+        alignItems: 'center',
+        padding: 20,
+    },
+    textInput: {
+        height: 46,
+        backgroundColor: BaseColor.fieldColor,
+        borderRadius: 5,
+        padding: 10,
+        width: '100%',
+        color: BaseColor.grayColor,
+    },
+    thumb: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginBottom: 20,
+    },
 });
+

@@ -149,8 +149,6 @@ export default function AirportIndex() {
               {t('popular_lologan')}
             </Text>
           </View>
-
-          {/*renderPopular()*/}
           <HeadlineNews/>
 
           <View

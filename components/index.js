@@ -14,9 +14,10 @@ import Header from './Header';
 import ListThumbCircle from './ListThumbCircle';
 import TextInput from './TextInput';
 import ProfileCall from './ProfileCall';
+import FilterSort from './FilterSort';
+import Button from './Button';
 
-
-/*import Button from './Button';
+/*
 
 
 
@@ -31,7 +32,7 @@ import ProfileDetail from './ProfileDetail';
 import RateDetail from './RateDetail';
 
 
-import FilterSort from './FilterSort';
+
 
 import CategoryIcon from './CategoryIcon';
 import CategoryFull from './CategoryFull';
@@ -65,6 +66,8 @@ export {
   ListThumbCircle,
   TextInput,
   ProfileCall,
+  FilterSort,
+  Button,
 
 
 /*
@@ -74,7 +77,7 @@ export {
   CategoryFull,
   CategoryIcon,
   
-  Button,
+
   
   
   CommentItem,
@@ -88,7 +91,7 @@ export {
   ProfileDetail,
   RateDetail,
   
-  FilterSort,
+
   ProfileDescription,
   HeaderAnimated,
 

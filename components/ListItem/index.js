@@ -4,12 +4,7 @@ import {Image, Text, Icon, StarRating, Tag} from '@/components';
 import {BaseColor, useTheme} from '@/config';
 import styles from './styles';
 import {useTranslation} from 'react-i18next';
-import {
-  Placeholder,
-  PlaceholderLine,
-  Progressive,
-  PlaceholderMedia,
-} from 'rn-placeholder';
+import { Placeholder, PlaceholderLine, Progressive, PlaceholderMedia } from 'rn-placeholder';
 
 export default function ListItem(props) {
   const {t} = useTranslation();
@@ -33,12 +28,11 @@ export default function ListItem(props) {
     onPress,
     onPressTag,
     omPressMore,
+    children,
   } = props;
 
-  /**
-   * Display place item as block
-   */
-  const renderBlock = () => {
+  
+  const renderBlock = (children) => {
     if (loading) {
       return (
         <Placeholder Animation={Progressive}>
@@ -61,6 +55,10 @@ export default function ListItem(props) {
           </View>
         </Placeholder>
       );
+    }
+
+    if(children){
+      return children;
     }
 
     return (
@@ -142,10 +140,9 @@ export default function ListItem(props) {
     );
   };
 
-  /**
-   * Display place item as list
-   */
-  const renderList = () => {
+
+
+  const renderList = (children) => {
     if (loading) {
       return (
         <Placeholder Animation={Progressive}>
@@ -163,6 +160,10 @@ export default function ListItem(props) {
           </View>
         </Placeholder>
       );
+    }
+
+    if(children){
+      return children;
     }
 
     return (
@@ -220,10 +221,8 @@ export default function ListItem(props) {
     );
   };
 
-  /**
-   * Display place item as grid
-   */
-  const renderGrid = () => {
+
+  const renderGrid = (children) => {
     if (loading) {
       return (
         <View style={[styles.girdContent, style]}>
@@ -245,6 +244,10 @@ export default function ListItem(props) {
           </Placeholder>
         </View>
       );
+    }
+
+    if(children){
+      return children;
     }
 
     return (
@@ -307,7 +310,7 @@ export default function ListItem(props) {
     );
   };
 
-  const renderSmall = () => {
+  const renderSmall = (children) => {
     if (loading) {
       return (
         <Placeholder Animation={Progressive}>
@@ -326,6 +329,10 @@ export default function ListItem(props) {
           </View>
         </Placeholder>
       );
+    }
+
+    if(children){
+      return children;
     }
 
     return (
@@ -362,11 +369,18 @@ export default function ListItem(props) {
     );
   };
 
-  if (grid) return renderGrid();
-  else if (block) return renderBlock();
-  else if (small) return renderSmall();
-  else return renderList();
+
+
+  if (grid) return renderGrid(children);
+  else if (block) return renderBlock(children);
+  else if (small) return renderSmall(children);
+  else return renderList(children);
+
+
 }
+
+
+
 
 /*
 ListItem.defaultProps = {

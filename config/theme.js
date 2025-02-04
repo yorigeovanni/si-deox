@@ -27,7 +27,7 @@ export const ThemeSupport = [
     light: {
       dark: false,
       colors: {
-        primary: '#991B1B',
+        primary: '#E5634D',
         primaryDark: '#C31C0D',
         primaryLight: '#FF8A65',
         accent: '#4A90A4',
@@ -40,7 +40,7 @@ export const ThemeSupport = [
     dark: {
       dark: true,
       colors: {
-        primary: '#991B1B',
+        primary: '#E5634D',
         primaryDark: '#C31C0D',
         primaryLight: '#FF8A65',
         accent: '#4A90A4',
@@ -177,7 +177,7 @@ export const DefaultTheme = {
   light: {
     dark: false,
     colors: {
-      primary: '#B91C1C',
+      primary: '#E5634D',
       primaryDark: '#C31C0D',
       primaryLight: '#FF8A65',
       accent: '#4A90A4',
@@ -190,7 +190,7 @@ export const DefaultTheme = {
   dark: {
     dark: true,
     colors: {
-      primary: '#B91C1C',
+      primary: '#E5634D',
       primaryDark: '#C31C0D',
       primaryLight: '#FF8A65',
       accent: '#4A90A4',

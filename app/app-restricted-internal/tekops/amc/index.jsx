@@ -1,97 +1,303 @@
-import React, { Fragment, useCallback, useMemo } from 'react';
-import { View, Text, Button, TouchableOpacity, FlatList, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter, usePathname } from 'expo-router';
-import InternalHeader from '@/components/internal/header';
-
-// STATE MANAGEMENT
-import { useDispatch, useSelector } from 'react-redux';
-const rootPath = '/app-restricted-internal/amc';
-
-
+import React, { useState } from 'react';
+import {View, ScrollView, FlatList, Animated, TouchableOpacity, StyleSheet } from 'react-native';
+import { BaseColor, useTheme, BaseStyle } from '@/config';
+import { Header, SafeAreaView, Icon, Text,  Image,  Tag } from '@/components';
+import { useTranslation } from 'react-i18next';
+import * as Utils from '@/utils';
+import { Placeholder, PlaceholderLine, Progressive, PlaceholderMedia } from 'rn-placeholder';
+import FlightCardBlue from '@/assets/amc.avif';
+import { useRouter, useFocusEffect } from 'expo-router';
 
 
-export default function AmcUnscheduledIndex() {
+
+export default function ProductDetail({ navigation, route }) {
     const router = useRouter();
-    const pathname = usePathname();
-    const dispatch = useDispatch();
-    const { tokenInternal, userInternal } = useSelector((state) => state.auth);
-    const menu = [
+    const { t } = useTranslation();
+    const { colors } = useTheme();
+    const deltaY = new Animated.Value(0);
+    const [loading, setLoading] = useState(false);
+    
+    const categories = [
         {
-            icon: 'time-outline',
-            label: 'SCHEDULED',
-            path: `berjadwal`,
+            "color": "#5DADE2",
+            "icon": "snowboarding",
+            "title": "SCHEDULED",
+            "path": "/app-restricted-internal/tekops/amc/initial-scheduled"
         },
         {
-            icon: 'airplane-outline',
-            label: 'UN-SCEDULED',
-            path: `unsceduled`,
+            "color": "#A569BD",
+            "icon": "music",
+            "title": "UN-SCHEDULED",
+            "path": "/app-restricted-internal/tekops/elban"
         },
         {
-            icon: 'business-outline',
-            label: 'OPERATOR',
-            path: `operator`,
+            "color": "#5DADE2",
+            "icon": "star",
+            "title": "AIRPORT",
+            "path": "/app-restricted-internal/tekops/bangland"
         },
         {
-            icon: 'location-outline',
-            label: 'BANDARA',
-            path: `airport`,
+            "color": "#58D68D",
+            "icon": "futbol",
+            "title": "PARKING STAND",
+            "path": "/app-restricted-internal/tekops/pkp-pk"
         },
         {
-            icon: 'pause-circle-outline',
-            label: 'PARKING STAND',
-            path: `parking-stand`,
+            "color": "#5D6D7E",
+            "icon": "bullseye",
+            "title": "AIRCRAFT TYPE",
+            "path": "/app-restricted-internal/tekops/avsec"
+        },
+        {
+            "color": "#5D6D7E",
+            "icon": "bullseye",
+            "title": "OPERATOR",
+            "path": "/app-restricted-internal/tekops/avsec"
         },
 
-        {
-            icon: 'book-outline',
-            label: 'LOG-BOOK',
-            path: `log-book`,
-        },
-        {
-            icon: 'book-outline',
-            label: 'SOP',
-            path: `log-book`,
-        },
-        {
-            icon: 'book-outline',
-            label: 'LAPORAN',
-            path: `log-book`,
-        },
-        {
-            icon: 'people-outline',
-            label: 'PERSONIL',
-            path: `personil`,
-        },
-        {
-            icon: 'calendar-number-outline',
-            label: 'JADWAL-DINAS',
-            path: `jadwal-dinas`,
-        },
-        {
-            icon: 'calendar-number-outline',
-            label: 'ASSETS',
-            path: `jadwal-dinas`,
-        },
-        {
-            icon: 'calendar-number-outline',
-            label: 'FILES',
-            path: `jadwal-dinas`,
-        },
     ];
+    const [collapseHour, setCollapseHour] = useState(false);
+    const [heightHeader, setHeightHeader] = useState(Utils.heightHeader());
+    const heightImageBanner = Utils.scaleWithPixel(250, 1);
 
 
-    const renderMenuItem = ({ item }) => {
+
+
+
+
+    const goToApp = (path) => {
+        router.push(path);
+    };
+
+
+    const renderBanner = () => {
+
+        if (loading) {
+            return (
+                <Placeholder Animation={Progressive}>
+                    <Animated.View
+                        style={[
+                            styles.imgBanner,
+                            {
+                                height: deltaY.interpolate({
+                                    inputRange: [
+                                        0,
+                                        Utils.scaleWithPixel(140),
+                                        Utils.scaleWithPixel(140),
+                                    ],
+                                    outputRange: [heightImageBanner, heightHeader, heightHeader],
+                                }),
+                            },
+                        ]}>
+                        <PlaceholderMedia style={{ width: '100%', height: '100%' }} />
+                    </Animated.View>
+                </Placeholder>
+            );
+        }
+
         return (
-            <TouchableOpacity
-                className="items-center mr-10"
-                onPress={() => router.push(`${rootPath}/${item.path}`)}
-            >
-                <View className="bg-red-700 justify-center items-center rounded-full p-4 border border-red-800">
-                    <Ionicons name={item.icon} size={35} color="#ffffff" />
+            <Animated.View
+                style={[
+                    styles.imgBanner,
+                    {
+                        height: deltaY.interpolate({
+                            inputRange: [
+                                0,
+                                Utils.scaleWithPixel(140),
+                                Utils.scaleWithPixel(140),
+                            ],
+                            outputRange: [heightImageBanner, heightHeader, heightHeader],
+                        }),
+                    },
+                ]}>
+                <Image
+                    source={FlightCardBlue}
+                    style={{ width: '100%', height: '100%' }}
+                />
+                <Animated.View
+                    style={{
+                        position: 'absolute',
+                        bottom: 15,
+                        left: 20,
+                        flexDirection: 'row',
+                        opacity: deltaY.interpolate({
+                            inputRange: [
+                                0,
+                                Utils.scaleWithPixel(140),
+                                Utils.scaleWithPixel(140),
+                            ],
+                            outputRange: [1, 0, 0],
+                        }),
+                    }}>
+                    <Image source={124} style={styles.userIcon} />
+                    <View>
+                        <Text headline semibold whiteColor>
+                            YORI GEOVANNI
+                        </Text>
+                        <Text footnote whiteColor>
+                            082291914470
+                        </Text>
+                    </View>
+                </Animated.View>
+            </Animated.View>
+        );
+    };
+
+
+
+    const renderCategory = () => {
+        if (categories.length > 0) {
+            return (
+                <FlatList
+                    contentContainerStyle={{
+                        paddingLeft: 5,
+                        paddingRight: 20,
+                        marginTop: 5,
+                    }}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    data={categories}
+                    keyExtractor={(item, index) => `Category ${index}`}
+                    renderItem={({ item, index }) => {
+                        return (
+                            <TouchableOpacity
+                                style={{ alignItems: 'center', paddingHorizontal: 20 }}
+                                onPress={() => goToApp(item.path)}>
+                                <View
+                                    style={[
+                                        styles.categoryContent,
+                                        { backgroundColor: item.color + '4D' },
+                                    ]}>
+                                    <Icon name={item.icon} size={32} color={item.color} />
+                                </View>
+                                <Text
+                                    footnote
+                                    style={{
+                                        marginTop: 10,
+                                    }}>
+                                    {item.title}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    }}
+                />
+            );
+        }
+
+        return (
+            <FlatList
+                contentContainerStyle={{
+                    marginTop: 20,
+                }}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                data={[1, 2, 3, 4, 5, 6]}
+                keyExtractor={(item, index) => `Category ${index}`}
+                renderItem={({ item, index }) => {
+                    return (
+                        <View style={{ paddingHorizontal: 20 }}>
+                            <Placeholder Animation={Progressive}>
+                                <View style={{ alignItems: 'center' }}>
+                                    <PlaceholderMedia style={styles.categoryContent} />
+                                    <PlaceholderLine
+                                        style={{ width: 50, height: 8, marginTop: 10 }}
+                                    />
+                                </View>
+                            </Placeholder>
+                        </View>
+                    );
+                }}
+            />
+        );
+    };
+
+    const renderContent = () => {
+        if (loading) {
+            return (
+                <ScrollView
+                    onScroll={Animated.event(
+                        [
+                            {
+                                nativeEvent: {
+                                    contentOffset: { y: deltaY },
+                                },
+                            },
+                        ],
+                        { useNativeDriver: false },
+                    )}
+                    onContentSizeChange={() => {
+                        setHeightHeader(Utils.heightHeader());
+                    }}
+                    scrollEventThrottle={8}>
+                    <View style={{ height: 255 - heightHeader }} />
+                    <Placeholder Animation={Progressive}>
+                        <View
+                            style={{
+                                paddingHorizontal: 20,
+                                marginBottom: 20,
+                            }}>
+                            <PlaceholderLine style={{ width: '50%', marginTop: 10 }} />
+                            <PlaceholderLine style={{ width: '70%' }} />
+                            <PlaceholderLine style={{ width: '40%' }} />
+                            <View style={styles.line}>
+                                <PlaceholderMedia style={styles.contentIcon} />
+                                <View style={{ marginLeft: 10, flex: 1, paddingTop: 10 }}>
+                                    <PlaceholderLine style={{ width: '40%' }} />
+                                </View>
+                            </View>
+                            <View style={styles.line}>
+                                <PlaceholderMedia style={styles.contentIcon} />
+                                <View style={{ marginLeft: 10, flex: 1, paddingTop: 10 }}>
+                                    <PlaceholderLine style={{ width: '40%' }} />
+                                </View>
+                            </View>
+                            <View style={styles.line}>
+                                <PlaceholderMedia style={styles.contentIcon} />
+                                <View style={{ marginLeft: 10, flex: 1, paddingTop: 10 }}>
+                                    <PlaceholderLine style={{ width: '40%' }} />
+                                </View>
+                            </View>
+                            <View style={styles.line}>
+                                <PlaceholderMedia style={styles.contentIcon} />
+                                <View style={{ marginLeft: 10, flex: 1, paddingTop: 10 }}>
+                                    <PlaceholderLine style={{ width: '40%' }} />
+                                </View>
+                            </View>
+                            <View style={styles.line}>
+                                <PlaceholderMedia style={styles.contentIcon} />
+                                <View style={{ marginLeft: 10, flex: 1, paddingTop: 10 }}>
+                                    <PlaceholderLine style={{ width: '40%' }} />
+                                </View>
+                            </View>
+                            <PlaceholderLine
+                                style={{ width: '100%', height: 250, marginTop: 20 }}
+                            />
+                        </View>
+                    </Placeholder>
+                </ScrollView>
+            );
+        }
+        return (
+            <ScrollView
+                onScroll={Animated.event(
+                    [
+                        {
+                            nativeEvent: {
+                                contentOffset: { y: deltaY },
+                            },
+                        },
+                    ],
+                    { useNativeDriver: false },
+                )}
+                onContentSizeChange={() => {
+                    setHeightHeader(Utils.heightHeader());
+                }}
+                scrollEventThrottle={8}>
+                <View style={{ height: 225 - heightHeader }} />
+                <View>
+                    {renderCategory()}
                 </View>
-                <Text className="mt-1 text-red-700 text-sm">{item.label}</Text>
-            </TouchableOpacity>
+            </ScrollView>
         );
     };
 
@@ -101,32 +307,111 @@ export default function AmcUnscheduledIndex() {
 
 
     return (
-        <Fragment>
-            <InternalHeader 
-                    backPath='/app-restricted-internal/tekops'
-                    title="DASHBOARD - UNIT AMC"
-                    subtitle="SUMMARY REPORT - UNIT AMC"
-                    />
-            <View className="flex-1 bg-white">
-            {/**<Text className="text-2xl font-bold text-red-800 mt-4 mx-4">UNIT AMC</Text>
-            <View className=" w-full items-start py-4 border-b border-gray-200">
-                <FlatList
-                    horizontal
-                    data={menu}
-                    renderItem={renderMenuItem}
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={{ paddingHorizontal: 16 }}
-                    showsHorizontalScrollIndicator={false}
-                />
-            </View> */}
+        <View style={{ flex: 1 }}>
+            {renderBanner()}
+            <Header
+                title=" UNIT AMC"
+                renderLeft={() => {
+                    return (
+                        <Icon name="arrow-left" size={20} color={BaseColor.whiteColor} />
+                    );
+                }}
+                renderRight={() => {
+                    return <Icon name="images" size={20} color={BaseColor.whiteColor} />;
+                }}
+                onPressLeft={() => {
+                    router.back();
+                }}
+                onPressRight={() => {
 
-            <ScrollView className="flex-1">
-
-            </ScrollView>
+                }}
+            />
+            <SafeAreaView style={BaseStyle.safeAreaView} edges={['right', 'left']}>
+                {renderContent()}
+            </SafeAreaView>
         </View>
-
-        </Fragment>
-        
-
     );
 }
+
+
+
+
+const styles = StyleSheet.create({
+    categoryContent: {
+        width: 60,
+        height: 60,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    centerView: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    imgBanner: {
+        width: '100%',
+        height: 250,
+        position: 'absolute',
+    },
+    lineSpace: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    rateLine: {
+        marginTop: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    line: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    contentIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    userIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'white',
+        marginRight: 5,
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    contentInforAction: {
+        marginLeft: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flex: 1,
+    },
+    lineWorkHours: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        justifyContent: 'space-between',
+        borderBottomWidth: 1,
+    },
+    wrapContent: {
+        flexWrap: 'wrap',
+        flexDirection: 'row',
+        marginHorizontal: 20,
+        borderBottomWidth: 1,
+        paddingBottom: 20,
+    },
+    contentDescription: {
+        marginHorizontal: 20,
+        paddingBottom: 20,
+        borderBottomWidth: 0.5,
+    },
+});
+
