@@ -1,0 +1,74 @@
+@import 'base';
+
+.retool-modal--empty {
+  .ant-modal-confirm-btns {
+    display: none;
+  }
+  .ant-modal-confirm-content {
+    margin-left: 0;
+  }
+}
+
+.retool-modal {
+  .ant-modal-content {
+    padding: 20px;
+    border-radius: 8px;
+    font-family: var(--sans-serif);
+  }
+
+  .ant-modal-title,
+  .ant-confirm-title {
+    font-family: var(--sans-serif);
+    font-size: 20px;
+  }
+
+  .ant-modal-body {
+    font-family: var(--sans-serif);
+    padding: 0px;
+  }
+
+  .ant-modal-header {
+    border-bottom: none;
+    padding: 0px;
+  }
+
+  .ant-modal-footer,
+  .ant-confirm-btns {
+    padding: 20px 0px 0px 0px;
+    margin: 10px 0px 0px 0px;
+  }
+
+  .ant-confirm-btns {
+    width: 100%;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    justify-content: flex-end;
+    button {
+      height: 41px;
+      font-size: 18px;
+      padding: 0 22px;
+      margin-left: 15px !important;
+    }
+  }
+
+  .ant-modal-close-x {
+    margin-top: 20px;
+    margin-right: 20px;
+    font-size: 20px;
+  }
+
+  .ant-confirm-content {
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  .anticon.anticon-question-circle {
+    display: none;
+  }
+}
+
+.ant-modal-confirm-body-wrapper {
+  .ant-modal-confirm-content {
+    margin-left: 0px !important;
+  }
+}

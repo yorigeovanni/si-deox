@@ -1,0 +1,12 @@
+.loadingComponent,
+.errorComponent {
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+}
+
+.errorComponent {
+  line-height: 1em;
+  vertical-align: middle;
+  text-align: center;
+}

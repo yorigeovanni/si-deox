@@ -1,0 +1,35 @@
+.content {
+  margin-bottom: 12px;
+
+  code {
+    background: var(--gray-150);
+    padding: 0 4px;
+    border-radius: 2px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+}
+
+.modal {
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+  &:global(.ant-modal) {
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    :global(.ant-modal-content) {
+      padding: 20px;
+    }
+  }
+}
+
+.dialogButton {
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+  &:global(.ant-btn) {
+    box-shadow: none;
+    text-shadow: none;
+    border-radius: 6px;
+  }
+
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+  &:global(.ant-btn-primary) {
+    background: var(--blue-500);
+  }
+}
