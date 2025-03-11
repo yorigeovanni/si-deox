@@ -1,12 +1,4 @@
-import {
-  call,
-  put,
-  takeLatest,
-  select,
-  race,
-  delay,
-  take,
-} from "redux-saga/effects";
+import { call, put, takeLatest, select, race, delay, take } from "redux-saga/effects";
 import { Platform } from "react-native";
 import { RSAKeychain } from "react-native-rsa-native";
 import * as Device from "expo-device";
@@ -14,6 +6,7 @@ import * as Application from "expo-application";
 import * as SecureStore from "expo-secure-store";
 import { v4 as uuidv4 } from "uuid";
 import createRequest from "@/services/api-secure-portal";
+import { sendPushTokenToBackend, removePushTokenFromBackend } from '@/services/notificationService';
 import {
   startDeviceRegistration,
   deviceRegistrationSuccess,
@@ -25,12 +18,14 @@ import {
   checkLockStatus,
 } from "@/store/slices/deviceSlice";
 
+
+
+
 const { post } = createRequest();
 const baseURL =
   process.env.NODE_ENV === "production"
     ? process.env.EXPO_PUBLIC_API_URL
     : process.env.EXPO_PUBLIC_API_DEV;
-
 
 
 
@@ -75,18 +70,6 @@ function* handleDeviceRegistration(action) {
       newKey
     );
     const pubKey = keys.public;
-    const deviceInfo = {
-      brand: Device.brand,
-      designName: Device.designName,
-      deviceYearClass: Device.deviceYearClass,
-      isDevice: Device.isDevice,
-      manufacturer: Device.manufacturer,
-      modelId: Device.modelId,
-      modelName: Device.modelName,
-      osName: Device.osName,
-      productName: Device.productName,
-    };
-    console.log(deviceInfo);
     const response = yield call(() =>
       timeoutPromise(
         10000,
@@ -100,24 +83,34 @@ function* handleDeviceRegistration(action) {
             deviceId: fakeDeviceId,
             phoneNumber: action.payload.phoneNumber,
             publicKey: pubKey,
-            deviceInfo: deviceInfo,
+            deviceInfo: {
+              brand: Device.brand,
+              model: Device.modelName,
+              designName: Device.designName,
+              deviceYearClass: Device.deviceYearClass,
+              isDevice: Device.isDevice,
+              manufacturer: Device.manufacturer,
+              modelId: Device.modelId,
+              osName: Device.osName,
+              productName: Device.productName,
+            },
           }),
         })
       )
     );
+
     const data = yield call([response, response.json]);
     yield put(
       deviceRegistrationSuccess({
         token: data.token,
         deviceId: fakeDeviceId,
         phoneNumber: action.payload.phoneNumber,
-        expiresAt: Date.now() + 2 * 60 * 1000,
+        expiresAt: Date.now() + 5 * 60 * 1000,
       })
     );
-
     // Start expiration timer
     const { expired } = yield race({
-      expired: delay(2 * 60 * 1000), // 2 minutes
+      expired: delay(5 * 60 * 1000),
       verified: take(verifyOtpSuccess.type),
     });
 
@@ -146,21 +139,19 @@ function* handleVerifyOtp(action) {
     }
 
     const { tokenRegistration } = yield select((state) => state.device);
-    /*console.log({
-      token: tokenRegistration,
-      otp: action.payload.otp,
-    })*/
     const { data } = yield call(post, "/mobile/api/public-verifikasi-otp", {
       token: tokenRegistration,
       otp: action.payload.otp,
     });
-
+    
     yield put(
       verifyOtpSuccess({
         jwtAccessToken: data.jwtAccessToken,
       })
     );
+    yield call(sendPushTokenToBackend, 'sdasda addasdas');
   } catch (error) {
+    8358;
     yield put(verifyOtpFailure(error.message));
   }
 }

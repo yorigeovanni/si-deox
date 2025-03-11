@@ -10,12 +10,14 @@ import {
   ScrollView,
   ActivityIndicator
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { tokenInternalRequest, tokenIntenalRequestVerified } from "@/store/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { OtpInput } from "react-native-otp-entry";
+import LogoPutih from '@/assets/logo-putih.png';
+
 
 export default function SignInScreen() {
   const otpInputRef = useRef(null);
@@ -27,9 +29,14 @@ export default function SignInScreen() {
   const { internalUser } = useSelector((state) => state.auth);
   const { user, loading, error, otpToken } = internalUser;
 
+
+
+
   const handleSignIn = useCallback(() => {
     dispatch(tokenInternalRequest({ nip_nik }));
   }, [dispatch, nip_nik]);
+
+
 
   const handleOtpComplete = (code) => {
     //if (lockedUntil) {
@@ -40,6 +47,22 @@ export default function SignInScreen() {
     setOtpValue(code);
     dispatch(tokenIntenalRequestVerified({ otp: code }));
   };
+
+
+
+
+  useFocusEffect(useCallback(()=>{
+    if(loading){
+      return;
+    }
+    if(!loading && !error && user){
+      router.replace("/home/landing-aplikasi-internal");
+    }
+  },[user, loading, error]));
+
+
+
+
 
   
 
@@ -63,10 +86,8 @@ export default function SignInScreen() {
             {/* Header Section */}
             <View className="items-center mb-2">
               <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=300&q=80",
-                }}
-                className="w-24 h-24 rounded-3xl mb-6"
+                source={LogoPutih}
+                className="items-center w-36 h-24 rounded-3xl"
               />
               <Text className="text-white text-3xl font-bold mb-2">
                 INTERNAL LOGIN
@@ -139,10 +160,10 @@ export default function SignInScreen() {
                       NIP ASN / NIK NON ASN
                     </Text>
                     <View className="flex-row items-center bg-white/10 rounded-xl p-4">
-                      <Ionicons name="mail" size={20} color="white" />
+                      <Ionicons name="person-outline" size={20} color="white" />
                       <TextInput
                         className="flex-1 text-white ml-3"
-                        placeholder="min. 12 characters max. 21 characters"
+                        placeholder="min. 12 - max. 21 characters"
                         placeholderTextColor="rgba(255,255,255,0.5)"
                         value={nip_nik}
                         onChangeText={setNipNik}

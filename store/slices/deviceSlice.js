@@ -1,6 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  networkMode : 'auto',
+  networkStatus : 'online',
   isLoading: false,
   isError: false,
   errorMessage: '',
@@ -16,14 +18,35 @@ const initialState = {
   lockedUntil: null
 };
 
+
+
 const deviceSlice = createSlice({
   name: 'device',
   initialState,
   reducers: {
+
+    setNetworkOnline(state) {
+      state.networkStatus = 'online';
+    },
+
+    setNetworkOffline(state) {
+      state.networkStatus = 'offline';
+    },
+
+    setNetworkModeAuto(state) {
+      state.networkMode = 'auto';
+    },
+
+    setNetworkModeManual(state) {
+      state.networkMode = 'manual';
+    },
+
     startDeviceRegistration(state, action) {
       state.isLoading = true;
       state.isError = false;
     },
+
+
     deviceRegistrationSuccess(state, action) {
       state.isLoading = false;
       state.isError = false;
@@ -36,11 +59,16 @@ const deviceSlice = createSlice({
       state.otpAttempts = 0;
       state.lockedUntil = null;
     },
+
+
+
     deviceRegistrationFailure(state, action) {
       state.isLoading = false;
       state.isError = true;
       state.errorMessage = action.payload;
     },
+
+
     registrationTimeExpired(state) {
       state.errorMessage = 'Registration time expired';
       state.isLoading = false;
@@ -51,13 +79,18 @@ const deviceSlice = createSlice({
       state.tokenRegistration = null;
       state.isRegistered = false;
       state.jwtAccessToken = null;
-      state.otpAttempts = 0;
-      state.lockedUntil = null;
+      //state.otpAttempts = 0;
+      //state.lockedUntil = null;
     },
+
+
+
     verifyOtp(state) {
       state.isLoading = true;
       state.isError = false;
     },
+
+
     verifyOtpSuccess(state, action) {
       state.isLoading = false;
       state.isError = false;
@@ -68,6 +101,8 @@ const deviceSlice = createSlice({
       state.otpAttempts = 0;
       state.lockedUntil = null;
     },
+
+
     verifyOtpFailure(state, action) {
       state.isLoading = false;
       state.isError = true;
@@ -79,7 +114,7 @@ const deviceSlice = createSlice({
         // Set lockout time to exactly 15 minutes (900000 milliseconds) from now
         const lockoutTime = new Date(now.getTime() + 900000);
         state.lockedUntil = lockoutTime.toISOString();
-        state.errorMessage = 'Too many failed attempts. Please try again in 15 minutes.';
+        state.errorMessage = 'Please try again in 15 minutes.';
         // Reset registration state when max attempts reached
         state.tokenRegistration = null;
         state.deviceId = null;
@@ -88,14 +123,17 @@ const deviceSlice = createSlice({
         state.lastRegistrationAttempt = null;
       }
     },
+
+
     resetRegistration(state) {
       return initialState;
     },
+
+
     checkLockStatus(state) {
       if (state.lockedUntil) {
         const now = new Date();
         const lockUntil = new Date(state.lockedUntil);
-        
         if (now >= lockUntil) {
           return initialState;
         }
@@ -105,6 +143,10 @@ const deviceSlice = createSlice({
 });
 
 export const {
+  setNetworkOnline,
+  setNetworkOffline,
+  setNetworkModeAuto,
+  setNetworkModeManual,
   startDeviceRegistration,
   deviceRegistrationSuccess,
   deviceRegistrationFailure,

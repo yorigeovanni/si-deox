@@ -1,80 +1,127 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AuthGuardInternal from "@/components/AuthGuardInternal";
 import { useSelector } from "react-redux";
+import { Fragment, useEffect } from "react";
+
 
 const mainModules = [
-  { id: "1", name: "Sales", icon: "cart", color: "#4CAF50", route: "sales" },
+  { name: "pnbp", icon: "cart", color: "#4CAF50", route: "sales" },
   {
-    id: "2",
-    name: "Inventory",
+    name: "perlengkapan",
     icon: "cube",
     color: "#2196F3",
     route: "inventory",
   },
   {
-    id: "3",
     name: "Purchase",
     icon: "basket",
     color: "#9C27B0",
     route: "purchase",
   },
   {
-    id: "4",
-    name: "Manufacturing",
+    name: "kerjasama",
     icon: "construct",
     color: "#FF9800",
     route: "manufacturing",
   },
   {
-    id: "5",
-    name: "Accounting",
+    name: "keuangan",
     icon: "calculator",
     color: "#F44336",
     route: "/aplikasi-internal/accounting",
   },
-  { id: "6", name: "CRM", icon: "people", color: "#00BCD4", route: "crm" },
-  { id: "7", name: "HR", icon: "person", color: "#3F51B5", route: "hr" },
+  { name: "CRM", icon: "people", color: "#00BCD4", route: "crm" },
   {
-    id: "8",
+    name: "kepegawaian",
+    icon: "person",
+    color: "#3F51B5",
+    route: "hr",
+  },
+  {
     name: "Project",
     icon: "briefcase",
     color: "#009688",
     route: "/aplikasi-internal/project",
   },
   {
-    id: "9",
     name: "Maintenance",
     icon: "build",
     color: "#795548",
     route: "maintenance",
   },
   {
-    id: "10",
     name: "Repair",
     icon: "hammer",
     color: "#607D8B",
     route: "repair",
+    route: "/aplikasi-internal/helpdesk",
   },
   {
-    id: "11",
-    name: "Helpdesk",
+    name: "humas",
     icon: "headset",
     color: "#E91E63",
-    route: "helpdesk",
+    route: "/aplikasi-internal/humas",
   },
-  { id: "12", name: "Fleet", icon: "car", color: "#673AB7", route: "fleet" },
+  {
+    name: "kendaraan",
+    icon: "car",
+    color: "#673AB7",
+    route: "/aplikasi-internal/kendaraan",
+  },
 ];
 
 const quickAccess = [
-  { id: "1", name: "Contacts", icon: "person-add", route: "contacts" },
-  { id: "2", name: "Products", icon: "pricetag", route: "products" },
-  { id: "3", name: "Equipment", icon: "construct", route: "equipment" },
-  { id: "4", name: "Reports", icon: "stats-chart", route: "reports" },
-  { id: "5", name: "Settings", icon: "settings", route: "settings" },
+  {
+    name: "AMC",
+    color: "#009688",
+    icon: "person-add",
+    route: "/aplikasi-internal/amc",
+  },
+  {
+    color: "#2196F3",
+    name: "ELBAN",
+    icon: "pricetag",
+    route: "/aplikasi-internal/elban",
+  },
+  {
+    color: "#9C27B0",
+    name: "LISTRIK",
+    icon: "construct",
+    route: "/aplikasi-internal/listrik",
+  },
+  {
+    color: "#FF9800",
+    name: "A2B",
+    icon: "stats-chart",
+    route: "/aplikasi-internal/a2b",
+  },
+  {
+    color: "#F44336",
+    name: "BANGLAND",
+    icon: "settings",
+    route: "/aplikasi-internal/bangland",
+  },
+  {
+    color: "#00BCD4",
+    name: "PKP-PK",
+    icon: "settings",
+    route: "/aplikasi-internal/pkp-pk",
+  },
+  {
+    color: "#E91E63",
+    name: "AVSEC",
+    icon: "settings",
+    route: "/aplikasi-internal/avsec",
+  },
+  {
+    color: "#3F51B5",
+    name: "IT-DEV",
+    icon: "settings",
+    route: "/aplikasi-internal/it-dev",
+  },
 ];
 
 const recentActivities = [
@@ -116,27 +163,52 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-export default function ProtectedLandingInternal() {
-  return (
-    <AuthGuardInternal>
-      <LandingInternal />
-    </AuthGuardInternal>
-  );
-}
 
-function LandingInternal() {
+
+
+
+export default function LandingInternal() {
   const router = useRouter();
   const { internalUser } = useSelector((state) => state.auth);
   const { user, loading } = internalUser;
 
+
+
+  useEffect(() => {
+    if (!user) {
+      setTimeout(()=>{
+        router.replace("/auth/login-internal");
+      },500)
+    }
+  }, [user, loading]);
+
+
+
+  if (loading) {
+    return (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text className="mt-4 text-gray-600">Loading...</Text>
+          </View>
+        )
+  }
+
+
+  console.log(user)
+
+
   return (
-    <SafeAreaView className="flex-1 bg-[#991B1B]" edges={["top"]}>
+    <Fragment>
+      {!user ? (<View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text className="mt-4 text-gray-600">Loading...</Text>
+          </View>) : (<SafeAreaView className="flex-1 bg-[#991B1B]" edges={["top"]}>
       <View className="px-6 py-3 bg-[#991B1B]">
         <View className="flex-row justify-between items-center mb-8">
           <View>
             <Text className="text-white/80">Welcome,</Text>
             <Text className="text-white text-2xl font-bold">
-              {user.display_name}
+              {user?.name}
             </Text>
           </View>
           <TouchableOpacity
@@ -149,7 +221,7 @@ function LandingInternal() {
       </View>
 
       <ScrollView className="flex-1 bg-gray-50 ">
-        <LinearGradient colors={["#991B1B", "#500724"]} className="pt-12 pb-6">
+        <LinearGradient colors={["#991B1B", "#500724"]} >
           <View className="px-3 pb-10">
             {/* Quick Stats */}
             <ScrollView
@@ -157,8 +229,8 @@ function LandingInternal() {
               showsHorizontalScrollIndicator={false}
               className="mb-4"
             >
-              <View className="bg-white/10 backdrop-blur-lg p-4 rounded-xl mr-4 w-48">
-                <Text className="text-white/80 mb-2">Sales This Month</Text>
+              <View className="bg-white/10 backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
+                <Text className="text-white/80 mb-2">KEHADIRAN PERSONIL</Text>
                 <Text className="text-white text-xl font-bold">
                   Rp 250,000,000
                 </Text>
@@ -170,7 +242,7 @@ function LandingInternal() {
                 </View>
               </View>
 
-              <View className="bg-white/10 backdrop-blur-lg p-4 rounded-xl mr-4 w-48">
+              <View className="bg-white/10 backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
                 <Text className="text-white/80 mb-2">Open Orders</Text>
                 <Text className="text-white text-xl font-bold">24</Text>
                 <View className="flex-row items-center mt-2">
@@ -179,7 +251,7 @@ function LandingInternal() {
                 </View>
               </View>
 
-              <View className="bg-white/10 backdrop-blur-lg p-4 rounded-xl w-48">
+              <View className="bg-white/10 backdrop-blur-lg p-4 rounded-xl w-56">
                 <Text className="text-white/80 mb-2">Inventory Value</Text>
                 <Text className="text-white text-xl font-bold">
                   Rp 1,500,000,000
@@ -197,13 +269,13 @@ function LandingInternal() {
 
         <View className="px-6 -mt-6">
           {/* Main Modules */}
-          <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
+          <View className="bg-white rounded-xl p-4  mb-6">
             <Text className="text-lg font-bold mb-4">MODUL MANAGEMENT</Text>
-            <View className="flex-row flex-wrap justify-between">
-              {mainModules.map((module) => (
+            <View className="flex-row flex-wrap justify-start items-center">
+              {mainModules.map((module, index) => (
                 <TouchableOpacity
-                  key={module.id}
-                  className="w-[23%] items-center mb-6"
+                  key={index}
+                  className="w-[25%] items-center mb-6"
                   onPress={() => module.route && router.push(module.route)}
                 >
                   <View
@@ -219,26 +291,30 @@ function LandingInternal() {
           </View>
 
           {/* Quick Access */}
-          <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
-            <Text className="text-lg font-bold mb-4">MODUL OPERASIONAL</Text>
-            <View className="flex-row justify-between">
-              {quickAccess.map((item) => (
+          <View className="bg-white rounded-xl p-4  mb-6">
+            <Text className="text-lg font-bold mb-4">
+              UNIT TEKNIS - OPERASIONAL
+            </Text>
+            <View className="flex-row flex-wrap justify-start items-center">
+              {quickAccess.map((item, index) => (
                 <TouchableOpacity
-                  key={item.id}
-                  className="items-center"
+                  key={index}
+                  className="w-[25%] items-center mb-6"
                   onPress={() => item.route && router.push(item.route)}
                 >
-                  <View className="w-12 h-12 bg-gray-100 rounded-xl items-center justify-center mb-2">
-                    <Ionicons name={item.icon} size={20} color="#1a237e" />
+                  <View className=" w-14 h-14 rounded-xl items-center justify-center mb-2"
+                  style={{ backgroundColor: item.color }}
+                  >
+                    <Ionicons name={item.icon} size={20} color="#ffffff" />
                   </View>
-                  <Text className="text-xs">{item.name}</Text>
+                  <Text className="text-xs ">{item.name}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
 
           {/* Recent Activities */}
-          <View className="bg-white rounded-xl p-4 shadow-sm mb-6">
+          <View className="bg-white rounded-xl p-4 mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-lg font-bold">Recent Activities</Text>
               <TouchableOpacity>
@@ -287,6 +363,7 @@ function LandingInternal() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView>)}
+    </Fragment>
   );
 }

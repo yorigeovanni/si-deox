@@ -8,19 +8,27 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
-  Alert,
-  Easing,
+  Alert
 } from "react-native";
+import { Image } from "expo-image";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import createRequest from "@/services/api-secure-portal";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
 const { width } = Dimensions.get("window");
+const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+
+const baseURL =
+  process.env.NODE_ENV === "production"
+    ? process.env.EXPO_PUBLIC_API_URL
+    : process.env.EXPO_PUBLIC_API_DEV;
 
 const StatusBadge = ({ status, statusText }) => {
   const opacityAnim = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     let animationLoop;
 
@@ -111,67 +119,11 @@ const StatusBadge = ({ status, statusText }) => {
   );
 };
 
-const ScrollingText = ({ text }) => {
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const [contentWidth, setContentWidth] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
-
-  useEffect(() => {
-    if (contentWidth > 0 && containerWidth > 0) {
-      const startPosition = containerWidth;
-      const endPosition = -contentWidth;
-
-      const animation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(scrollX, {
-            toValue: endPosition,
-            duration: Math.abs(endPosition - startPosition) * 25,
-            useNativeDriver: true,
-            easing: Easing.linear,
-          }),
-          Animated.timing(scrollX, {
-            toValue: startPosition,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-
-      animation.start();
-
-      return () => animation.stop();
-    }
-  }, [contentWidth, containerWidth, scrollX]);
-
-  return (
-    <View
-      className="bg-red-800 h-10 overflow-hidden"
-      onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}
-    >
-      <Animated.View
-        style={{
-          transform: [{ translateX: scrollX }],
-          flexDirection: "row",
-          alignItems: "center",
-          height: "100%",
-          position: "absolute",
-        }}
-        onLayout={(event) => setContentWidth(event.nativeEvent.layout.width)}
-      >
-        <Text className="text-white font-medium text-sm px-4 whitespace-nowrap">
-          {text}
-        </Text>
-      </Animated.View>
-    </View>
-  );
-};
-
-export default function FlightInformationScreen() {
+export default function FlightInformation() {
   const { post } = createRequest();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("arrivals");
+  const [activeTab, setActiveTab] = useState("departures");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTimeFilter, setSelectedTimeFilter] = useState("All Flights");
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -193,7 +145,7 @@ export default function FlightInformationScreen() {
         setLoading(true);
       }
       const { data } = await post(`/mobile/api/portal/penerbangan/${type}`);
-      
+
       if (!data.error) {
         setFlightData(data);
         setError(null);
@@ -214,15 +166,10 @@ export default function FlightInformationScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // Load initial data when screen is focused
       loadPenerbangan(activeTab);
-
-      // Start auto-refresh interval
       autoRefreshInterval.current = setInterval(() => {
         loadPenerbangan(activeTab, false, true);
       }, 10000);
-
-      // Cleanup when screen loses focus
       return () => {
         if (autoRefreshInterval.current) {
           clearInterval(autoRefreshInterval.current);
@@ -237,6 +184,7 @@ export default function FlightInformationScreen() {
     loadPenerbangan(activeTab, true);
   }, [activeTab]);
 
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     loadPenerbangan(tab);
@@ -245,6 +193,8 @@ export default function FlightInformationScreen() {
       useNativeDriver: false,
     }).start();
   };
+
+
 
   const handleNotificationPress = (flight) => {
     Alert.alert(
@@ -268,9 +218,11 @@ export default function FlightInformationScreen() {
     );
   };
 
+
+
+
   const filteredFlights = useMemo(() => {
     if (!flightData.hari_ini) return [];
-
     return flightData.hari_ini.filter((flight, index) => {
       const searchTerms = searchQuery.toLowerCase();
       const matchesSearch = searchQuery
@@ -290,60 +242,71 @@ export default function FlightInformationScreen() {
           ).includes(searchTerms)
         : true;
 
-      const flightHour = parseInt(flight.jadwal_local.split(":")[0]);
-      const matchesTimeFilter =
-        selectedTimeFilter === "All Flights"
-          ? true
-          : selectedTimeFilter === "Morning"
-          ? flightHour >= 6 && flightHour < 12
-          : selectedTimeFilter === "Afternoon"
-          ? flightHour >= 12 && flightHour < 17
-          : selectedTimeFilter === "Evening"
-          ? flightHour >= 17 && flightHour < 20
-          : flightHour >= 20 || flightHour < 6;
-
-      return matchesSearch && matchesTimeFilter;
+      return matchesSearch;
     });
-  }, [flightData.hari_ini, searchQuery, selectedTimeFilter, activeTab]);
+  }, [flightData.hari_ini, searchQuery, activeTab]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#991B1B]" edges={["top"]}>
-      <View className="px-6 py-4 bg-[#991B1B]">
-        <View className="flex-row items-center mb-4">
-          
-          <View className="ml-4 flex-1">
+      <View className="px-4 pt-4 bg-[#991B1B]">
+        <View className="flex-row items-center mb-4 justify-center">
+          <View>
+            {activeTab === "arrivals" ? (
+              <MaterialIcons name="flight-land" size={38} color="white" />
+            ) : (
+              <MaterialIcons name="flight-takeoff" size={38} color="white" />
+            )}
+          </View>
+
+          <View className="ml-4 flex-col items-center justify-center">
             <Text className="text-white text-2xl font-bold">
-              Flight Information
+              {activeTab === "departures"
+                ? "FLIGHT DEPARTURES"
+                : "FLIGHT ARRIVALS"}
             </Text>
             <Text className="text-white/80">{flightData.text_tanggal}</Text>
           </View>
-          <View className="bg-white/20 px-3 py-1 rounded-lg">
-            <Text className="text-white font-medium">
-              {flightData.total_hari_ini} Flights
-            </Text>
+        </View>
+
+        <View className=" flex-row">
+          <View className=" mb-4 flex-row items-center w-[10%]">
+            <TouchableOpacity
+              onPress={() =>
+                handleTabChange(
+                  activeTab === "arrivals" ? "departures" : "arrivals"
+                )
+              }
+              className={`w-10 h-10 rounded-full items-center justify-center `}
+            >
+              <Ionicons name="swap-horizontal" size={28} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          <View className="bg-white/20 rounded-xl p-2 mb-4 flex-row items-center w-[80%]">
+            <Ionicons name="search" size={20} color="white" />
+            <TextInput
+              className="flex-1 ml-3 text-white"
+              placeholder="Search flight number or airline..."
+              placeholderTextColor="rgba(255, 255, 255, 0.6)"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            {searchQuery !== "" && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery("")}
+                className="p-2"
+              >
+                <Ionicons name="close-circle" size={20} color="white" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <View className="ml-2 mb-4 flex-row items-center w-[10%]">
+            <Ionicons name="calendar" size={28} color="white" />
           </View>
         </View>
 
-        <View className="bg-white/20 rounded-xl p-3 mb-4 flex-row items-center">
-          <Ionicons name="search" size={20} color="white" />
-          <TextInput
-            className="flex-1 ml-3 text-white"
-            placeholder="Search flight number or airline..."
-            placeholderTextColor="rgba(255, 255, 255, 0.6)"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          {searchQuery !== "" && (
-            <TouchableOpacity
-              onPress={() => setSearchQuery("")}
-              className="p-2"
-            >
-              <Ionicons name="close-circle" size={20} color="white" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View className="bg-white/20 rounded-xl p-1 flex-row mt-2">
+        {/**<View className="bg-white/20 rounded-xl p-1 flex-row mt-2">
           <Animated.View
             className="absolute bg-white rounded-lg"
             style={{
@@ -379,7 +342,7 @@ export default function FlightInformationScreen() {
               Departures
             </Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       <ScrollView
@@ -413,34 +376,6 @@ export default function FlightInformationScreen() {
           </View>
         )}
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-4"
-        >
-          {["All Flights", "Morning", "Afternoon", "Evening", "Night"].map(
-            (time) => (
-              <TouchableOpacity
-                key={time}
-                onPress={() => setSelectedTimeFilter(time)}
-                className={`px-4 py-2 rounded-full mr-2 ${
-                  selectedTimeFilter === time ? "bg-[#991B1B]" : "bg-white"
-                }`}
-              >
-                <Text
-                  className={
-                    selectedTimeFilter === time
-                      ? "text-white font-medium"
-                      : "text-gray-600"
-                  }
-                >
-                  {time}
-                </Text>
-              </TouchableOpacity>
-            )
-          )}
-        </ScrollView>
-
         {loading ? (
           <View className="flex-1 justify-center items-center py-20">
             <ActivityIndicator size="large" color="#991B1B" />
@@ -454,22 +389,24 @@ export default function FlightInformationScreen() {
             >
               <View className="p-4 border-b border-gray-100">
                 <View className="flex-row justify-between items-center">
-                  <View className="flex-row items-center flex-1">
-                    <View className="w-10 h-10 bg-gray-100 rounded-lg items-center justify-center">
-                      <Ionicons name="airplane" size={20} color="#991B1B" />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-lg font-bold">
-                        {flight.operator}
-                      </Text>
-                      <Text className="text-gray-500">
+                  <View className="flex-col items-start flex-1">
+                    <Image
+                      source={{
+                        uri: `${baseURL}/fids-assets/img/AL_S_small_${flight.airline}.jpg`,
+                      }}
+                      style={{ width: 160, height: 40, borderRadius: 8 }}
+                      contentFit="contain"
+                      transition={500}
+                    />
+                  </View>
+
+                  <View className="flex-row items-end justify-end">
+                    <View className="flex-col items-end justify-end">
+                      <Text className="text-gray-600 font-bold text-lg">
                         {flight.airline} {flight.flight_no}
                       </Text>
                     </View>
-                  </View>
-
-                  <View className="flex-row items-center">
-                    <TouchableOpacity
+                    {/**<TouchableOpacity
                       onPress={() => handleNotificationPress(flight)}
                       className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center mr-3"
                     >
@@ -482,8 +419,18 @@ export default function FlightInformationScreen() {
                     <StatusBadge
                       status={flight.status}
                       statusText={flight.status_text}
-                    />
+                    /> */}
                   </View>
+                  <TouchableOpacity
+                    onPress={() => handleNotificationPress(flight)}
+                    className="ml-4 w-8 h-8 bg-gray-100 rounded-full items-center justify-center mr-3"
+                  >
+                    <Ionicons
+                      name="notifications-outline"
+                      size={18}
+                      color="#991B1B"
+                    />
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -493,45 +440,44 @@ export default function FlightInformationScreen() {
                     <Text className="text-3xl font-bold">
                       {activeTab === "arrivals" ? flight.dest_from : "SOQ"}
                     </Text>
-                    <Text className="text-gray-500">
+                    {/**<Text className="text-gray-500">
                       {activeTab === "arrivals" ? flight.nama_kota : "Sorong"}
-                    </Text>
+                    </Text> */}
                     <Text className="text-lg font-semibold mt-1">
                       {flight.jadwal_local}
                     </Text>
                   </View>
 
                   <View className="items-center px-4">
-                    <View className="w-20 h-[1px] bg-gray-300" />
-                    <View className="my-2 bg-gray-100 px-3 py-1 rounded-full">
+                    <Text className="text-lg font-bold">
+                      {flight.airline} {flight.flight_no}
+                    </Text>
+                    <View className=" flex-row items-center h-10">
+                      <View className="w-20 h-[1px] bg-[#991B1B] mr-2" />
+                      <Ionicons name="airplane" size={20} color="#991B1B" />
+                      <View className="w-20 h-[1px] bg-[#991B1B] ml-2" />
+                    </View>
+                    <StatusBadge
+                      status={flight.status}
+                      statusText={flight.status_text}
+                    />
+
+                    {/**<View className="my-2 bg-gray-100 px-3 py-1 rounded-full">
                       <Text className="text-xs text-gray-600">
                         {flight.est_local !== flight.jadwal_local
                           ? "EST " + flight.est_local
                           : flight.jadwal_local}
                       </Text>
-                    </View>
-                    <Ionicons
-                      name="airplane"
-                      size={20}
-                      color="#991B1B"
-                      style={{
-                        transform: [
-                          {
-                            rotate:
-                              activeTab === "arrivals" ? "45deg" : "225deg",
-                          },
-                        ],
-                      }}
-                    />
+                    </View> */}
                   </View>
 
                   <View className="flex-1 items-end">
                     <Text className="text-3xl font-bold">
                       {activeTab === "arrivals" ? "SOQ" : flight.dest_from}
                     </Text>
-                    <Text className="text-gray-500">
+                    {/**<Text className="text-gray-500">
                       {activeTab === "arrivals" ? "Sorong" : flight.nama_kota}
-                    </Text>
+                    </Text> */}
                     <Text className="text-lg font-semibold mt-1">
                       {flight.actual_local}
                     </Text>
@@ -571,9 +517,6 @@ export default function FlightInformationScreen() {
           </View>
         )}
       </ScrollView>
-      <View className="absolute bottom-0 left-0 right-0">
-        <ScrollingText text="DEO AIRPORT - SORONG, WEST PAPUA" />
-      </View>
     </SafeAreaView>
   );
 }

@@ -6,10 +6,14 @@ import { OtpInput } from 'react-native-otp-entry';
 import PhoneInput from 'react-native-international-phone-number';
 import { startDeviceRegistration, verifyOtp, resetRegistration, checkLockStatus } from '@/store/slices/deviceSlice';
 import { createPhoneSchema } from '@/utils/phoneValidation';
+import LogoPutih from '@/assets/logo-putih.png';
+import { registerForPushNotificationsAsync } from '@/services/notificationService';
 
-const LOGO_IMAGE = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=300&q=80';
-const OTP_EXPIRY_TIME = 2 * 60 * 1000; // 2 minutes in milliseconds
+
+const OTP_EXPIRY_TIME = 5 * 60 * 1000; // 2 minutes in milliseconds
 const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+
 
 export default function DeviceRegistration() {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -24,23 +28,21 @@ export default function DeviceRegistration() {
     flag: '🇮🇩',
     name: { en: 'Indonesia' }
   });
-  
   const currentYear = new Date().getFullYear();
+
   const dispatch = useDispatch();
-  const {
-    isLoading,
-    isError,
-    errorMessage,
-    tokenRegistration,
-    lastRegistrationAttempt,
+  const { isLoading, isError, errorMessage, tokenRegistration, lastRegistrationAttempt,
     otpAttempts,
     lockedUntil
   } = useSelector(state => state.device);
 
 
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+  }, []);
 
+  
 
-  // Validate phone number when it changes
   useEffect(() => {
     if (phoneNumber) {
       try {
@@ -216,12 +218,15 @@ export default function DeviceRegistration() {
           <View className="flex-1 justify-between px-6 pt-32 pb-24">
             <View className="items-center mb-2">
               <Image
-                source={{ uri: LOGO_IMAGE }}
-                className="w-24 h-24 rounded-3xl mb-6"
+                source={LogoPutih}
+                className=" w-52 h-24 rounded-3xl mb-2"
               />
               <Text className="text-white text-3xl font-bold mb-2">DEO AIRPORT</Text>
-              <Text className="text-white/80 text-center">
-                metode login menggunakan One Time Password {`(OTP)`} yang dikirimkan ke no handphone terdaftar melalui WhatsApp
+              <Text className="text-white/80 text-center font-bold">
+                SELAMAT DATANG DI BANDARA DEO - SORONG
+              </Text>
+              <Text className="text-white/80 text-center mt-2">
+                silahkan melakukan verifikasi no handphone anda sebelum melanjutkan
               </Text>
             </View>
 
@@ -234,9 +239,16 @@ export default function DeviceRegistration() {
 
               {tokenRegistration ? (
                 <View className="space-y-4">
-                  <Text className="text-white/90 text-lg font-bold text-center mb-4">
+
+                  {(!isPhoneInputDisabled && otpAttempts > 0) ? (
+                    <View className=" p-4 rounded-xl">
+                      <Text className="text-white text-center font-bold">
+                        Sisa percobaan : {3 - otpAttempts}
+                      </Text>
+                    </View>
+                  ) : (<Text className="text-white/90 text-lg font-bold text-center mb-4">
                     Masukkan Kode OTP
-                  </Text>
+                  </Text>)}
 
                   {isLoading ? (
                     <View className="py-8 items-center">
@@ -267,7 +279,7 @@ export default function DeviceRegistration() {
                             height: 52,
                           },
                           focusStickStyle: {
-                            backgroundColor: '#991B1B',
+                            backgroundColor: 'white',
                           },
                           pinCodeTextStyle: {
                             color: '#ffffff',
@@ -279,18 +291,11 @@ export default function DeviceRegistration() {
                     </View>
                   )}
 
-                  <View className="flex-row items-center justify-center space-x-2">
+                  <View className="flex-row items-center justify-center space-x-2 mt-4">
                     <View className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                     <Text className="text-white/80">Waktu tersisa: {formatTime(otpTimeLeft)}</Text>
                   </View>
 
-                  {!isPhoneInputDisabled && otpAttempts > 0 && (
-                    <View className="bg-yellow-500/20 p-4 rounded-xl">
-                      <Text className="text-white text-center">
-                        Sisa percobaan: {3 - otpAttempts}
-                      </Text>
-                    </View>
-                  )}
                 </View>
               ) : (
                 <View className="space-y-4">
@@ -367,7 +372,8 @@ export default function DeviceRegistration() {
                     )}
                   </View>
 
-                  <TouchableOpacity
+                  {!isPhoneInputDisabled && (
+                    <TouchableOpacity
                     className={`bg-red-700/50 py-4 rounded-xl mt-4 ${
                       isLoading || isPhoneInputDisabled || phoneError ? 'opacity-70' : ''
                     }`}
@@ -390,11 +396,14 @@ export default function DeviceRegistration() {
                       </Text>
                     )}
                   </TouchableOpacity>
+                  )}
+
+                  
 
                   {isPhoneInputDisabled && (
-                    <View className="bg-red-500/20 p-4 rounded-xl">
+                    <View className="bg-red-500/20 p-4 rounded-xl mt-4">
                       <Text className="text-white text-center">
-                        Akun terkunci. Coba lagi dalam {formatTime(lockoutTimeLeft)}
+                        Coba lagi dalam {formatTime(lockoutTimeLeft)}
                       </Text>
                     </View>
                   )}
@@ -406,7 +415,7 @@ export default function DeviceRegistration() {
               <Text className="text-white/80 text-center">KEMENTERIAN PERHUBUNGAN</Text>
               <Text className="text-white/80 text-center">DIREKTORAT JENDERAL PERHUBUNGAN UDARA</Text>
               <Text className="text-white/80 text-center">KANTOR BLU UPBU KELAS I DEO - SORONG</Text>
-              <Text className="text-white/80 text-center mt-16">© copyright {currentYear}. DEO Smart Airport</Text>
+              <Text className="text-white/80 text-center mt-16">© copyright {currentYear}. DEO DEVELOPERS TEAM</Text>
             </View>
           </View>
         </ScrollView>

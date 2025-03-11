@@ -2,6 +2,11 @@
 import qs from 'qs';
 import { RSAKeychain } from 'react-native-rsa-native';
 import * as SecureStore from 'expo-secure-store';
+import {store} from '@/store';
+import { logoutInternal } from '@/store/slices/authSlice';
+const getinternalAccessToken = () => store.getState().auth?.internalUser?.jwtAccessToken;
+const getDeviceId = () => store.getState().device?.deviceId;
+
 
 
 function hasProtocol(url) {
@@ -39,19 +44,28 @@ async function signData(deviceId, stringToSign) {
     signatureBase64 = signatureBase64.replace(/(\r\n|\n|\r)/gm, '');
     return signatureBase64;
   } catch (e) {
-    console.log(e)
-    console.log('Error signing data');
+    //console.log(e)
+    //console.log('Error signing data');
     return null
   }
+}
+
+
+function getMicroTimestamp() {
+  const nowMs = Date.now(); 
+  let baseMicro = nowMs * 1000;
+  const random = Math.floor(Math.random() * 1000);
+  baseMicro += random;
+  return baseMicro;
 }
 
 
 
 
 async function applyRequestInterceptor(requestConfig) {
-  const { deviceId, jwtAccessToken, method, body } = requestConfig;
-  if (deviceId && ['POST', 'PUT', 'PATCH'].includes(method)) {
-    const timestamp = Math.floor(Date.now() / 1000);
+  const {method, body } = requestConfig;
+  if (['POST', 'PUT', 'PATCH'].includes(method)) {
+    const timestamp = getMicroTimestamp();
     let bodyString = '';
     if (typeof body === 'string') {
       bodyString = body;
@@ -59,32 +73,32 @@ async function applyRequestInterceptor(requestConfig) {
       bodyString = JSON.stringify(body);
     }
 
+    const deviceId = getDeviceId();
     const stringToSign = `${timestamp}.${bodyString}`;
     const signature = await signData(deviceId, stringToSign);
+    
 
     requestConfig.headers = {
       ...requestConfig.headers,
       'X-Signature': signature,
       'X-Timestamp': String(timestamp),
-      'X-device-Id': deviceId,
+      'X-device-Id': deviceId
     };
   }
 
-  if (jwtAccessToken) {
-    requestConfig.headers = {
-      ...requestConfig.headers,
-      'Authorization': `Bearer ${jwtAccessToken}`
-    };
-  }
+  const jwtAccessToken = getinternalAccessToken();
+  requestConfig.headers = {
+    ...requestConfig.headers,
+    'Authorization': `Bearer ${jwtAccessToken}`
+  };
   return requestConfig;
-  //return {method, body, headers: requestConfig.headers};
 }
 
 
 
 
 
-async function applyResponseInterceptor(response, logoutUserInternal) {
+async function applyResponseInterceptor(response) {
   if (!response.ok) {
     const clonedResponse = response.clone();
     let rawText = await clonedResponse.text(); // Baca body satu kali
@@ -92,16 +106,11 @@ async function applyResponseInterceptor(response, logoutUserInternal) {
     try {
       serverData = JSON.parse(rawText);
     } catch (e) {
-      // Jika tidak bisa parse JSON, maka treat sebagai plain text
       serverData = { message: rawText };
     }
-    //====================================
-    // PENTING - LOGOUT USER JIKA RESPOSE HEADER 401
-    // HARAP DIPERHATIKAN UNTUK SEMUA DEVELOPER
     if(response.status === 401) {
-      logoutUserInternal()
+      store.dispatch(logoutInternal());
     }
-    //====================================
     throw new Error(
       serverData?.message
         ? `${serverData.message} - ${response.status}`
@@ -115,7 +124,7 @@ async function applyResponseInterceptor(response, logoutUserInternal) {
 
 async function fetchRequest(method, baseURL, url, data, config = {}) {
 
-  const { logoutUserInternal, headers, ...restConfig } = config;
+  const { headers, ...restConfig } = config;
   const finalUrl = buildFullUrl(baseURL, url, restConfig);
   let requestConfig = {
     method: method.toUpperCase(),
@@ -138,12 +147,12 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
   try {
     response = await fetch(finalUrl, requestConfig);
   } catch (error) {
-    console.error('Starting Request Error:', error);
+    //console.error('Starting Request Error:', error);
     throw error;
   }
 
   
-  const finalResponse = await applyResponseInterceptor(response, logoutUserInternal);
+  const finalResponse = await applyResponseInterceptor(response);
   try {
     const responseData = await finalResponse.json();
     return {
@@ -153,8 +162,8 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
       // ... tambahkan jika perlu
     };
   } catch (parseError) {
-    console.log('pilooo 2')
-    console.error('Response parse error:', parseError);
+    //console.log('pilooo 2')
+    //console.error('Response parse error:', parseError);
     throw parseError;
   }
 }
@@ -164,7 +173,7 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
 
 
 const createApi = (defaultOptions = {}) => {
-  const baseURL = process.env.NODE_ENV === 'production' ? process.env.EXPO_PUBLIC_API_URL : 'http://10.8.0.2:4002';
+  const baseURL = process.env.NODE_ENV === 'production' ? process.env.EXPO_PUBLIC_API_URL : process.env.EXPO_PUBLIC_API_DEV;
   return {
     get: (url, config) =>
       fetchRequest('GET', baseURL, url, null, {

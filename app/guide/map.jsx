@@ -7,7 +7,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // Initialize Mapbox
-MapboxGL.setAccessToken('pk.eyJ1IjoiemxvY2s4OCIsImEiOiJjbTY5anY0eHEwY2t4MnFwaHExcmdiYmNlIn0.CWLKFVSVLUBVF1g8w3dahg');
+MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN);
 MapboxGL.setTelemetryEnabled(false);
 
 const { width } = Dimensions.get('window');

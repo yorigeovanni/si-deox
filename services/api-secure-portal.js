@@ -1,6 +1,11 @@
 import qs from 'qs';
 import { RSAKeychain } from 'react-native-rsa-native';
 import * as SecureStore from 'expo-secure-store';
+import {store} from '@/store';
+const getPortalAccessToken = () => store.getState().device?.jwtAccessToken;
+const getDeviceId = () => store.getState().device?.deviceId;
+
+
 
 function hasProtocol(url) {
   return /^(?:[a-z+]+:)?\/\//i.test(url);
@@ -34,13 +39,13 @@ function buildFullUrl(baseURL, rawUrl, config = {}) {
 async function signData(deviceId, stringToSign) {
   try {
     let padKey = await SecureStore.getItemAsync(process.env.EXPO_PUBLIC_SECRET_KEY_NAME);
-    console.log(padKey)
+    //console.log(padKey)
     let signatureBase64 = await RSAKeychain.signWithAlgorithm(stringToSign, padKey, 'SHA256withRSA');
     signatureBase64 = signatureBase64.replace(/(\r\n|\n|\r)/gm, '');
     return signatureBase64;
   } catch (e) {
-    console.log(e)
-    console.log('Error signing data');
+    //console.log(e)
+    //console.log('Error signing data');
     return null
   }
 }
@@ -48,14 +53,21 @@ async function signData(deviceId, stringToSign) {
 
 
 
+function getMicroTimestamp() {
+  const nowMs = Date.now(); 
+  let baseMicro = nowMs * 1000;
+  const random = Math.floor(Math.random() * 1000);
+  baseMicro += random;
+  return baseMicro;
+}
 
 
 
 
 async function applyRequestInterceptor(requestConfig) {
-  const { deviceId, jwtAccessToken, method, body } = requestConfig;
-  if (deviceId && ['POST', 'PUT', 'PATCH'].includes(method)) {
-    const timestamp = Math.floor(Date.now() / 1000);
+  const { method, body } = requestConfig;
+  if (['POST', 'PUT', 'PATCH'].includes(method)) {
+    const timestamp = getMicroTimestamp();
     let bodyString = '';
     if (typeof body === 'string') {
       bodyString = body;
@@ -63,6 +75,7 @@ async function applyRequestInterceptor(requestConfig) {
       bodyString = JSON.stringify(body);
     }
 
+    const deviceId = getDeviceId();
     const stringToSign = `${timestamp}.${bodyString}`;
     const signature = await signData(deviceId, stringToSign);
 
@@ -74,14 +87,16 @@ async function applyRequestInterceptor(requestConfig) {
     };
   }
 
-  if (jwtAccessToken) {
-    requestConfig.headers = {
-      ...requestConfig.headers,
-      'Authorization': `Bearer ${jwtAccessToken}`
-    };
-  }
+  const jwtAccessToken = getPortalAccessToken();
+    //console.log('######################')
+    //console.log(jwtAccessToken);
+    //console.log('######################')
+  requestConfig.headers = {
+    ...requestConfig.headers,
+    'Authorization': `Bearer ${jwtAccessToken}`
+  };
+  
   return requestConfig;
-  //return {method, body, headers: requestConfig.headers};
 }
 
 
@@ -133,11 +148,11 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
   requestConfig = await applyRequestInterceptor(requestConfig);
   let response;
   try {
-    console.log(requestConfig)
+    //console.log(requestConfig)
     response = await fetch(finalUrl, requestConfig);
     
   } catch (error) {
-    console.error('Starting Request Error:', error);
+    //console.error('Starting Request Error:', error);
     throw error;
   }
 
@@ -154,8 +169,8 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
       // ... tambahkan jika perlu
     };
   } catch (parseError) {
-    console.log('pilooo 2')
-    console.error('Response parse error:', parseError);
+    //console.log('pilooo 2')
+    //console.error('Response parse error:', parseError);
     throw parseError;
   }
 }
