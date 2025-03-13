@@ -9,7 +9,6 @@ import {
   Dimensions,
   Animated,
   StatusBar,
-  Platform,
   TextInput,
   ActivityIndicator,
   RefreshControl,
@@ -18,16 +17,35 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ExpoImagePicker from "expo-image-picker";
-import { getNetworkState } from "@/services/mockSocialService";
-import { useModelInfinityQuery, useModelMutations } from "@/services/queryClient";
+import {
+  useModelInfinityQuery,
+  useModelMutations,
+} from "@/services/queryClient";
 
-
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import createRequest from "@/services/api-secure-internal";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault();
+const { post } = createRequest();
 const baseURL =
   process.env.NODE_ENV === "production"
     ? process.env.EXPO_PUBLIC_API_URL
     : process.env.EXPO_PUBLIC_API_DEV;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+//================================= REQUEST KEY =================================
+const query_keys = ["internal-image-picker"];
+//===================================================================================
 
 
 
@@ -40,100 +58,50 @@ export const ImagePicker = ({
 }) => {
   const slideAnim = useRef(new Animated.Value(-SCREEN_WIDTH)).current;
   const insets = useSafeAreaInsets();
-  //const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const isOffline = getNetworkState();
+  const isOffline = false;
   const flatListRef = useRef(null);
   const [refreshing, setRefreshing] = useState(false);
-
-  const [
-    { domain, limit, offset, order, searchQuery, filterStatus },
-    setParams,
-  ] = useState({
-    domain: [
-      "|",
-      ["public", "=", true],
-      "&",
-      ["res_model", "=", null],
-      ["res_id", "=", 0],
-      ["name", "ilike", ""],
-      [
-        "mimetype",
-        "in",
-        [
-          "image/jpg",
-          "image/jpeg",
-          "image/jpe",
-          "image/png",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp",
-        ],
-      ],
-      "!",
-      ["name", "=like", "%.crop"],
-      "|",
-      ["type", "=", "binary"],
-      "!",
-      ["url", "=like", "/%/static/%"],
-      ["original_id", "in", [false]],
-      "|",
-      ["url", "=", false],
-      "!",
-      ["url", "=like", "/web/image/website.%"],
-      ["key", "=", false],
-    ],
+  const [{ searchQuery }, setParams] = useState({
     searchQuery: "",
-    filterStatus: null,
-    limit: 20,
-    offset: 0,
-    order: "create_date DESC",
   });
-
-  const queryOptions = useMemo(
-    () => ({
-      model: "ir.attachment",
-      selectedFields: {
-        name: {},
-        mimetype: {},
-        description: {},
-        checksum: {},
-        url: {},
-        public: {},
-        access_token: {},
-        image_src: {},
-        image_width: {},
-        image_height: {},
-       
-      },
-      offset: offset,
-      order: order,
-      limit: limit,
-      count_limit: 100001,
-      domain: domain,
-    }),
-    [domain, limit, offset, order]
-  );
 
   const {
     data,
     isLoading,
+    isError,
     error,
-    fetchNextPage,
+    refetch,
     hasNextPage,
     isFetchingNextPage,
-    isOfflineData,
-    uploadImage,
-    isUploading,
-    totalCount,
-    refetch,
-  } = useModelInfinityQuery(queryOptions);
+    fetchNextPage,
+  } = useInfiniteQuery({
+    queryKey: query_keys,
+    queryFn: async ({ pageParam = 0 }) => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const {
+          data: { records, length },
+        } = await post("/mobile/api/internal/image-picker", {
+          offset: pageParam,
+        });
+        return {
+          data: records || [],
+          offset: pageParam,
+          totalData: length || 0,
+        };
+      } catch (error) {
+        throw error;
+      }
+    },
+    getNextPageParam: (lastPage, pages) => {
+      const nextOffset = lastPage.offset + 20;
+      return nextOffset < lastPage.totalData ? nextOffset : undefined;
+    },
+    keepPreviousData: true,
+  });
 
-  const { createMutation  } = useModelMutations("ir.attachment");
-
-
-
-
+  const { createMutation } = useModelMutations("ir.attachment");
 
 
   // Debounce search query
@@ -141,13 +109,10 @@ export const ImagePicker = ({
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
     }, 500);
-
     return () => {
       clearTimeout(handler);
     };
   }, [searchQuery]);
-
-
 
 
 
@@ -169,8 +134,6 @@ export const ImagePicker = ({
 
 
 
-
-
   const handleClose = () => {
     Animated.timing(slideAnim, {
       toValue: -SCREEN_WIDTH,
@@ -181,8 +144,6 @@ export const ImagePicker = ({
       //setSearchQuery("");
     });
   };
-
-
 
 
   const handleUploadImage = useCallback(async () => {
@@ -204,42 +165,36 @@ export const ImagePicker = ({
       });
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const newImage = result.assets[0];
-          createMutation.mutate({
-            datas: newImage.base64,
-            type: "binary",
-            url: false,
-            public: true,
-            description: false,
-            name: newImage.fileName,
-          });
+        createMutation.mutate({
+          datas: newImage.base64,
+          type: "binary",
+          url: false,
+          public: true,
+          description: false,
+          name: newImage.fileName,
+        });
       }
     } catch (error) {
-      console.error( error);
+      console.error(error);
       alert("Failed to upload image. Please try again.");
     }
-  },[])
-
-
+  }, []);
 
 
 
   const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage && !refreshing) {
-      //console.log("Loading more images...");
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, refreshing]);
-
-
-
-
-
+  
+  
+  
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
       // Reset to first page and refetch
       await refetch();
-
       // Scroll to top after refresh
       if (flatListRef.current) {
         flatListRef.current.scrollToOffset({ offset: 0, animated: true });
@@ -252,16 +207,12 @@ export const ImagePicker = ({
   }, [refetch]);
 
 
-
-
-
-  
   const renderItem = useCallback(
     ({ item }) => {
-     // console.log(item)
+      // console.log(item)
       const isSelected = selectedImages.includes(item);
       const selectionIndex = selectedImages.indexOf(item) + 1;
-     // //console.log(item);
+      // //console.log(item);
       // For local images (like those pending upload), use the URI directly
       const imageSource = item.pendingUri
         ? { uri: item.pendingUri }
@@ -300,8 +251,6 @@ export const ImagePicker = ({
     [selectedImages, onSelectImage]
   );
 
-
-
   const renderFooter = useCallback(() => {
     if (!isFetchingNextPage) return null;
     return (
@@ -311,9 +260,6 @@ export const ImagePicker = ({
       </View>
     );
   }, [isFetchingNextPage]);
-
-
-
 
   const renderEmpty = useCallback(() => {
     if (isLoading && !refreshing) {
@@ -346,11 +292,7 @@ export const ImagePicker = ({
     );
   }, [isLoading, error, searchQuery, refreshing]);
 
-
-
-  const allRecords = data?.pages?.flatMap((page) => page?.records ?? []) ?? [];
-
-
+  const allRecords = data?.pages?.flatMap((page) => page?.data ?? []) ?? [];
 
   return (
     <Modal
@@ -389,12 +331,7 @@ export const ImagePicker = ({
                     <Text style={styles.offlineText}>Offline</Text>
                   </View>
                 )}
-                {isOfflineData && !isOffline && (
-                  <View style={styles.cachedIndicator}>
-                    <Ionicons name="save-outline" size={14} color="#f59e0b" />
-                    <Text style={styles.cachedText}>Cached Data</Text>
-                  </View>
-                )}
+                
               </View>
             </View>
 
@@ -427,13 +364,9 @@ export const ImagePicker = ({
               <TouchableOpacity
                 style={styles.uploadButton}
                 onPress={handleUploadImage}
-                disabled={isUploading}
+                //disabled={isUploading}
               >
-                {isUploading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Ionicons name="cloud-upload" size={20} color="#fff" />
-                )}
+                <Ionicons name="cloud-upload" size={20} color="#fff" />
               </TouchableOpacity>
             </View>
 

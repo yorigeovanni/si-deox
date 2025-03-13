@@ -1,116 +1,100 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  RefreshControl,
-  ActivityIndicator,
-  Animated,
-} from "react-native";
-import { v4 as uuidv4 } from "uuid";
+import { View, Text, TouchableOpacity, RefreshControl, ActivityIndicator, Animated, StyleSheet, Dimensions, FlatList, Alert } from "react-native";
 import { Image } from "expo-image";
-import { useSelector } from "react-redux";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useCallback, useRef, useMemo, Fragment } from "react";
+import { useState, useCallback, useRef, Fragment } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { ImageGrid } from "@/components/ui/ImageGrid";
-import { useModelQuery, useModelMutations } from "@/services/queryClientPublic";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+//import { LoadingSpinner, ThreeDotsLoader } from "@/components/ui/LoadingIndicators";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import createRequest from "@/services/api-secure-portal";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import relativeTime from "dayjs/plugin/relativeTime";
 import DeoLogo from "@/assets/deo.jpg";
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault();
+const { post } = createRequest();
 
-const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
-const baseURL =
-  process.env.NODE_ENV === "production"
-    ? process.env.EXPO_PUBLIC_API_URL
-    : process.env.EXPO_PUBLIC_API_DEV;
-const x_studio_tags = [5]; // PERATURAN
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const blurhash = "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+
+//================================= REQUEST KEY =================================
 const title = "PERATURAN";
+const query_keys = ["public-peraturan"];
+//===============================================================================
 
-export default function MobileContent() {
+
+export default function ContentFasilitas() {
   const router = useRouter();
-  const { phoneNumber } = useSelector((state) => state.device);
+  const firstTimeRef = useRef(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [
-    { domain, limit, offset, order, searchQuery, filterStatus },
-    setParams,
-  ] = useState({
-    domain: [
-      "&",
-      ["x_studio_publish", "=", true],
-      ["x_studio_tags", "in", x_studio_tags],
-    ],
-    searchQuery: "",
-    filterStatus: null,
-    limit: 10,
-    offset: 0,
-    order: "create_date DESC",
+  const { 
+    data, 
+    isLoading, 
+    isError, 
+    refetch, 
+    hasNextPage, 
+    isFetchingNextPage, 
+    fetchNextPage  
+  } = useInfiniteQuery({
+    queryKey: query_keys,
+    queryFn: async ({ pageParam = 0 }) => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const { data : { records, length } } = await post('/mobile/api/portal/peraturan',{
+          offset: pageParam
+        });
+        return {
+          data: records || [],
+          offset: pageParam,
+          totalData: length || 0,
+        };
+      } catch (error) {
+        throw error;
+      }
+    },
+    getNextPageParam: (lastPage, pages) => {
+      const nextOffset = lastPage.offset + 20;
+      return nextOffset < lastPage.totalData ? nextOffset : undefined;
+    },
+    keepPreviousData: true,
   });
 
-  const queryOptions = useMemo(
-    () => ({
-      model: "x_humas_berita",
-      selectedFields: {
-        x_studio_content: {},
-        x_studio_likes_1: {
-          fields: {
-            x_studio_phone_number: {},
-          },
-        },
-        create_uid: { fields: { display_name: {} } },
-        create_date: {},
-        write_uid: { fields: { display_name: {} } },
-        write_date: {},
-      },
-      offset: offset,
-      order: order,
-      limit: limit,
-      count_limit: 100001,
-      domain: domain,
-    }),
-    [domain, limit, offset, order]
-  );
-
-  const { data, isLoading, refetch } = useModelQuery(queryOptions);
-  const { updateMutation } = useModelMutations("x_humas_berita");
 
   useFocusEffect(
     useCallback(() => {
+      if (firstTimeRef.current) {
+        firstTimeRef.current = false;
+        return;
+      }
       refetch();
-    }, [])
+    }, [refetch])
   );
 
+
   const onRefresh = useCallback(() => {
-    //setRefreshing(true);
     refetch();
   }, []);
 
 
-
-  const handleLike = (postId, action, idLike) => {
-    let data = {
-      x_studio_likes_1: [[0, uuidv4(), { x_studio_phone_number: phoneNumber }]],
-    };
-    if (action === "delete") {
-      data = {
-        x_studio_likes_1: [[2, idLike]],
-      };
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-    updateMutation.mutate({ id: postId, data: data });
   };
 
 
-  if (isLoading) {
+  const renderHeader = () => {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <ActivityIndicator size="large" color="#3b82f6" />
-      </View>
-    );
-  }
-
-  return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="bg-white border-b border-gray-200">
+      <Fragment>
+        <View className="bg-white border-b border-gray-200">
         <View className="px-4 py-3 flex-row items-center justify-between">
           <View className="flex-row items-start justify-start">
             <TouchableOpacity
@@ -121,61 +105,138 @@ export default function MobileContent() {
             </TouchableOpacity>
 
             <View className=" flex-col items-start justify-start ml-3">
-              <Text className="text-xl font-bold text-red-700">{title}</Text>
-              <Text className="text-xs text-red-800">
-                BLU UPBU KELAS I DEO - SORONG
+              <Text className="text-xl font-bold text-red-700">
+                {title}
               </Text>
+              <Text className="text-xs text-red-800">BLU UPBU KELAS I DEO - SORONG</Text>
             </View>
           </View>
-          {/**<View className="flex-row items-center">
+          <View className="flex-row items-center">
             <View className=" flex-col items-end justify-end">
               <TouchableOpacity className="w-10 h-10 mt-1 rounded-full items-center justify-center">
-                <Ionicons name="search-outline" size={22} color="#991B1B" />
+                <Ionicons name="search" size={22} color="#991B1B" />
               </TouchableOpacity>
             </View>
-          </View> */}
+          </View>
         </View>
       </View>
+      </Fragment>
+    );
+  };
+  
 
-      <View className="bg-white p-2 mb-3">
-        <View className="flex-row pt-2 border-gray-100 justify-between">
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center">
-            <View className=" bg-slate-100 rounded-full p-3 w-[100%] ml-3">
-              <Text className="ml-2 font-medium text-gray-400">Search ...</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+    return (
+      <View className="py-4 flex items-center justify-center">
+        <ActivityIndicator size="small" color="#3b82f6" />
+        <Text className="text-gray-500 mt-2">Loading more content...</Text>
       </View>
+    );
+  };
+  
 
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
-        }
-      >
-        {(data?.records || []).map((post) => (
-          <PostCard key={post.id} post={post} user={2} onLike={handleLike} />
-        ))}
-      </ScrollView>
+  const renderEmpty = () => (
+    <View className="py-8 flex items-center justify-center">
+      <Ionicons name="document-text-outline" size={48} color="#9ca3af" />
+      <Text className="text-gray-500 mt-4 text-center">No content found</Text>
+    </View>
+  );
+
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50">
+        {renderHeader()}
+        <LoadingSkeleton/>
+      </SafeAreaView>
+    );
+  }
+
+  if(isError){
+    return(
+      <SafeAreaView className="flex-1 bg-slate-50">
+        {renderHeader()}
+        <ErrorState  
+        variant="network"
+        action={refetch}
+      />
+    </SafeAreaView>)
+  }
+  const dataFlat= data?.pages.flatMap((page) => page.data) ?? [];
+
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50">
+      {renderHeader()}
+      <FlatList
+        data={dataFlat}
+        keyExtractor={(item, index) => index}
+        renderItem={({ item }) => {return <ItemCard item_record={item} />}}
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmpty}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        contentContainerStyle={{ flexGrow: 1 }}
+      />
     </SafeAreaView>
   );
 }
 
-function PostCard({ post, user, onLike }) {
-  const { phoneNumber } = useSelector((state) => state.device);
-  const likeScale = useRef(new Animated.Value(1)).current;
+
+
+
+
+
+
+function ItemCard({ item_record }) {
+  const queryClient = useQueryClient();
   const [showFullContent, setShowFullContent] = useState(false);
   const contentMaxLength = 150;
+  const likeScale = useRef(new Animated.Value(1)).current;
 
-  const timeAgo = (timestamp) => {
-    const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
-    const days = Math.floor(hours / 24);
-    return `${days}d`;
-  };
+
+  const { mutate, isError, error, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const { data: result } = await post(`/mobile/api/portal/peraturan/like`,{
+        id : item_record.id,
+      });
+      return result;
+    },
+    onMutate: async (newUpdate) => {
+      await queryClient.cancelQueries({ queryKey: query_keys });
+      const previousData = queryClient.getQueryData(query_keys);
+      queryClient.setQueryData(query_keys, (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => {
+            return {
+              data: page.data?.map((item) =>
+                item.id === newUpdate.id ? { ...item, ...newUpdate } : item
+              ),
+            };
+          }),
+        };
+      });
+      return { previousData, newUpdate };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: query_keys });
+    },
+    onError: (err, newUpdate, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(query_keys, context.previousData);
+      }
+      Alert.alert("Error", "Failed update Data. Please try again.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: query_keys });
+    },
+  });
+
+
 
   const animateLike = () => {
     Animated.sequence([
@@ -194,63 +255,61 @@ function PostCard({ post, user, onLike }) {
     ]).start();
   };
 
-  const isLike = useMemo(() => {
-    return post.x_studio_likes_1?.some(
-      (like) => like.x_studio_phone_number === phoneNumber
-    );
-  }, [post.x_studio_likes_1]);
+
 
   const handleLike = useCallback(async () => {
-    const idLike = post.x_studio_likes_1?.find(
-      (like) => like.x_studio_phone_number === phoneNumber
-    )?.id;
-    if (!idLike) {
-      onLike(post.id, "add");
-    } else {
-      onLike(post.id, "delete", idLike);
-    }
+    mutate({
+      ...item_record,
+      isLike: !item_record.isLike,
+      likes : item_record.isLike ? item_record.likes - 1 : item_record.likes + 1
+    });
     animateLike();
-  }, [post.x_studio_likes_1]);
+  }, [item_record, mutate]);
+
+
 
   return (
-    <View className="bg-white mb-3 rounded-2xl shadow-sm overflow-hidden">
-      {/* Post Header */}
-      <View className="p-4 flex-row items-center justify-between">
-        <View className="flex-row items-center flex-1 border-b border-gray-100 pb-2">
-          <View className="relative">
-            <Image
-              source={DeoLogo}
-              style={{
-                borderRadius: 40,
-                width: 40,
-                height: 40,
-              }}
-              placeholder={{ blurhash }}
-              contentFit="cover"
-              transition={1000}
-            />
-          </View>
-          <View className="ml-3 flex-1">
-            <View className="flex-row items-center">
-              <Text className=" text-gray-600 font-bold text-sm">
-                DEO AIRPORT
-              </Text>
+    <Fragment>
+      <View className="bg-white mb-3 rounded-2xl shadow-sm overflow-hidden">
+        {/* CONTENT Header */}
+        <View className="p-4 flex-row items-center justify-between">
+          <View className="flex-row items-center flex-1">
+            <View className="relative">
+              <Image
+                source={DeoLogo}
+                style={{
+                  borderRadius: 40,
+                  width: 40,
+                  height: 40,
+                }}
+                placeholder={{ blurhash }}
+                contentFit="cover"
+                transition={1000}
+              />
             </View>
-            <Text className="text-gray-500 text-xs">
-              Oleh - {post.write_uid?.display_name}
-            </Text>
+            <View className="ml-3 flex-1">
+              <View className="flex-row items-center">
+                <Text className=" text-gray-600 font-semibold text-sm">
+                  DEO AIRPORT
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Text className="text-gray-500 text-sm">
+                  {dayjs().to(dayjs.utc(item_record?.create_date))}
+                </Text>
+               
+                
+              </View>
+            </View>
           </View>
-        </View>
-        <Text className="text-gray-500 text-sm">
-          {timeAgo(post.create_date)} ago
-        </Text>
-      </View>
 
-      {/* Post Content */}
-      <View>
-        {Array.isArray(post.x_studio_content) &&
-          post.x_studio_content.map((content, index) => {
-            return (
+         
+        </View>
+
+        {/* Body Content */}
+        <View>
+          {Array.isArray(item_record.x_studio_content) &&
+            item_record.x_studio_content.map((content, index) => (
               <View key={index}>
                 {content.type === "text" && (
                   <View className="px-4 mb-3">
@@ -279,67 +338,149 @@ function PostCard({ post, user, onLike }) {
                     <ImageGrid images={content.value} readonly />
                   )}
               </View>
-            );
-          })}
-      </View>
+            ))}
+        </View>
 
-      {/* Post Stats */}
-      <View className="px-4 py-3 border-t border-gray-100">
-        <View className="flex-row items-center justify-between mb-3">
-          <View className="flex-row items-center">
-            {isLike && (
-              <Fragment>
-                <View className="flex-row items-center -space-x-2">
-                  <View className="w-6 h-6 rounded-full bg-red-500 items-center justify-center ml-2">
-                    <Ionicons name="heart" size={12} color="#fff" />
+        <View className="px-4 py-3 border-t border-gray-100">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center">
+                    {item_record.isLike && (
+                      <Fragment>
+                        <View className="flex-row items-center -space-x-2">
+                          <View className="w-6 h-6 rounded-full bg-red-500 items-center justify-center ml-2">
+                            <Ionicons name="heart" size={12} color="#fff" />
+                          </View>
+                        </View>
+                        <Text className="text-gray-600 ml-2">Thank You for Like</Text>
+                      </Fragment>
+                    )}
+                  </View>
+        
+                  <View className="flex-row items-center space-x-4">
+                    <Text className="text-gray-600">
+                      {item_record?.likes} Likes
+                    </Text>
+                    <Text className="text-gray-600 ml-2">0 comments</Text>
                   </View>
                 </View>
-                <Text className="text-gray-600 ml-2">Thank You for Like</Text>
-              </Fragment>
-            )}
-          </View>
-
-          <View className="flex-row items-center space-x-4">
-            <Text className="text-gray-600">
-              {post.x_studio_likes_1?.length} Likes
-            </Text>
-            <Text className="text-gray-600 ml-2">0 comments</Text>
-          </View>
-        </View>
-
-        <View className="flex-row items-center justify-between border-t border-gray-100 pt-3">
-          <TouchableOpacity
-            onPress={handleLike}
-            className="flex-1 flex-row items-center justify-center py-2"
-            disabled={isLike === undefined}
-          >
-            <Animated.View style={{ transform: [{ scale: likeScale }] }}>
-              <Ionicons
-                name={isLike ? "heart" : "heart-outline"}
-                size={24}
-                color={isLike ? "#ef4444" : "#6b7280"}
-              />
-            </Animated.View>
-            <Text
-              className={`ml-2 font-medium ${
-                isLike ? "text-red-500" : "text-gray-600"
-              }`}
-            >
-              Like
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
-            <Ionicons name="chatbubble-outline" size={22} color="#6b7280" />
-            <Text className="ml-2 font-medium text-gray-600">Comment</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
-            <Ionicons name="share-social-outline" size={22} color="#6b7280" />
-            <Text className="ml-2 font-medium text-gray-600">Share</Text>
-          </TouchableOpacity>
-        </View>
+        
+                <View className="flex-row items-center justify-between border-t border-gray-100 pt-3">
+                  <TouchableOpacity
+                    onPress={handleLike}
+                    className="flex-1 flex-row items-center justify-center py-2"
+                    disabled={item_record.isLike === undefined}
+                  >
+                    <Animated.View style={{ transform: [{ scale: likeScale }] }}>
+                      <Ionicons
+                        name={item_record.isLike ? "heart" : "heart-outline"}
+                        size={24}
+                        color={item_record.isLike ? "#ef4444" : "#6b7280"}
+                      />
+                    </Animated.View>
+                    <Text
+                      className={`ml-2 font-medium ${
+                        item_record.isLike ? "text-red-500" : "text-gray-600"
+                      }`}
+                    >
+                      Like
+                    </Text>
+                  </TouchableOpacity>
+        
+                  <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
+                    <Ionicons name="chatbubble-outline" size={22} color="#6b7280" />
+                    <Text className="ml-2 font-medium text-gray-600">Comment</Text>
+                  </TouchableOpacity>
+        
+                  <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
+                    <Ionicons name="share-social-outline" size={22} color="#6b7280" />
+                    <Text className="ml-2 font-medium text-gray-600">Share</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
       </View>
-    </View>
+
+    
+    </Fragment>
   );
 }
+
+
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+  },
+  publishButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 10,
+    padding: 2,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    zIndex: 10,
+    padding: 10,
+  },
+
+  counter: {
+    position: "absolute",
+    top: 45,
+    left: 20,
+    zIndex: 10,
+    padding: 10,
+  },
+  counterText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  imageContainer: {
+    width: SCREEN_WIDTH,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: SCREEN_WIDTH,
+    height: "80%",
+  },
+  navigation: {
+    position: "absolute",
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  navButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  prevButton: {
+    position: "absolute",
+    left: 20,
+  },
+  nextButton: {
+    position: "absolute",
+    right: 20,
+  },
+  selectionBadge: {
+    position: "absolute",
+    bottom: 14,
+    right: 14,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+  },
+});

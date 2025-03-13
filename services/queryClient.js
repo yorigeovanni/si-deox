@@ -12,10 +12,10 @@ export const modelKeys = {
 }
 
 
-
 // Fetch Data Function
 export const fetchModelData = async (post, options) => {
-    const { data: { length, records } } = await post('/mobile/api/internal/mobile-data', {
+    const url = options.url || '/mobile/api/internal/mobile-data';
+    const { data: { length, records } } = await post(url, {
         params: {
             model: options.model,
             method: "web_search_read",
@@ -39,15 +39,15 @@ export const fetchModelData = async (post, options) => {
 
 
 
-
-export const fetchModelById = async (post, {model = '', id = 0, fields ={}}) => {
-    const { data } = await post('/mobile/api/internal/mobile-data', {
+export const fetchModelById = async (post, options) => {
+    const url = options.url || '/mobile/api/internal/mobile-data';
+    const { data } = await post(url, {
         params: {
-            model: model,
+            model: options.model,
             method: "web_read",
-            args: [ [ parseInt(id) ] ],
+            args: [ [ parseInt(options.id) ] ],
             kwargs: {
-                specification: fields,
+                specification: options.fields,
             },
         },
     });
@@ -55,21 +55,19 @@ export const fetchModelById = async (post, {model = '', id = 0, fields ={}}) => 
 };
 
 
-
-// Offline-aware API functions
-export const createModelData = async ( post, {model, data, options = {}}) => {
+export const createModelData = async ( post, options) => {
     try {
-        const response = await post('/mobile/api/internal/mobile-data', {
+        const url = options.url || '/mobile/api/internal/mobile-data';
+        const response = await post(url, {
             params: {
-                model,
+                model : options.model,
                 method: "web_save",
-                args: [[],data],
+                args: [[], options.data],
                 kwargs: {
                     specification: {},
                   },
             },
         });
-
         return response.data;
     } catch (error) {
         console.log(error)
@@ -79,13 +77,14 @@ export const createModelData = async ( post, {model, data, options = {}}) => {
 
 
 
-export const updateModelData = async (post, {model = '', id = 0, data = {}, options = {}}) => {
+export const updateModelData = async (post, options) => {
     try {
-        const response = await post('/mobile/api/internal/mobile-data', {
+        const url = options.url || '/mobile/api/internal/mobile-data';
+        const response = await post(url, {
             params: {
-                model,
+                model : options.model,
                 method: "web_save",
-                args: [[id],data],
+                args: [[parseInt(options.id)], options.data],
                 kwargs: {
                     specification: {},
                   },
@@ -98,15 +97,14 @@ export const updateModelData = async (post, {model = '', id = 0, data = {}, opti
 };
 
 
-
-const deleteModelData = async (model, id, options = {}) => {
-    const { post } = createRequest();
+const deleteModelData = async (post, options) => {
     try {
-        const response = await post('/mobile/api/internal/mobile-data', {
+        const url = options.url || '/mobile/api/internal/mobile-data';
+        const response = await post(url, {
             params: {
-                model,
+                model : options.model,
                 method: "unlink",
-                args: [[id]],
+                args: [[parseInt(options.id)]],
             },
         });
         return response.data;
@@ -114,9 +112,6 @@ const deleteModelData = async (model, id, options = {}) => {
         throw error;
     }
 };
-
-
-
 
 
 
@@ -132,6 +127,11 @@ export const useModelDetail = ({queryKey, model, id, fields}) => {
         enabled: !!id,
     });
 };
+
+
+
+
+
 
 
 

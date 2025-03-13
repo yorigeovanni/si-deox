@@ -23,10 +23,8 @@ const { post } = createRequest();
 const allowedGroupIds = [56, 80];
 const x_studio_tags = [1]; // FASILITAS
 const query_keys = ["humas_fasilitas"];
+const model = "x_humas_berita";
 //===================================================================================
-
-
-
 
 const ContentType = {
   TEXT: "text",
@@ -44,12 +42,11 @@ export default function CreatePostScreen() {
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
 
-
   const { mutate, isError, error, isPending } = useMutation({
     mutationFn: async (postData) => {
       const { data } = await post(`/mobile/api/internal/mobile-data`, {
         params: {
-          model: "x_humas_berita",
+          model: model,
           method: "web_save",
           args: [[], postData],
           kwargs: {
@@ -58,26 +55,55 @@ export default function CreatePostScreen() {
         },
       });
       return data;
-    }
+    },
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: query_keys });
+      const previousData = queryClient.getQueryData(query_keys);
+      queryClient.setQueryData(query_keys, (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => {
+            return {
+              data: [
+                {
+                  ...newData,
+                  localCreatePending: true,
+                },
+                ...page.data,
+              ],
+            };
+          }),
+        };
+      });
+      return { previousData, newData };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: query_keys });
+    },
+    onError: (err, newUpdate, context) => {
+      console.log(err);
+      if (context?.previousData) {
+        queryClient.setQueryData(query_keys, context.previousData);
+      }
+      Alert.alert("Error", "Failed create Data. Please try again.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: query_keys });
+    },
   });
 
-
-  
   const handleAddContent = (type) => {
     const newContent = { type, value: type === ContentType.TEXT ? "" : [] };
     setContents([...contents, newContent]);
     setCurrentEditingIndex(contents.length);
   };
 
-
-
   const handleContentChange = (index, value) => {
     const newContents = [...contents];
     newContents[index].value = value;
     setContents(newContents);
   };
-
-
 
   const handleRemoveContent = (index) => {
     const newContents = contents.filter((_, i) => i !== index);
@@ -87,12 +113,10 @@ export default function CreatePostScreen() {
     }
   };
 
-
   const closeAllModals = () => {
     setShowMediaPicker(false);
     setSelectedImages([]);
   };
-
 
   const handlePost = async () => {
     if (
@@ -105,27 +129,14 @@ export default function CreatePostScreen() {
       Alert.alert("Empty Content", "Please add some content to your post.");
       return;
     }
-    mutate(
-      {
-        x_studio_tags: x_studio_tags,
-        x_studio_publish: false,
-        x_studio_content: contents,
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries(query_keys);
-          router.back();
-        },
-        onError: (err) => {
-          // setIsPosting(false);
-          //console.error('Error creating post:', err);
-          Alert.alert("Error", "Failed to create post. Please try again.");
-        },
-      }
-    );
+
+    mutate({
+      x_studio_tags: x_studio_tags,
+      x_studio_publish: false,
+      x_studio_content: contents,
+    });
+    router.back();
   };
-
-
 
   const handleImageSelect = (imageUri) => {
     if (selectedImages.includes(imageUri)) {
@@ -138,8 +149,6 @@ export default function CreatePostScreen() {
       setSelectedImages((prev) => [...prev, imageUri]);
     }
   };
-
-
 
   const handleAddSelectedImages = () => {
     if (selectedImages.length > 0) {
@@ -189,8 +198,6 @@ export default function CreatePostScreen() {
           </TouchableOpacity>
         </View>
 
-      
-
         <ScrollView style={styles.content}>
           {contents.map((content, index) => {
             console.log(content);
@@ -238,8 +245,6 @@ export default function CreatePostScreen() {
             <Text className=" px-2 font-bold text-gray-500">Gambar</Text>
           </TouchableOpacity>
         </View>
-
-      
 
         <ImagePicker
           visible={showMediaPicker}

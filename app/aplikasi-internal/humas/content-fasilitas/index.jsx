@@ -6,6 +6,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState, useCallback, useRef, useMemo, Fragment } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { ImageGrid } from "@/components/ui/ImageGrid";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { LoadingSpinner, ThreeDotsLoader } from "@/components/ui/LoadingIndicators";
+
 import { fetchModelData } from "@/services/queryClient";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import createRequest from "@/services/api-secure-internal";
@@ -28,9 +32,18 @@ const baseURL = process.env.NODE_ENV === "production" ? process.env.EXPO_PUBLIC_
 const allowedGroupIds = [56, 80];
 const x_studio_tags = [1]; // FASILITAS
 const query_keys = ["humas_fasilitas"];
+const model = 'x_humas_berita';
+const fields = {
+  x_studio_sequence: {},
+  x_studio_content: {},
+  x_studio_publish: {},
+  x_studio_show_in_home: {},
+  create_uid: { fields: { display_name: {} } },
+  create_date: {},
+  write_uid: { fields: { display_name: {} } },
+  write_date: {}
+}
 //===================================================================================
-
-
 
 
 export default function ContentFasilitas() {
@@ -41,36 +54,52 @@ export default function ContentFasilitas() {
   const [refreshing, setRefreshing] = useState(false);
 
 
-  const [{ domain, limit, offset, order, searchQuery, filterStatus },setParams] = useState({
+  const [{ domain, order, searchQuery },setParams] = useState({
     domain: [["x_studio_tags", "in", x_studio_tags]],
     searchQuery: "",
-    filterStatus: null,
-    limit: 10,
-    offset: 0,
     order: "create_date DESC",
   });
 
+  const { 
+    data, 
+    isLoading, 
+    isError, 
+    refetch, 
+    hasNextPage, 
+    isFetchingNextPage, 
+    fetchNextPage  
+  } = useInfiniteQuery({
+    queryKey: query_keys,
+    queryFn: async ({ pageParam = 0 }) => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        const result = await fetchModelData(post, {
+          model: model,
+          selectedFields: fields,
+          order: order,
+          limit: 20,
+          count_limit: 100001,
+          domain: domain,
+          offset: pageParam,
+        });
+        return {
+          data: result?.records || [],
+          offset: pageParam,
+          totalData: result?.length || 0,
+        };
+      } catch (error) {
+        throw error;
+      }
+    },
+    getNextPageParam: (lastPage, pages) => {
+      const nextOffset = lastPage.offset + 20;
+      return nextOffset < lastPage.totalData ? nextOffset : undefined;
+    },
+    keepPreviousData: true,
+  });
 
-  const queryParams = useMemo(() => {
-    return {
-      model: "x_humas_berita",
-      selectedFields: {
-        x_studio_sequence: {},
-        x_studio_content: {},
-        x_studio_publish: {},
-        x_studio_show_in_home: {},
-        create_uid: { fields: { display_name: {} } },
-        create_date: {},
-        write_uid: { fields: { display_name: {} } },
-        write_date: {}
-      },
-      offset: offset,
-      order: order,
-      limit: limit,
-      count_limit: 100001,
-      domain: domain
-    }
-  },[domain, limit, offset, order]);
+
+
 
 
   const canCreate = useMemo(() => {
@@ -80,31 +109,6 @@ export default function ContentFasilitas() {
     return allowedGroupIds.includes(user?.department_id?.id);
   }, [user, loading]);
 
-
-
-  const { data, isLoading, isError, refetch, hasNextPage, isFetchingNextPage, fetchNextPage  } = useInfiniteQuery({
-    queryKey: query_keys,
-    queryFn: async ({ pageParam = 0 }) => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        const result = await fetchModelData(post, {
-          ...queryParams,
-          offset: pageParam,
-        });
-        return {
-          data: result?.records || [],
-          offset: pageParam,
-        };
-      } catch (error) {
-        throw error;
-      }
-    },
-    getNextPageParam: (lastPage, pages) => {
-      const nextOffset = lastPage.offset + queryParams.limit;
-      return nextOffset < lastPage.totalData ? nextOffset : undefined;
-    },
-    keepPreviousData: true,
-  });
 
 
 
@@ -133,41 +137,10 @@ export default function ContentFasilitas() {
 
 
 
-  const renderFooter = () => {
-    if (!isFetchingNextPage) return null;
+  const renderHeader = () => {
     return (
-      <View className="py-4 flex items-center justify-center">
-        <ActivityIndicator size="small" color="#3b82f6" />
-        <Text className="text-gray-500 mt-2">Loading more content...</Text>
-      </View>
-    );
-  };
-  
-
-  const renderEmpty = () => (
-    <View className="py-8 flex items-center justify-center">
-      <Ionicons name="document-text-outline" size={48} color="#9ca3af" />
-      <Text className="text-gray-500 mt-4 text-center">No content found</Text>
-    </View>
-  );
-
-
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <ActivityIndicator size="large" color="#3b82f6" />
-      </View>
-    );
-  }
-
-
-  const dataFlat= data?.pages.flatMap((page) => page.data) ?? [];
-
-
-  return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="bg-white border-b border-gray-200">
+      <Fragment>
+        <View className="bg-white border-b border-gray-200">
         <View className="px-4 py-3 flex-row items-center justify-between">
           <View className="flex-row items-start justify-start">
             <TouchableOpacity
@@ -225,7 +198,58 @@ export default function ContentFasilitas() {
           </View>
         </View>
       )}
+      </Fragment>
+    );
+  };
+  
 
+
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+    return (
+      <View className="py-4 flex items-center justify-center">
+        <ActivityIndicator size="small" color="#3b82f6" />
+        <Text className="text-gray-500 mt-2">Loading more content...</Text>
+      </View>
+    );
+  };
+  
+
+  const renderEmpty = () => (
+    <View className="py-8 flex items-center justify-center">
+      <Ionicons name="document-text-outline" size={48} color="#9ca3af" />
+      <Text className="text-gray-500 mt-4 text-center">No content found</Text>
+    </View>
+  );
+
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-slate-50">
+        {renderHeader()}
+        <LoadingSkeleton/>
+      </SafeAreaView>
+    );
+  }
+
+
+  if(isError){
+    return(
+      <SafeAreaView className="flex-1 bg-slate-50">
+        {renderHeader()}
+        <ErrorState  
+        variant="network"
+        action={refetch}
+      />
+    </SafeAreaView>)
+  }
+
+  const dataFlat= data?.pages.flatMap((page) => page.data) ?? [];
+
+
+  return (
+    <SafeAreaView className="flex-1 bg-slate-50">
+      {renderHeader()}
       <FlatList
         data={dataFlat}
         keyExtractor={(item, index) => index}
@@ -240,6 +264,7 @@ export default function ContentFasilitas() {
     </SafeAreaView>
   );
 }
+
 
 
 
@@ -263,11 +288,11 @@ function ItemCard({ item_record, user }) {
     mutationFn: async (data) => {
       const { data: result } = await post(`/mobile/api/internal/mobile-data`, {
         params: {
-          model: "x_humas_berita",
+          model: model,
           method: "web_save",
           args: [[item_record.id], data],
           kwargs: {
-            specification: { id: {} },
+            specification: fields,
           },
         },
       });
@@ -298,7 +323,7 @@ function ItemCard({ item_record, user }) {
       if (context?.previousData) {
         queryClient.setQueryData(query_keys, context.previousData);
       }
-      Alert.alert("Error", "Failed Publish. Please try again.");
+      Alert.alert("Error", "Failed update Data. Please try again.");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: query_keys });
@@ -475,7 +500,14 @@ function ItemCard({ item_record, user }) {
               </View>
             )}
 
-            {canEdit && (
+            {isPending && (<LoadingSpinner size={16}/>)}
+
+            {item_record?.localCreatePending && (<View className=" flex-row items-center">
+              <ThreeDotsLoader size={4}/>
+            </View>)}
+
+
+            {!item_record?.localCreatePending && canEdit && (
               <Fragment>
                 <TouchableOpacity
                   onPress={handleShowMenu}
