@@ -42,7 +42,7 @@ export default function ContentFasilitas() {
     refetch, 
     hasNextPage, 
     isFetchingNextPage, 
-    fetchNextPage  
+    fetchNextPage,
   } = useInfiniteQuery({
     queryKey: query_keys,
     queryFn: async ({ pageParam = 0 }) => {

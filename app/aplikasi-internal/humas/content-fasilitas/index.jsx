@@ -9,8 +9,6 @@ import { ImageGrid } from "@/components/ui/ImageGrid";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { LoadingSpinner, ThreeDotsLoader } from "@/components/ui/LoadingIndicators";
-
-import { fetchModelData } from "@/services/queryClient";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import createRequest from "@/services/api-secure-internal";
 import dayjs from "dayjs";
@@ -30,35 +28,18 @@ const baseURL = process.env.NODE_ENV === "production" ? process.env.EXPO_PUBLIC_
 
 //================================= GROUP ID ACCESS =================================
 const allowedGroupIds = [56, 80];
-const x_studio_tags = [1]; // FASILITAS
 const query_keys = ["humas_fasilitas"];
-const model = 'x_humas_berita';
-const fields = {
-  x_studio_sequence: {},
-  x_studio_content: {},
-  x_studio_publish: {},
-  x_studio_show_in_home: {},
-  create_uid: { fields: { display_name: {} } },
-  create_date: {},
-  write_uid: { fields: { display_name: {} } },
-  write_date: {}
-}
 //===================================================================================
 
 
 export default function ContentFasilitas() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const firstTimeRef = useRef(true);
   const { internalUser } = useSelector((state) => state.auth);
   const { user, loading } = internalUser;
-  const [refreshing, setRefreshing] = useState(false);
+  const isInitialMount = useRef(true);
 
-
-  const [{ domain, order, searchQuery },setParams] = useState({
-    domain: [["x_studio_tags", "in", x_studio_tags]],
-    searchQuery: "",
-    order: "create_date DESC",
-  });
 
   const { 
     data, 
@@ -67,31 +48,35 @@ export default function ContentFasilitas() {
     refetch, 
     hasNextPage, 
     isFetchingNextPage, 
-    fetchNextPage  
+    fetchNextPage,
   } = useInfiniteQuery({
     queryKey: query_keys,
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        const result = await fetchModelData(post, {
-          model: model,
-          selectedFields: fields,
-          order: order,
-          limit: 20,
-          count_limit: 100001,
-          domain: domain,
-          offset: pageParam,
+        if (!isInitialMount.current) {
+          isInitialMount.current = false;
+          const cache = queryClient.getQueryData(query_keys);
+          if(cache.pages.length >= 30 &&  cache.pages.length <= 60){
+            console.log('delay 1500ms');
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          } else if(cache.pages.length > 60){
+            console.log('delay 2000ms');
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
+        }
+        const { data : { records, length } } = await post('/mobile/api/internal/humas/content-fasilitas',{
+          offset: pageParam
         });
         return {
-          data: result?.records || [],
+          data: records || [],
           offset: pageParam,
-          totalData: result?.length || 0,
+          totalData: length || 0,
         };
       } catch (error) {
         throw error;
       }
     },
-    getNextPageParam: (lastPage, pages) => {
+    getNextPageParam: (lastPage) => {
       const nextOffset = lastPage.offset + 20;
       return nextOffset < lastPage.totalData ? nextOffset : undefined;
     },
@@ -258,7 +243,7 @@ export default function ContentFasilitas() {
         ListEmptyComponent={renderEmpty}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
         contentContainerStyle={{ flexGrow: 1 }}
       />
     </SafeAreaView>
@@ -286,20 +271,14 @@ function ItemCard({ item_record, user }) {
 
   const { mutate, isError, error, isPending } = useMutation({
     mutationFn: async (data) => {
-      const { data: result } = await post(`/mobile/api/internal/mobile-data`, {
-        params: {
-          model: model,
-          method: "web_save",
-          args: [[item_record.id], data],
-          kwargs: {
-            specification: fields,
-          },
-        },
+      const { data: result } = await post(`/mobile/api/internal/humas/content-fasilitas/update`, {
+        id : item_record.id,
+        data : data
       });
-      return result;
+      return result
     },
     onMutate: async (newUpdate) => {
-      await queryClient.cancelQueries({ queryKey: query_keys });
+      await queryClient.cancelQueries({ queryKey: [...query_keys] });
       const previousData = queryClient.getQueryData(query_keys);
       queryClient.setQueryData(query_keys, (oldData) => {
         if (!oldData) return oldData;
@@ -308,7 +287,7 @@ function ItemCard({ item_record, user }) {
           pages: oldData.pages.map((page) => {
             return {
               data: page.data?.map((item) =>
-                item.id === newUpdate.id ? { ...item, ...newUpdate } : item
+                item.id === item_record.id ? { ...item, ...newUpdate } : item
               ),
             };
           }),
@@ -343,19 +322,19 @@ function ItemCard({ item_record, user }) {
   const handlePublish = useCallback(() => {
     setShowMenu(false);
     mutate({
-      ...item_record,
       x_studio_publish: true,
     });
-  }, [item_record, mutate, queryClient]);
+  }, [ mutate]);
+
+
 
   const handleUnPublish = useCallback(() => {
     setShowMenu(false);
     mutate({
-      ...item_record,
       x_studio_publish: false,
       x_studio_show_in_home: false,
     });
-  }, [item_record, mutate, queryClient]);
+  }, [ mutate]);
 
 
   const handlePublishShowOnHome = useCallback(() => {
@@ -381,10 +360,9 @@ function ItemCard({ item_record, user }) {
   const handleNotPublishShowOnHome = useCallback(() => {
     setShowMenu(false);
     mutate({
-      ...item_record,
       x_studio_show_in_home: false,
     });
-  }, [item_record, mutate, queryClient]);
+  }, [ mutate]);
 
   const cancelShowOnMenu = useCallback(() => {
     setShowMenu(false);
@@ -406,7 +384,6 @@ function ItemCard({ item_record, user }) {
     }
     mutate(
       {
-        ...item_record,
         x_studio_show_in_home: true,
         x_name: textTitlePublish,
         x_studio_description: textDescriptionPublish,
@@ -427,7 +404,6 @@ function ItemCard({ item_record, user }) {
       }
     );
   }, [
-    item_record,
     imagePublishSelected,
     textTitlePublish,
     textDescriptionPublish,

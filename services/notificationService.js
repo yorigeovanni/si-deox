@@ -5,11 +5,8 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createRequest from "@/services/api-secure-portal";
 const { post } = createRequest();
-
-
-
-// Storage key for push token
 const PUSH_TOKEN_STORAGE_KEY = 'pushNotificationToken';
+
 
 // Configure how notifications appear when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -20,10 +17,8 @@ Notifications.setNotificationHandler({
   }),
 });
 
-/**
- * Register for push notifications
- * @returns {Promise<string|null>} The push token or null if registration failed
- */
+
+
 export async function registerForPushNotificationsAsync() {
   let token;
   
@@ -82,11 +77,6 @@ export async function registerForPushNotificationsAsync() {
 
 
 
-
-/**
- * Get the stored push token
- * @returns {Promise<string|null>} The push token or null if not found
- */
 export async function getStoredPushToken() {
   try {
     return await AsyncStorage.getItem(PUSH_TOKEN_STORAGE_KEY);
@@ -99,11 +89,6 @@ export async function getStoredPushToken() {
 
 
 
-/**
- * Send push token to backend
- * @param {string} userId - The user ID
- * @returns {Promise<boolean>} Whether the token was sent successfully
- */
 export async function sendPushTokenToBackend(userId) {
   try {
     const token = await getStoredPushToken();
