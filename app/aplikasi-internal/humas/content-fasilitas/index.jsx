@@ -565,7 +565,7 @@ function ItemCard({ item_record, user }) {
                         </TouchableOpacity>
                       )}
 
-                      <TouchableOpacity
+                      {/**<TouchableOpacity
                         className="flex-row items-center px-4 py-3"
                         onPress={handleDelete}
                       >
@@ -577,7 +577,7 @@ function ItemCard({ item_record, user }) {
                         <Text className="ml-3 text-gray-700 text-sm">
                           Delete
                         </Text>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
                   </TouchableOpacity>
                 </Modal>

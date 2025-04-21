@@ -113,74 +113,7 @@ export default function MaintenanceDashboard() {
       };
 
 
-      /*//console.log(statsResponse.data?.result);
-      if (statsResponse.data?.result) {
-        statsResponse.data.result.forEach(task => {
-          // Count by type
-          if (task.maintenance_type === 'preventive') stats.preventive++;
-          if (task.maintenance_type === 'corrective') stats.corrective++;
-          
-          // Count by stage
-          const stageName = task.stage_id[1]?.toLowerCase();
-          if (stageName?.includes('progress')) stats.inProgress++;
-          if (stageName?.includes('done') || stageName?.includes('complete')) stats.completed++;
-        });
-
-        // Today's tasks - using search_count for efficiency
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayResponse = await post("/mobile-data", {
-          jsonrpc: "2.0",
-          method: "call",
-          params: {
-            model: "maintenance.request",
-            method: "search_count",
-            args: [[["schedule_date", ">=", today.toISOString()]]],
-            kwargs: {},
-          },
-        });
-        stats.todayTasks = todayResponse.data?.result || 0;
-      }*/
-
-      // Fetch recent tasks using standard search_read
-      /*const tasksResponse = await post("/mobile-data", {
-        jsonrpc: "2.0",
-        method: "call",
-        params: {
-          model: "maintenance.request",
-          method: "search_read",
-          args: [],
-          kwargs: {
-            fields: [
-              "name",
-              "equipment_id",
-              "maintenance_type",
-              "stage_id",
-              "user_id",
-              "priority",
-              "schedule_date"
-            ],
-            domain: [],
-            order: "create_date desc",
-            limit: 5,
-          },
-        },
-      });*/
-
-      // Fetch equipment status using standard search_read and group by state
-      /*const equipmentResponse = await post("/mobile-data", {
-        jsonrpc: "2.0",
-        method: "call",
-        params: {
-          model: "maintenance.equipment",
-          method: "search_read",
-          args: [],
-          kwargs: {
-            fields: ["state"],
-            domain: [],
-          },
-        },
-      });*/
+     
 
       const equipmentStats = {
         normal: 0,
@@ -188,21 +121,7 @@ export default function MaintenanceDashboard() {
         critical: 0,
       };
 
-      /*if (equipmentResponse.data?.result) {
-        equipmentResponse.data.result.forEach(equipment => {
-          switch (equipment.state) {
-            case 'operational':
-              equipmentStats.normal++;
-              break;
-            case 'maintenance':
-              equipmentStats.warning++;
-              break;
-            case 'breakdown':
-              equipmentStats.critical++;
-              break;
-          }
-        });
-      }*/
+     
 
       setDashboardState(prev => ({
         ...prev,
@@ -340,26 +259,66 @@ export default function MaintenanceDashboard() {
             >
               <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
                 <View className="flex-row justify-between items-center mb-2">
-                  <Ionicons name="list" size={24} color="#2196F3" />
+                  <Ionicons name="document-attach-outline" size={24} color="#2196F3" />
                   <Text className="text-sm text-green-600">
-                    +{Math.round((dashboardState.data.quickStats.todayTasks / 100) * 100)}%
+                  PERALATAN
                   </Text>
                 </View>
+                <View className=" flex-row justify-start items-center">
                 <Text className="text-2xl font-bold">{dashboardState.data.quickStats.todayTasks}</Text>
-                <Text className="text-gray-600">PERALATAN</Text>
+                <Text className="text-gray-600 ml-4"> FASKAMPEN</Text>
+                </View>
               </View>
 
-
-              <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
+              <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-72">
                 <View className="flex-row justify-between items-center mb-2">
-                  <Ionicons name="construct" size={24} color="#FFC107" />
+                  <Ionicons name="checkmark-circle-sharp" size={24} color="green" />
                   <Text className="text-sm text-blue-600">
-                    {dashboardState.data.quickStats.inProgress} aktif
+                  23 FASILITAS
                   </Text>
                 </View>
                 <Text className="text-2xl font-bold">{dashboardState.data.quickStats.inProgress}</Text>
-                <Text className="text-gray-600">FASILITAS</Text>
+                <Text className="text-gray-600">PERALATAN NON FASKAMPEN</Text>
               </View>
+
+            
+
+              <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
+                <View className="flex-row justify-between items-center mb-2">
+                  <Ionicons name="checkmark-circle-sharp" size={24} color="green" />
+                  <Text className="text-sm text-blue-600">
+                    ...
+                  </Text>
+                </View>
+                <Text className="text-2xl font-bold">{dashboardState.data.quickStats.inProgress}</Text>
+                <Text className="text-gray-600">OPERASI TERPUTUS</Text>
+              </View>
+
+              <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
+                <View className="flex-row justify-between items-center mb-2">
+                  <Ionicons name="checkmark-circle-sharp" size={24} color="green" />
+                  <Text className="text-sm text-blue-600">
+                    ...
+                  </Text>
+                </View>
+                <Text className="text-2xl font-bold">{dashboardState.data.quickStats.inProgress}</Text>
+                <Text className="text-gray-600">OPERASI MENURUN</Text>
+              </View>
+
+
+             
+              <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
+                <View className="flex-row justify-between items-center mb-2">
+                  <Ionicons name="checkmark-circle-sharp" size={24} color="green" />
+                  <Text className="text-sm text-blue-600">
+                    ...
+                  </Text>
+                </View>
+                <Text className="text-2xl font-bold">{dashboardState.data.quickStats.inProgress}</Text>
+                <Text className="text-gray-600">OPERASI NORMAL</Text>
+              </View>
+
+              
 
 
               <View className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">

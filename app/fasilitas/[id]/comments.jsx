@@ -175,7 +175,7 @@ export default function CommentModal({currentUserId = "1" }) {
   return (
     <View style={styles.container}>
       <View style={{ paddingTop: insets.top }} className="bg-white">
-        <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+        <View className="flex-row items-center justify-between px-4 py-2 border-b border-gray-200">
           <TouchableOpacity
             onPress={() => router.back()}
             className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"

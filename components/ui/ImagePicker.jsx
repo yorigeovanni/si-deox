@@ -1,4 +1,7 @@
 import {
+  Alert,
+  Pressable,
+  Button,
   View,
   Text,
   TouchableOpacity,
@@ -14,9 +17,19 @@ import {
   RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import IconBaru from "@/assets/logo-putih.png";
+import {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  Fragment,
+} from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ExpoImagePicker from "expo-image-picker";
+import { CameraView, useCameraPermissions } from "expo-camera";
+
 import {
   useModelInfinityQuery,
   useModelMutations,
@@ -47,8 +60,6 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const query_keys = ["internal-image-picker"];
 //===================================================================================
 
-
-
 export const ImagePicker = ({
   visible,
   onClose,
@@ -56,15 +67,20 @@ export const ImagePicker = ({
   onSelectImage,
   onAddImages,
 }) => {
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState("back");
+  const cameraRef = useRef(null);
+  const [cameraMode, setCameraMode] = useState("picture");
+  const [scannedData, setScannedData] = useState(null);
+  const [showCamera, setShowCamera] = useState(false);
+
   const slideAnim = useRef(new Animated.Value(-SCREEN_WIDTH)).current;
   const insets = useSafeAreaInsets();
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const isOffline = false;
   const flatListRef = useRef(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [{ searchQuery }, setParams] = useState({
-    searchQuery: "",
-  });
+  const [{ searchQuery }, setParams] = useState({ searchQuery: "" });
 
   const {
     data,
@@ -103,7 +119,6 @@ export const ImagePicker = ({
 
   const { createMutation } = useModelMutations("ir.attachment");
 
-
   // Debounce search query
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -113,8 +128,6 @@ export const ImagePicker = ({
       clearTimeout(handler);
     };
   }, [searchQuery]);
-
-
 
   useEffect(() => {
     if (visible) {
@@ -132,8 +145,6 @@ export const ImagePicker = ({
     }
   }, [visible]);
 
-
-
   const handleClose = () => {
     Animated.timing(slideAnim, {
       toValue: -SCREEN_WIDTH,
@@ -145,17 +156,14 @@ export const ImagePicker = ({
     });
   };
 
-
   const handleUploadImage = useCallback(async () => {
     try {
-      // Request permission to access the media library
       const { status } =
         await ExpoImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to upload images!");
         return;
       }
-      // Launch the image picker
       const result = await ExpoImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         base64: true,
@@ -180,6 +188,46 @@ export const ImagePicker = ({
     }
   }, []);
 
+  const handleCameraOpen = useCallback(async () => {
+    try {
+      if (!permission.granted) {
+        setShowCamera(true);
+        requestPermission();
+        /*Alert.alert(
+          'Request Camera Akses',
+          `Aplikasi Membutuhkan Akses Kamera Untuk Mengambil Foto`,
+          [
+            {
+              text: "Ijinkan",
+              onPress:requestPermission,
+            },
+            {
+              text: "Close",
+              style: "cancel",
+            },
+          ]
+        );*/
+        return;
+      } else {
+        setShowCamera(true);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Failed to upload image. Please try again.");
+    }
+  }, [permission, requestPermission, setShowCamera]);
+
+
+  function toggleCameraFacing() {
+    setFacing((current) => (current === "back" ? "front" : "back"));
+  }
+
+  const takePicture = async () => {
+    const photo = await cameraRef.current?.takePictureAsync();
+    console.log(photo);
+    setUri(photo?.uri);
+  };
+
 
 
   const handleLoadMore = useCallback(() => {
@@ -187,9 +235,10 @@ export const ImagePicker = ({
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, refreshing]);
-  
-  
-  
+
+
+
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -205,7 +254,6 @@ export const ImagePicker = ({
       setRefreshing(false);
     }
   }, [refetch]);
-
 
   const renderItem = useCallback(
     ({ item }) => {
@@ -295,135 +343,232 @@ export const ImagePicker = ({
   const allRecords = data?.pages?.flatMap((page) => page?.data ?? []) ?? [];
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={handleClose}
-      statusBarTranslucent={true}
-    >
-      <StatusBar backgroundColor="rgba(0,0,0,0.5)" barStyle="light-content" />
-      <View style={styles.modalOverlay}>
-        <Animated.View
-          style={[
-            styles.modalContent,
-            { transform: [{ translateX: slideAnim }] },
-          ]}
+    <Fragment>
+      {showCamera && permission.granted && (
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          mode={cameraMode}
+          facing={facing}
+          mute={false}
+          responsiveOrientationWhenOrientationLocked
         >
-          <View style={[styles.container, { paddingTop: insets.top }]}>
-            <View style={styles.modalHeader}>
-              <View style={styles.modalHeaderContent}>
-                <Text style={styles.modalTitle}>Add Photos</Text>
-                <TouchableOpacity
-                  onPress={handleClose}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color="#374151" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.headerInfo}>
-                <Text style={styles.photoCount}>
-                  {selectedImages.length} Photos Selected
-                </Text>
-                {isOffline && (
-                  <View style={styles.offlineIndicator}>
-                    <Ionicons name="cloud-offline" size={14} color="#ef4444" />
-                    <Text style={styles.offlineText}>Offline</Text>
-                  </View>
-                )}
+          <View style={styles.cameraOverlay}>
+            <View className=" absolute top-0 left-0 right-0 flex-1 bg-gray-900/50">
+              <View className="flex-row justify-between items-center py-3 px-4">
+               <Image source={IconBaru} className=" w-24 h-10 rounded-full" />
+               <View className=" flex-col items-end justify-end">
+               <Text className=" text-white font-bold">CAMERA - SI DEO {new Date().getFullYear()}</Text>
+               <Text className=" text-white text-xs">BLU UPBU KELAS I DEO - SORONG</Text>
+               </View>
                 
               </View>
             </View>
 
-            <View style={styles.searchContainer}>
-              <View style={styles.searchInputContainer}>
-                <Ionicons
-                  name="search"
-                  size={20}
-                  color="#6b7280"
-                  style={styles.searchIcon}
-                />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search images..."
-                  value={searchQuery}
-                  // onChangeText={setSearchQuery}
-                  placeholderTextColor="#9ca3af"
-                />
-                {searchQuery.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      //setSearchQuery("");
-                    }}
-                  >
-                    <Ionicons name="close-circle" size={20} color="#6b7280" />
-                  </TouchableOpacity>
-                )}
+            <View className=" absolute bottom-0 left-0 right-0 flex-1 bg-gray-900/20 h-14">
+              <View className="flex-row justify-between items-center">
+                <TouchableOpacity
+                  onPress={() => setShowCamera(false)}
+                  className="p-4"
+                >
+                  <Ionicons name="close" size={24} color="#fff" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={takePicture}
+                  className="p-4"
+                >
+                  <Ionicons name="camera" size={24} color="#fff" />
+                </TouchableOpacity>
+
+                
+                <TouchableOpacity
+                  onPress={toggleCameraFacing}
+                  className="p-4"
+                >
+                  <Ionicons name="camera-reverse" size={24} color="#fff" />
+                </TouchableOpacity>
               </View>
-
-              <TouchableOpacity
-                style={styles.uploadButton}
-                onPress={handleUploadImage}
-                //disabled={isUploading}
-              >
-                <Ionicons name="cloud-upload" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-
-            <FlatList
-              ref={flatListRef}
-              data={allRecords}
-              numColumns={3}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              contentContainerStyle={styles.gridContainer}
-              ListEmptyComponent={renderEmpty}
-              ListFooterComponent={renderFooter}
-              onEndReached={handleLoadMore}
-              onEndReachedThreshold={0.5}
-              initialNumToRender={15}
-              maxToRenderPerBatch={15}
-              windowSize={10}
-              removeClippedSubviews={true}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={handleRefresh}
-                  colors={["#3b82f6"]}
-                  tintColor="#3b82f6"
-                  title="Pull to refresh"
-                  titleColor="#6b7280"
-                />
-              }
-            />
-
-            <View
-              style={[
-                styles.bottomBar,
-                { paddingBottom: Math.max(16, insets.bottom) },
-              ]}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.addPhotosButton,
-                  !selectedImages.length && styles.addPhotosButtonDisabled,
-                ]}
-                onPress={onAddImages}
-                disabled={!selectedImages.length}
-              >
-                <Text style={styles.addPhotosButtonText}>
-                  Add {selectedImages.length} Photos
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
-        </Animated.View>
-      </View>
-    </Modal>
+        </CameraView>
+      )}
+
+      {!showCamera && (
+        <Modal
+          visible={visible}
+          transparent
+          animationType="none"
+          onRequestClose={handleClose}
+          statusBarTranslucent={true}
+        >
+          <StatusBar
+            backgroundColor="rgba(0,0,0,0.5)"
+            barStyle="light-content"
+          />
+          <View style={styles.modalOverlay}>
+            <Animated.View
+              style={[
+                styles.modalContent,
+                { transform: [{ translateX: slideAnim }] },
+              ]}
+            >
+              <View style={[styles.container, { paddingTop: insets.top }]}>
+                <View style={styles.modalHeader}>
+                  <View style={styles.modalHeaderContent}>
+                    <Text style={styles.modalTitle}>Add Photos</Text>
+                    <TouchableOpacity
+                      onPress={handleClose}
+                      style={styles.closeButton}
+                    >
+                      <Ionicons name="close" size={24} color="#374151" />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.headerInfo}>
+                    <Text style={styles.photoCount}>
+                      {selectedImages.length} Photos Selected
+                    </Text>
+                    {isOffline && (
+                      <View style={styles.offlineIndicator}>
+                        <Ionicons
+                          name="cloud-offline"
+                          size={14}
+                          color="#ef4444"
+                        />
+                        <Text style={styles.offlineText}>Offline</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+
+                <View style={styles.searchContainer}>
+                  <View style={styles.searchInputContainer}>
+                    <Ionicons
+                      name="search"
+                      size={20}
+                      color="#6b7280"
+                      style={styles.searchIcon}
+                    />
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder="Search images..."
+                      value={searchQuery}
+                      // onChangeText={setSearchQuery}
+                      placeholderTextColor="#9ca3af"
+                    />
+                    {searchQuery.length > 0 && (
+                      <TouchableOpacity
+                        onPress={() => {
+                          //setSearchQuery("");
+                        }}
+                      >
+                        <Ionicons
+                          name="close-circle"
+                          size={20}
+                          color="#6b7280"
+                        />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={handleUploadImage}
+                    //disabled={isUploading}
+                  >
+                    <Ionicons name="cloud-upload" size={24} color="#fff" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={handleCameraOpen}
+                    className="ml-2"
+                    //disabled={isUploading}
+                  >
+                    <Ionicons name="camera" size={24} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+
+                <FlatList
+                  ref={flatListRef}
+                  data={allRecords}
+                  numColumns={3}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderItem}
+                  contentContainerStyle={styles.gridContainer}
+                  ListEmptyComponent={renderEmpty}
+                  ListFooterComponent={renderFooter}
+                  onEndReached={handleLoadMore}
+                  onEndReachedThreshold={0.5}
+                  initialNumToRender={15}
+                  maxToRenderPerBatch={15}
+                  windowSize={10}
+                  removeClippedSubviews={true}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={handleRefresh}
+                      colors={["#3b82f6"]}
+                      tintColor="#3b82f6"
+                      title="Pull to refresh"
+                      titleColor="#6b7280"
+                    />
+                  }
+                />
+
+                <View
+                  style={[
+                    styles.bottomBar,
+                    { paddingBottom: Math.max(16, insets.bottom) },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.addPhotosButton,
+                      !selectedImages.length && styles.addPhotosButtonDisabled,
+                    ]}
+                    onPress={onAddImages}
+                    disabled={!selectedImages.length}
+                  >
+                    <Text style={styles.addPhotosButtonText}>
+                      Add {selectedImages.length} Photos
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Animated.View>
+          </View>
+        </Modal>
+      )}
+    </Fragment>
   );
 };
 
 const styles = StyleSheet.create({
+  camera: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flex: 1,
+  },
+  cameraOverlay: {
+    position: "relative",
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  message: { textAlign: "center", paddingBottom: 10 },
+
+  text: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  infoContainer: {
+    padding: 16,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",

@@ -13,105 +13,30 @@ import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useCallback, Fragment, useMemo } from "react";
 
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import { useModelQuery } from '@/services/queryClient'
+import { ErrorState } from "@/components/ui/ErrorState";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import {
+  LoadingSpinner,
+  ThreeDotsLoader,
+} from "@/components/ui/LoadingIndicators";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import createRequest from "@/services/api-secure-internal";
-
-dayjs.extend(utc);
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(customParseFormat);
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault();
+const { post } = createRequest();
 
-
-
+//================================= QUERY-KEY =================================
+const query_keys = ["amc-scheduled"];
+//===================================================================================
 const model_name = "x_data_amc";
-const selectedFields = {
-  x_studio_sequence: {},
-  x_studio_reg_number: {},
-  x_studio_operator: {
-    fields: {
-      x_name: {},
-    },
-  },
-  x_studio_type_pesawat: {
-    fields: {
-      x_name: {},
-    },
-  },
-  x_studio_is_validated_from_upbu: {},
-  x_studio_verifikator_upbu: {
-    fields: {
-      display_name: {},
-    },
-  },
-  x_studio_is_validated_from_operator: {},
-  x_studio_status: {},
-  x_studio_ata: {},
-  x_studio_atd: {},
-  x_studio_type_penerbangan: {},
-
-  x_studio_parking_stand_1: {
-    fields: {
-      x_studio_parking_stand_1: {
-        fields: {
-          x_name: {},
-        },
-      },
-      x_studio_block_on_1: {},
-      x_studio_block_off_1: {},
-    },
-  },
-
-  x_studio_extra_arrivals_flight_number: {
-    fields: {
-      x_studio_from: {
-        fields: {
-          x_name: {},
-        },
-      },
-      x_studio_destination: {
-        fields: {
-          x_name: {},
-        },
-      },
-      x_studio_flight_number: {},
-      x_studio_personil_operator_1: {
-        fields: {
-          name: {},
-        },
-      },
-    },
-  },
-  x_studio_extra_departures_flight_number: {
-    fields: {
-      x_studio_from: {
-        fields: {
-          x_name: {},
-        },
-      },
-      x_studio_destination: {
-        fields: {
-          x_name: {},
-        },
-      },
-      x_studio_flight_number: {},
-    },
-  },
-
-  write_date: {},
-  write_uid: {
-    fields: {
-      display_name: {},
-    },
-  },
-  create_uid: {
-    fields: {
-      display_name: {},
-    },
-  },
-  create_date: {},
-};
-
 
 const quickStats = [
   { title: "Today Flight", value: 0, icon: "checkbox", color: "#009688" },
@@ -126,7 +51,6 @@ const quickStats = [
   { title: "RON", value: 0, icon: "alert-circle", color: "#F44336" },
   { title: "X-RON", value: 0, icon: "alert-circle", color: "#F44336" },
 ];
-
 
 const sortOptions = [
   { label: "Registration Number (A-Z)", value: "x_studio_reg_number ASC" },
@@ -153,8 +77,6 @@ const filterOptions = {
 };
 
 export default () => {
- 
-  const { post } = createRequest();
   const router = useRouter();
   const [
     { domain, limit, offset, order, searchQuery, filterStatus },
@@ -168,25 +90,19 @@ export default () => {
     order: "create_date DESC",
   });
 
-  const queryOptions = useMemo(() => ({
-    model: model_name,
-    selectedFields: selectedFields,
-    offset: offset,
-    order: order,
-    limit: limit,
-    count_limit: 100001,
-    domain: domain
-  }), [domain, limit, offset, order]);
-  
-
-  
-
-  const { data, isLoading, isError, error, refetch } = useModelQuery(queryOptions);
-
-    
-
-
-  
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: query_keys,
+    queryFn: async () => {
+      try {
+        const {
+          data: { result },
+        } = await post("/mobile/api/internal/amc/scheduled", {});
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    },
+  });
 
   const [showSortModal, setShowSortModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -199,17 +115,12 @@ export default () => {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const [quickFilter, setQuickFilter] = useState([]);
-  const [loadingTags, setLoadingTags] = useState(true);
-
-
   const setFilterStatus = (filterStatus) => {
     setParams((prevState) => ({
       ...prevState,
       filterStatus: filterStatus,
     }));
   };
-
 
   const setOffset = (offset) => {
     setParams((prevState) => ({
@@ -218,14 +129,12 @@ export default () => {
     }));
   };
 
-
   const setSearchQuery = (searchQuery) => {
     setParams((prevState) => ({
       ...prevState,
       searchQuery: searchQuery,
     }));
   };
-
 
   const setOrder = (newOrder) => {
     setParams((prevState) => ({
@@ -234,111 +143,6 @@ export default () => {
     }));
     setShowSortModal(false);
   };
-
-
-
-  const constructDomain = useCallback(() => {
-    let newDomain = [];
-
-    if (searchQuery) {
-      newDomain.push(["x_studio_reg_number", "ilike", searchQuery]);
-    }
-
-    /*
-    if (activeFilters.status !== 'all') {
-      newDomain.push(['x_studio_status', '=', activeFilters.status]);
-    }
-    
-    if (activeFilters.type !== 'all') {
-      newDomain.push(['x_studio_type_penerbangan', '=', activeFilters.type]);
-    }*/
-    return newDomain;
-  }, [searchQuery, activeFilters]);
-
-  const loadTags = async () => {
-    try {
-      setLoadingTags(true);
-      const { data } = await post('/mobile/api/internal/mobile-data', {
-        params: {
-          model: "x_amc_tags",
-          method: "web_search_read",
-          args: [],
-          kwargs: {
-            specification: {
-              x_name: {},
-            },
-            offset: 0,
-            order: "x_studio_sequence ASC, id ASC",
-            limit: 10,
-            count_limit: 10001,
-            domain: [],
-          },
-        },
-      });
-      //console.log(data);
-      if (data.records) {
-        const tags = data?.records.map((tag) => ({
-          title: tag.x_name,
-          id: tag.id,
-          icon: "pricetag",
-          color: "#009688",
-        }));
-        setQuickFilter(tags);
-      }
-    } catch (error) {
-      //console.error("Error loading tags:", error);
-    } finally {
-      setLoadingTags(false);
-    }
-  };
-
-  /*
-  const loadData = useCallback(async () => {
-    try {
-      setState((prevState) => ({
-        ...prevState,
-        loading: true,
-      }));
-      const finalDomain = constructDomain();
-      const { data } = await post('/mobile/api/internal/mobile-data', {
-        params: {
-          model: model_name,
-          method: "web_search_read",
-          args: [],
-          kwargs: {
-            specification: selectedFields,
-            offset: offset,
-            order: order,
-            limit: limit,
-            count_limit: 100001,
-            domain: finalDomain,
-          },
-        },
-      });
-
-      setState((prevState) => ({
-        ...prevState,
-        totalCount: data.length,
-        data: data.records,
-        error: null,
-      }));
-    } catch (e) {
-      //console.log(e);
-      setState((prevState) => ({
-        ...prevState,
-        error: e.message,
-      }));
-    } finally {
-      setState((prevState) => ({
-        ...prevState,
-        loading: false,
-      }));
-    }
-  }, [offset, limit, order, constructDomain]);
-*/
-
-
-
 
   const handleComplete = async () => {
     if (!selectedItem) return;
@@ -366,7 +170,6 @@ export default () => {
     }
   };
 
-
   useFocusEffect(
     useCallback(() => {
       if (!isLoading) {
@@ -374,11 +177,7 @@ export default () => {
       }
     }, [])
   );
-
-
-
-
-  const totalPages = Math.ceil(data?.length / 20);
+  const totalPages = Math.ceil(data?.data_amc?.length / 20);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -456,7 +255,7 @@ export default () => {
             showsHorizontalScrollIndicator={false}
             className="mb-4"
           >
-            {quickFilter.map((item, index) => {
+            {data?.tags_status?.records?.map((item, index) => {
               //console.log(item);
               return (
                 <TouchableOpacity
@@ -473,7 +272,7 @@ export default () => {
                       filterStatus === item.id ? "text-white" : "text-teal-600"
                     } lowercase`}
                   >
-                    {item.title}
+                    {item.name}
                   </Text>
                 </TouchableOpacity>
               );
@@ -513,9 +312,11 @@ export default () => {
           ) : isError ? (
             <View className="flex-1 justify-center items-center p-6">
               <Ionicons name="alert-circle" size={48} color="#ef4444" />
-              <Text className="text-red-600 text-center mt-4">{'terjadi kesalahan'}</Text>
+              <Text className="text-red-600 text-center mt-4">
+                {"terjadi kesalahan"}
+              </Text>
               <TouchableOpacity
-               // onPress={() => loadData()}
+                // onPress={() => loadData()}
                 className="mt-4 bg-teal-600 px-6 py-3 rounded-lg"
               >
                 <Text className="text-white font-medium">Retry</Text>
@@ -523,7 +324,7 @@ export default () => {
             </View>
           ) : (
             <Fragment>
-              {data.records?.map((item) => (
+              {data?.data_amc?.records?.map((item) => (
                 <View
                   key={item.id}
                   className="bg-white rounded-xl p-4 mb-4 border border-gray-300/50"
@@ -686,8 +487,8 @@ export default () => {
               }`}
               onPress={() => {
                 if (offset !== 0) {
-                 setOffset(0);
-                 // loadData();
+                  setOffset(0);
+                  // loadData();
                 }
               }}
               disabled={offset === 0}
@@ -701,8 +502,8 @@ export default () => {
               }`}
               onPress={() => {
                 if (offset >= 20) {
-                 setOffset(offset - 20);
-                 // loadData();
+                  setOffset(offset - 20);
+                  // loadData();
                 }
               }}
               disabled={offset === 0}
@@ -730,8 +531,8 @@ export default () => {
               }`}
               onPress={() => {
                 if (offset < (totalPages - 1) * 20) {
-                 setOffset(offset + 20);
-                 // loadData();
+                  setOffset(offset + 20);
+                  // loadData();
                 }
               }}
               disabled={offset >= (totalPages - 1) * 20}
@@ -747,8 +548,8 @@ export default () => {
               }`}
               onPress={() => {
                 if (offset < (totalPages - 1) * 20) {
-                 setOffset((totalPages - 1) * 20);
-                 // loadData();
+                  setOffset((totalPages - 1) * 20);
+                  // loadData();
                 }
               }}
               disabled={offset >= (totalPages - 1) * 20}
@@ -765,7 +566,8 @@ export default () => {
               <Text className="font-medium text-gray-800">
                 {offset + 1} - {Math.min(offset + 20, data?.length)}
               </Text>{" "}
-              of <Text className="font-medium text-gray-800">{data?.length}</Text>{" "}
+              of{" "}
+              <Text className="font-medium text-gray-800">{data?.length}</Text>{" "}
               entries
             </Text>
           </View>
@@ -1076,8 +878,6 @@ export default () => {
                           FLIGHT NUMBER DEPARTURE
                         </Text>
                       </View>
-
-                      
 
                       <View className="ml-3 flex-row items-center justify-between">
                         <Text className="text-base font-medium text-gray-800">

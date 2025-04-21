@@ -1,51 +1,43 @@
 import { View, Text, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useCallback, useRef, useMemo } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useModelQuery } from "@/services/queryClientPublic";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import createRequest from "@/services/api-secure-portal";
+import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault();
+const { post } = createRequest();
 const { width } = Dimensions.get("window");
+
+//================================= QUERY KEY =================================
+const query_keys = ["home_tba"];
+//===================================================================================
 
 
 
 export default function TarifBatasAtas() {
   const router = useRouter();
-  const [{ domain, limit, offset, order }, setParams ] = useState({
-    domain: [],
-    searchQuery: "",
-    filterStatus: null,
-    limit: 10,
-    offset: 0,
-    order: "create_date DESC",
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: query_keys,
+    queryFn: async () => {
+      try {
+        const { data : { records, length } } = await post('/mobile/api/portal/home/tarif-batas-atas',{});
+        return {
+          data: records || [],
+          totalData: length || 0,
+        };
+      } catch (error) {
+
+        throw error;
+      }
+    }
   });
-
-  const queryOptions = useMemo(
-    () => ({
-      model: "x_mobile_tarif_tba",
-      selectedFields: {
-        x_studio_from: {
-            fields : {
-                x_name : {},
-                x_studio_kota : {}
-            }
-        },
-        x_studio_dest: {
-            fields : {
-                x_name : {},
-                x_studio_kota : {}
-            }
-        },
-        x_studio_tba: {},
-      },
-      offset: offset,
-      order: order,
-      limit: limit,
-      count_limit: 100001,
-      domain: domain,
-    }),
-    [domain, limit, offset, order]
-  );
-
-  const { data, isLoading, isError, refetch } = useModelQuery(queryOptions);
   
   useFocusEffect(
     useCallback(() => {
@@ -55,14 +47,13 @@ export default function TarifBatasAtas() {
 
     
   if(isLoading){
-    return <Text>Loading...</Text>
+    return null
   }
 
 
   if(isError){
-    return <Text>Error...</Text>
+    return null
   }
-
 
 
   return (
@@ -75,13 +66,13 @@ export default function TarifBatasAtas() {
         showsHorizontalScrollIndicator={false}
         className="space-x-4"
       >
-        {data?.records?.map((route, index) => (
+        {data?.data?.map((route, index) => (
           <View
             key={index}
             className="bg-white p-4 rounded-xl border border-gray-200"
             style={{
               width: width * 0.7,
-              marginRight: index === data?.records.length - 1 ? 0 : 12,
+              marginRight: index === data?.data?.length - 1 ? 0 : 12,
             }}
           >
             <View className="flex-row items-center justify-between mb-4">

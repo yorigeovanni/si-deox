@@ -9,6 +9,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useEffect } from 'react';
 
+
+
+
 const LoadingCard = () => {
   const opacity = useSharedValue(0.3);
 
@@ -86,12 +89,13 @@ const LoadingCard = () => {
   );
 };
 
-export const LoadingSkeleton = () => {
+
+
+export const LoadingSkeleton = ({ count = [1, 2, 3, 4] }) => {
   return (
     <View className="p-4">
-      <LoadingCard />
-      <LoadingCard />
-      <LoadingCard />
+       {count.map((_, index) => <LoadingCard key={index} />)}
     </View>
   );
 };
+     

@@ -46,7 +46,6 @@ export default function RootLayout() {
             ],
           },
         });
-        console.log("SSL Pinning initialized");
         setPinningReady(true);
       } catch (error) {
         console.log("SSL Pinning failed:", error);

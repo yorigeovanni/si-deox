@@ -4,139 +4,50 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState, useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
+import { LoadingSpinner, ThreeDotsLoader } from "@/components/ui/LoadingIndicators";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import createRequest from "@/services/api-secure-internal";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault();
+const { post } = createRequest();
 
-const menu = [
-  {
-    name: "SCHEDULED",
-    icon: "airplane",
-    color: "#009688",
-    route: "/aplikasi-internal/amc/scheduled",
-  },
-  {
-    name: "UNSCEDULED",
-    icon: "time",
-    color: "#00897B",
-    route: "/aplikasi-internal/amc/un-schedule",
-  },
-  {
-    name: "AIRPORT",
-    icon: "business",
-    color: "#00796B",
-    route: "/aplikasi-internal/amc/airport",
-  },
-  {
-    name: "AIRCRAFT TYPE",
-    icon: "paper-plane",
-    color: "#00695C",
-    route: "/aplikasi-internal/amc/aircraft-type",
-  },
-  {
-    name: "PARKING STAND",
-    icon: "location",
-    color: "#004D40",
-    route: "/aplikasi-internal/amc/parking-stand",
-  },
-  {
-    name: "OPERATOR",
-    icon: "people",
-    color: "#00BFA5",
-    route: "/aplikasi-internal/amc/airlines",
-  },
-];
+//================================= QUERY-KEY =================================
+const query_keys = ["amc-dashboard"];
+//===================================================================================
 
-
-const recentMovements = [
-  {
-    id: "M001",
-    flightNumber: "GA-234",
-    aircraft: "B737-800",
-    status: "Mendarat",
-    time: "10:45",
-    stand: "A12",
-    operator: "Garuda Indonesia",
-  },
-  {
-    id: "M002",
-    flightNumber: "JT-789",
-    aircraft: "A320",
-    status: "Lepas Landas",
-    time: "11:15",
-    stand: "B08",
-    operator: "Lion Air",
-  },
-  {
-    id: "M003",
-    flightNumber: "ID-567",
-    aircraft: "B737-900",
-    status: "Terjadwal",
-    time: "12:30",
-    stand: "C15",
-    operator: "Batik Air",
-  },
-];
 
 export default function AmcIndex() {
   const router = useRouter();
-  const { post } = createRequest();
-  const [statistik, setStatistik] = useState([
-    { title: "Penerbangan Hari Ini", value: 0, icon: "airplane", color: "#009688", trend: "+12%" },
-    { title: "Pendaratan Hari Ini", value: 0, icon: "arrow-down", color: "#FFC107", trend: "+8%" },
-    { title: "Lepas Landas Hari Ini", value: 0, icon: "arrow-up", color: "#4CAF50", trend: "+15%" },
-    { title: "Pembatalan Hari Ini", value: 0, icon: "close-circle", color: "#F44336", trend: "-50%" },
-    { title: "Bermalam", value: 0, icon: "moon", color: "#3F51B5", trend: "Tetap" },
-    { title: "Tidak Bermalam", value: 0, icon: "sunny", color: "#FF9800", trend: "+2" },
-  ]);
-
-
-
-
-  const loadStatistik = useCallback(async () => {
-    try {
-      const { data } = await post("/mobile/api/internal/mobile-count", {
-        queries: [
-          `env['x_data_amc'].sudo().search_count([
-            ['create_date', '>=', date.today().strftime('%Y-%m-%d')],
-          ])`,
-          `env['x_data_amc'].sudo().search_count([
-              ['create_date', '>=', date.today().strftime('%Y-%m-%d')],
-              ['x_studio_type_penerbangan', '=', 'BERJADWAL']
-           ])`,
-           `env['x_data_amc'].sudo().search_count([
-              ['create_date', '>=', date.today().strftime('%Y-%m-%d')],
-              ['x_studio_type_penerbangan', '=', 'EXTRA']
-           ])`,
-           `env['x_data_amc'].sudo().search_count([
-              ['create_date', '>=', date.today().strftime('%Y-%m-%d')],
-              ['x_studio_type_penerbangan', '=', 'LAINNYA']
-           ])`,
-          "env['x_elb_realisasi_harian'].sudo().search_count([])"
-        ]
-      });
-
-      setStatistik((prevStatistik) =>
-        prevStatistik.map((item, index) => ({
-          ...item,
-          value: data[index] || 0,
-        }))
-      );
-
-      //console.log(data)
-    } catch (error) {
-     //console.log(error)
-    }
-  }, [setStatistik]); 
-
+  const { data, isLoading, isError, error, refetch } = useQuery({
+      queryKey: query_keys,
+      queryFn: async () => {
+        try {
+          const { data : { result } } = await post(
+            "/mobile/api/internal/amc/dashboard",
+            {
+            }
+          );
+          return result;
+        } catch (error) {
+          throw error;
+        }
+      },
+    });
 
     useFocusEffect(
       useCallback(() => {
-        loadStatistik();
-      }, [loadStatistik])
+        refetch();
+      }, [refetch])
     );
   
-
-
 
   return (
     <SafeAreaView className="flex-1 bg-[#009688]" edges={["top"]}>
@@ -168,7 +79,7 @@ export default function AmcIndex() {
               showsHorizontalScrollIndicator={false}
               className="mb-4"
             >
-              {statistik.map((stat, index) => (
+              {data?.statistic?.map((stat, index) => (
                 <View key={index} className="bg-white backdrop-blur-lg p-4 rounded-xl mr-4 w-56">
                   <View className="flex-row justify-between items-center mb-2">
                     <Ionicons name={stat.icon} size={24} color={stat.color} />
@@ -191,7 +102,7 @@ export default function AmcIndex() {
           <View className="bg-white rounded-xl p-4 border border-gray-300/50 mb-6">
             <Text className="text-lg font-bold mb-4">Menu Cepat</Text>
             <View className="flex-row flex-wrap justify-between">
-              {menu.map((action, index) => (
+              {data?.menu?.map((action, index) => (
                 <TouchableOpacity
                   key={index}
                   className="w-[30%] items-center mb-6"
@@ -217,7 +128,7 @@ export default function AmcIndex() {
                 <Text className="text-[#009688]">Lihat Semua</Text>
               </TouchableOpacity>
             </View>
-            {recentMovements.map((movement) => (
+            {data?.recentMovements?.map((movement) => (
               <TouchableOpacity
                 key={movement.id}
                 className="bg-gray-50 rounded-lg p-4 mb-3 last:mb-0"
