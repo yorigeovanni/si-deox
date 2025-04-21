@@ -73,9 +73,7 @@ export default function RootLayout() {
   if (pinningError) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>ERROR PINNING</Text>
-        <Text>puki 1 - {process.env.EXPO_PUBLIC_SSL_PINNING_DOMAIN}</Text>
-        <Text>puki 2 - {process.env.EXPO_PUBLIC_SSL_PINNING_CERT_1}</Text>
+        <Text>Jaringan Anda Tidak Aman</Text>
       </View>
     );
   }
@@ -96,8 +94,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { isRegistered } = useSelector((state) => state.device);
-  const { currentlyRunning, isUpdateAvailable, isUpdatePending } =
-    Updates.useUpdates();
+  const { currentlyRunning, isUpdateAvailable, isUpdatePending } = Updates.useUpdates();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   useOnlineManager();
