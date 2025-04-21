@@ -37,6 +37,7 @@ export default function RootLayout() {
   useEffect(() => {
     (async () => {
       try {
+        console.log(process.env.EXPO_PUBLIC_SSL_PINNING_DOMAIN)
         await initializeSslPinning({
           [process.env.EXPO_PUBLIC_SSL_PINNING_DOMAIN]: {
             includeSubdomains: true,
@@ -54,23 +55,31 @@ export default function RootLayout() {
     })();
   }, []);
 
+
+
   useEffect(() => {
     const subscription = addSslPinningErrorListener((error) => {
+      console.log("SSL Pinning error:", error);
       setPinningError(true);
     });
-
     return () => {
       subscription.remove();
     };
   }, []);
 
+
+ 
+
   if (pinningError) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>ERROR PINNING</Text>
+        <Text>puki 1 - {process.env.EXPO_PUBLIC_SSL_PINNING_DOMAIN}</Text>
+        <Text>puki 2 - {process.env.EXPO_PUBLIC_SSL_PINNING_CERT_1}</Text>
       </View>
     );
   }
+
 
   return (
       <Provider store={store}>
