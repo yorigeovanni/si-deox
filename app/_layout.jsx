@@ -10,12 +10,12 @@ import { store, persistor } from "@/store";
 import { StatusBar } from "expo-status-bar";
 import * as Updates from "expo-updates";
 import { QueryClient, QueryClientProvider, focusManager } from "@tanstack/react-query";
-
 import DeviceRegistration from "@/components/DeviceRegistration";
 import UpdateAppModal from "@/components/ui/UpdateAppModal";
 import NotificationManager from "@/components/NotificationManager";
 import { useOnlineManager } from '@/hooks/useOnlineManager';
 import { useAppState } from '@/hooks/useAppState';
+import DemoFlightInformation from "@/components/demo";
 
 
 
@@ -68,7 +68,7 @@ export default function RootLayout() {
   }, []);
 
 
- 
+
 
   if (pinningError) {
     return (
@@ -80,15 +80,15 @@ export default function RootLayout() {
 
 
   return (
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <QueryClientProvider client={queryClient}>
-            <NotificationManager>
-              <RootLayoutNav />
-            </NotificationManager>
-          </QueryClientProvider>
-        </PersistGate>
-      </Provider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <QueryClientProvider client={queryClient}>
+          <NotificationManager>
+            <RootLayoutNav />
+          </NotificationManager>
+        </QueryClientProvider>
+      </PersistGate>
+    </Provider>
   );
 }
 
@@ -132,17 +132,28 @@ function RootLayoutNav() {
     }
   };
 
+
+/*
   if (!isRegistered) {
     return (
       <View style={{ flex: 1 }}>
         <DeviceRegistration />
+        <StatusBar style="auto" />
+        <UpdateAppModal
+          visible={showUpdateModal}
+          onDismiss={() => setShowUpdateModal(false)}
+          onUpdate={handleUpdate}
+          isUpdating={isUpdating}
+        />
       </View>
     );
   }
+*/
 
   return (
     <View style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }} />
+      {/** <Stack screenOptions={{ headerShown: false }} />*/}
+      <DemoFlightInformation/>
       <StatusBar style="auto" />
       <UpdateAppModal
         visible={showUpdateModal}

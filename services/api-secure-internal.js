@@ -174,6 +174,7 @@ async function fetchRequest(method, baseURL, url, data, config = {}) {
 
 const createApi = (defaultOptions = {}) => {
   const baseURL = process.env.NODE_ENV === 'production' ? process.env.EXPO_PUBLIC_API_URL : process.env.EXPO_PUBLIC_API_DEV;
+  
   return {
     get: (url, config) =>
       fetchRequest('GET', baseURL, url, null, {
